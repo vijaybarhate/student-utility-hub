@@ -15,15 +15,27 @@ const faq = [
     answer: "Under UGC, AICTE, and bar council regulations, a 75% attendance threshold is standard in most Indian universities (such as SPPU, Mumbai University, VTU, and JNTU) to be eligible for final exams. Some universities allow relaxation down to 60% or 65% in case of documented medical emergencies."
   },
   {
+    question: "What happens if my attendance falls below 75% in an Indian university?",
+    answer: "If your attendance falls below 75% without an approved condonation (such as a medical certificate or sports exemption), you are marked as 'detained'. Detained students are barred from appearing in the end-semester exams and must repeat the semester or the courses in the following academic year."
+  },
+  {
+    question: "What is 'condonation' of attendance, and how do I apply for it?",
+    answer: "Condonation is the formal excusing of an attendance shortage (usually up to 10% or 15%) by the college principal or university authorities. It is granted for genuine reasons like severe illness or representing the college at sports/cultural events. To apply, you must submit a formal application accompanied by official medical certificates or participation letters before the semester ends."
+  },
+  {
     question: "Can I track multiple subjects separately?",
     answer: "Yes. Using our built-in Subject Manager, you can save your attendance values for individual subjects (e.g., Math, Physics, CS) locally on your device. It requires no login and uses your browser's LocalStorage."
+  },
+  {
+    question: "Do you store my attendance data on your servers?",
+    answer: "No. Student Utility Hub values your privacy. All your saved subjects, attendance counts, and settings are stored locally in your browser's LocalStorage. No data is ever transmitted to our servers or shared with third parties."
   }
 ];
 ---
 
 <BaseLayout
   title="Attendance Calculator & Bunk Tracker (75% Rule)"
-  description="Free college attendance calculator and bunk planner. Find how many lectures you can safely skip/bunk, or how many you must attend to maintain 75% attendance."
+  description="Free college attendance calculator and bunk planner. Calculate your current percentage, find how many lectures you can safely skip, or how many you must attend to maintain 75% attendance."
   {faq}
 >
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -41,11 +53,16 @@ const faq = [
     </nav>
 
     <div class="mb-8">
-      <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-[11px] font-semibold text-mute">
-        Tool 01
-      </span>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-[11px] font-semibold text-mute">
+          Tool 01
+        </span>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-mute">
+          Know when to bunk.
+        </span>
+      </div>
       <h1 class="mt-4 font-sans text-3xl font-semibold tracking-[-0.96px] text-ink sm:text-4xl">
-        Know when to bunk.
+        Attendance Calculator & Bunk Tracker
       </h1>
       <p class="mt-2 max-w-2xl text-sm leading-relaxed text-body">
         Check your current status, calculate skips, and plan your academic recovery instantly. Save subjects locally to track progress over the semester.
@@ -379,6 +396,253 @@ const faq = [
         </div>
       </div>
     </div>
+
+    <!-- Detailed Guide Section -->
+    <section class="py-16 mt-16 border-t border-hairline transition-colors duration-200">
+      <div class="mx-auto max-w-4xl">
+        <span class="font-mono text-[11px] uppercase tracking-wider text-mute block text-center mb-2">Detailed Guide</span>
+        <h2 class="text-center font-sans text-2xl font-semibold tracking-tight text-ink md:text-3xl mb-12 animate-fade-in">
+          Understanding College Attendance & Bunk Mathematics
+        </h2>
+
+        <div class="prose prose-sm max-w-none text-body leading-relaxed space-y-8 font-sans">
+          <div>
+            <p>
+              Balancing your academic commitments with project work, internships, self-study, and extracurricular activities is one of the most challenging aspects of modern college life in India. In many universities, maintaining a certain attendance percentage is not just recommended; it is a statutory mandate. The dreaded "75% attendance rule" is a source of constant stress for millions of students.
+            </p>
+            <p class="mt-4">
+              To navigate this requirement without compromising your academic standing or your health, you need clear data. Our Attendance Calculator & Bunk Tracker is designed to replace guesswork with precise math. By understanding how your attendance percentage is calculated and how bunk math works, you can schedule your classes, allocate time to other productive activities, and plan your exam eligibility in advance.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              How Attendance Percentage Is Calculated
+            </h3>
+            <p>
+              Calculating your attendance percentage is a simple mathematical ratio. It measures the number of classes you attended against the total number of classes that your college conducted. The standard formula is:
+            </p>
+            
+            <div class="my-6 rounded-sm border border-hairline bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm">
+              Attendance Percentage = (Classes Attended / Classes Conducted) &times; 100
+            </div>
+
+            <p>
+              To calculate your current standing, follow these steps:
+            </p>
+            <ol class="list-decimal list-inside space-y-2 mt-4 ml-2">
+              <li>
+                <strong class="text-ink">Identify Classes Attended:</strong> Count every lecture, laboratory class, seminar, and tutorial session where you were physically present and marked present by the lecturer.
+              </li>
+              <li>
+                <strong class="text-ink">Identify Classes Conducted:</strong> Sum all the lectures and practical classes that actually took place. Note that officially cancelled classes, national holidays, or college-wide strikes do not count as conducted classes.
+              </li>
+              <li>
+                <strong class="text-ink">Divide and Multiply:</strong> Divide the number of attended lectures by the number of conducted lectures, and multiply the quotient by 100.
+              </li>
+            </ol>
+
+            <p class="mt-4">
+              For example, let's assume your engineering college conducted a total of 60 lectures in Mathematics so far. If you attended 48 of those sessions, your calculation would look like this:
+            </p>
+            <div class="my-4 rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-xs text-ink leading-relaxed pl-6">
+              Current Percentage = (48 / 60) &times; 100 = 80.0%
+            </div>
+            <p class="mt-4">
+              Keep in mind that some colleges calculate attendance separately for theory lectures and practical labs, while others look at a cumulative average. If your college separates them, you will need to run the calculation for each course code separately.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              How Bunk Calculations Work
+            </h3>
+            <p>
+              The term "bunking" or skipping a class requires careful mathematical validation. A student typically wants to know one of two things: how many classes they can safely skip without falling below their target (the Bunk Limit), or how many classes they must attend in a row to catch up if their attendance has already fallen below the threshold (the Recovery Plan).
+            </p>
+
+            <h4 class="font-sans text-sm font-semibold text-ink mt-6 mb-2">
+              1. The Safe Bunk Limit Math (When Above Target)
+            </h4>
+            <p>
+              If your current attendance percentage is higher than your target (e.g., you are at 85% and your target is 75%), you have a safety cushion. The formula to find the exact number of consecutive classes you can skip is:
+            </p>
+
+            <div class="my-6 rounded-sm border border-hairline bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm">
+              Safe Bunk Limit = Math.floor((100 &times; Attended - Target &times; Conducted) / Target)
+            </div>
+
+            <p>
+              The formula uses the "floor" function (rounding down) because bunking is discrete; you cannot skip half a lecture. Let's walk through an example. Suppose you have attended 45 out of 50 classes, and your target is 75%:
+            </p>
+            <div class="my-4 rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-xs text-ink leading-relaxed pl-6 space-y-1">
+              <div>• Attended (A) = 45, Conducted (C) = 50, Target (T) = 75</div>
+              <div>• Step 1: 100 &times; 45 = 4500</div>
+              <div>• Step 2: 75 &times; 50 = 3750</div>
+              <div>• Step 3: (4500 - 3750) = 750</div>
+              <div>• Step 4: 750 / 75 = 10 classes</div>
+            </div>
+            <p class="mt-4">
+              This means you can skip the next 10 consecutive lectures. After skipping 10 classes, the total conducted lectures will increase to 60, but your attended lectures will remain 45. Your new percentage will be (45 / 60) &times; 100 = 75.0%, keeping you exactly at the eligibility line.
+            </p>
+
+            <h4 class="font-sans text-sm font-semibold text-ink mt-6 mb-2">
+              2. The Attendance Recovery Plan Math (When Below Target)
+            </h4>
+            <p>
+              If you have skipped too many classes and your attendance is below the threshold (e.g., you are at 60% and need to reach 75%), you are in an attendance deficit. The formula to calculate the minimum number of consecutive upcoming classes you must attend is:
+            </p>
+
+            <div class="my-6 rounded-sm border border-hairline bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm">
+              Required Classes = Math.ceil((Target &times; Conducted - 100 &times; Attended) / (100 - Target))
+            </div>
+
+            <p>
+              We use the "ceiling" function (rounding up) because you must attend full lectures to build up your average. Let's run an example where a student has attended 25 out of 40 conducted classes (62.5% current attendance) and needs to reach 75%:
+            </p>
+            <div class="my-4 rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-xs text-ink leading-relaxed pl-6 space-y-1">
+              <div>• Attended (A) = 25, Conducted (C) = 40, Target (T) = 75</div>
+              <div>• Step 1: 75 &times; 40 = 3000</div>
+              <div>• Step 2: 100 &times; 25 = 2500</div>
+              <div>• Step 3: (3000 - 2500) = 500</div>
+              <div>• Step 4: (100 - 75) = 25</div>
+              <div>• Step 5: 500 / 25 = 20 classes</div>
+            </div>
+            <p class="mt-4">
+              This indicates you must attend the next 20 consecutive classes without skipping a single one. After 20 attended classes, the total conducted classes will be 60, and your attended classes will rise to 45. Your resulting attendance will be (45 / 60) &times; 100 = 75.0%.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              75% Attendance Rule
+            </h3>
+            <p>
+              The "75% attendance rule" is a widely recognized academic regulation in the Indian higher education system. It has been institutionalized by key regulatory bodies to maintain the quality and rigor of university degrees.
+            </p>
+            <p class="mt-4">
+              Regulatory councils such as the <strong class="text-ink">University Grants Commission (UGC)</strong>, the <strong class="text-ink">All India Council for Technical Education (AICTE)</strong>, the <strong class="text-ink">Bar Council of India (BCI)</strong>, and the <strong class="text-ink">National Medical Commission (NMC)</strong> mandate that a student must have a minimum of 75% attendance in theory lectures and laboratory practicals to be eligible to appear for the final semester examinations.
+            </p>
+            <p class="mt-4">
+              The rule is enforced for several reasons:
+            </p>
+            <ul class="list-disc list-inside space-y-2 mt-4 ml-2">
+              <li>
+                <strong class="text-ink">Active Classroom Engagement:</strong> Lectures are not just about textbooks; they involve real-time discussions, student-teacher interactions, and peer explanations that cannot be replicated by studying notes at home.
+              </li>
+              <li>
+                <strong class="text-ink">Continuous Internal Evaluation (CIE):</strong> Modern academic programs rely on quizzes, laboratory experiments, presentations, and viva-voce assessments that take place in the classroom. Missing these directly impacts internal marks.
+              </li>
+              <li>
+                <strong class="text-ink">Professional Discipline:</strong> In professional courses like engineering, medicine, and law, consistency and discipline are vital skills. Setting attendance requirements instills structured habits before students enter the workforce.
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              Attendance Rules In Indian Colleges
+            </h3>
+            <p>
+              While the general guideline of 75% is standard, individual universities and colleges in India have set their own specific ordinances, penalties, and relaxation policies (commonly known as "condonation").
+            </p>
+
+            <div class="space-y-6 mt-6">
+              <div class="border-l-2 border-hairline pl-4">
+                <h4 class="font-sans text-sm font-semibold text-ink">Savitribai Phule Pune University (SPPU)</h4>
+                <p class="text-xs text-body mt-1 leading-relaxed">
+                  SPPU mandates 75% attendance separately for theory lectures and practical sessions. The university principal or Head of the Department has the authority to condone a shortage of up to 15% (bringing the minimum threshold to 60%) in cases of genuine medical conditions, participation in state/national sports tournaments, or cultural activities. Proper documentation, like a medical certificate or formal invitation, is mandatory.
+                </p>
+              </div>
+
+              <div class="border-l-2 border-hairline pl-4">
+                <h4 class="font-sans text-sm font-semibold text-ink">Mumbai University (MU)</h4>
+                <p class="text-xs text-body mt-1 leading-relaxed">
+                  Under Mumbai University Ordinance O.6086, a student is expected to maintain 75% attendance. The College Attendance Committee and Principal have the authority to grant condonation for attendance between 50% and 74% under strict medical grounds or official representation in co-curricular events. Any student falling below 50% is generally detained and barred from writing examinations.
+                </p>
+              </div>
+
+              <div class="border-l-2 border-hairline pl-4">
+                <h4 class="font-sans text-sm font-semibold text-ink">Visvesvaraya Technological University (VTU)</h4>
+                <p class="text-xs text-body mt-1 leading-relaxed">
+                  VTU (Karnataka) requires a high standard of 85% attendance. Condonation of up to 10% (from 85% down to 75%) is permitted only under strict medical circumstances. An official medical certificate signed by a government medical officer, along with an official application, must be submitted to the college. Students with less than 75% attendance are ineligible to write exams.
+                </p>
+              </div>
+
+              <div class="border-l-2 border-hairline pl-4">
+                <h4 class="font-sans text-sm font-semibold text-ink">Jawaharlal Nehru Technological University (JNTU)</h4>
+                <p class="text-xs text-body mt-1 leading-relaxed">
+                  JNTU requires 75% attendance. Shortage of attendance in the range of 65% to 74% can be condoned by the College Academic Committee on medical grounds or sports participation. A condonation fee is levied on students who receive this exemption. Students with less than 65% attendance are detained and must re-register for the semester.
+                </p>
+              </div>
+
+              <div class="border-l-2 border-hairline pl-4">
+                <h4 class="font-sans text-sm font-semibold text-ink">Anna University</h4>
+                <p class="text-xs text-body mt-1 leading-relaxed">
+                  Anna University mandates 75% overall attendance. Students with attendance between 65% and 74% due to medical reasons, hospitalization, or official college events can apply for condonation. Students below the 65% mark are barred from examinations and must repeat the semester in the next academic year.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Related Utilities Grid -->
+        <div class="mt-16 border-t border-hairline pt-12">
+          <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-6">
+            Explore More Academic Utilities
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <a href="/gpa-calculator" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>GPA Calculator</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Compute semester-wise SGPA and overall CGPA using credit-weighted grades. Plan grades needed for target score.
+              </p>
+            </a>
+
+            <a href="/cgpa-to-percentage" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>CGPA Calculator</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Convert 10-point scale CGPA to marks percentage instantly using official university conversion formulas.
+              </p>
+            </a>
+
+            <a href="/marks-needed-to-pass" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>Pass Marks Calculator</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Find the minimum marks you need to score in end-semester theory exams based on internal assessment marks.
+              </p>
+            </a>
+
+            <a href="/atkt-eligibility-helper" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>ATKT Helper</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Understand university rules for backlogs, Allowed to Keep Terms (ATKT) eligibility, and academic promotions.
+              </p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- FAQ Section -->
     <section class="py-16 mt-16 border-t border-hairline transition-colors duration-200">
