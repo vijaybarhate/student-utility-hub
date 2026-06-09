@@ -1,0 +1,838 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const faq = [
+  {
+    question: "What is the official formula to convert CGPI to percentage at Mumbai University?",
+    answer: "For standard CBCS courses (Arts, Science, Commerce, Management), the formula is: Percentage (%) = 7.25 * CGPI + 11. For Engineering courses under CBCS, the formula is: Percentage (%) = 7.10 * CGPI + 11. In both cases, the final percentage is typically rounded up to the nearest integer."
+  },
+  {
+    question: "What is the difference between CGPA and CGPI in Mumbai University?",
+    answer: "In Mumbai University transcripts, 'CGPI' stands for Cumulative Grade Performance Index, whereas 'SGPI' stands for Semester Grade Performance Index. They serve the exact same mathematical purpose as CGPA (Cumulative Grade Point Average) and SGPA (Semester Grade Point Average)."
+  },
+  {
+    question: "How does the rounding rule work for Mumbai University percentages?",
+    answer: "According to Mumbai University circulars, the final calculated percentage can be rounded up to the next integer. For example, if your exact calculated percentage is 68.12%, it can be reported as 69% on official certificates."
+  },
+  {
+    question: "Is there a different conversion formula for older grading systems?",
+    answer: "Yes. For older CBGS systems in Engineering, the conversion uses two ranges: if CGPI is less than 7.00, the formula is 7.1 * CGPI + 12; if CGPI is 7.00 or higher, the formula is 7.4 * CGPI + 12."
+  },
+  {
+    question: "What percentage is required to get a First Class with Distinction at Mumbai University?",
+    answer: "A student must secure a converted percentage of 70% or above to be awarded a First Class with Distinction. 60% to 69.99% corresponds to a First Class, and 50% to 59.99% corresponds to a Second Class."
+  },
+  {
+    question: "Does this calculator store my marks and grades?",
+    answer: "No. Student Utility Hub values your privacy. All grade inputs, credit records, and calculations run strictly client-side in your browser. No personal academic data is transmitted to our servers."
+  }
+];
+---
+
+<BaseLayout
+  title="Mumbai University CGPA to Percentage Calculator (CGPI)"
+  description="Convert Mumbai University (MU) 10-point CGPI to equivalent marks percentage instantly using official CBCS and CBGS formulas. Rounding and class classification included."
+  {faq}
+>
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Breadcrumb & Header -->
+    <nav class="flex mb-4" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center gap-1.5 font-mono text-[11px] text-mute">
+        <li>
+          <a href="/" class="hover:text-ink transition-colors">Home</a>
+        </li>
+        <li class="flex items-center gap-1.5 select-none">
+          <span>/</span>
+          <span class="text-body font-semibold">CGPA to Percentage Converter</span>
+        </li>
+      </ol>
+    </nav>
+
+    <div class="mb-8">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-[11px] font-semibold text-mute">
+          Tool 02
+        </span>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-mute">
+          Cumulative Grade Performance Index
+        </span>
+      </div>
+      <h1 class="mt-4 font-sans text-3xl font-semibold tracking-[-0.96px] text-ink sm:text-4xl">
+        Mumbai University CGPA to Percentage Calculator
+      </h1>
+      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-body">
+        Convert your 10-point scale CGPI to equivalent marks percentage using official university circular formulas. Calculate classes, divisions, and cumulative CGPI across semesters.
+      </p>
+    </div>
+
+    <!-- Main Tool Workspace -->
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <!-- Calculator Inputs & Semester Tracker -->
+      <div class="flex flex-col gap-6 lg:col-span-7">
+        
+        <!-- Interactive Form -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-6">
+            Calculator Inputs
+          </h2>
+
+          <div class="flex flex-col gap-6">
+            <!-- Faculty / Grading Scheme Dropdown -->
+            <div>
+              <label for="scheme-selector" class="block text-sm font-medium text-ink mb-2">
+                Grading Scheme & Faculty
+              </label>
+              <select
+                id="scheme-selector"
+                class="w-full h-10 rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
+              >
+                <option value="cbcs-general">CBCS 10-Point (Arts, Science, Commerce, Management)</option>
+                <option value="cbcs-engg">CBCS 10-Point (Engineering & Technology)</option>
+                <option value="cbgs-engg">CBGS 10-Point (Old Engineering - CBGS)</option>
+              </select>
+            </div>
+
+            <!-- CGPA / CGPI Input Selector -->
+            <div>
+              <label for="cgpa" class="block text-sm font-medium text-ink mb-2">
+                Cumulative CGPI / CGPA Score
+              </label>
+              <div class="flex items-center gap-4">
+                <input
+                  type="range"
+                  id="cgpa-range"
+                  min="0"
+                  max="10"
+                  value="8.00"
+                  step="0.01"
+                  class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary"
+                  aria-label="CGPA slider"
+                />
+                <input
+                  type="number"
+                  id="cgpa"
+                  value="8.00"
+                  min="0"
+                  max="10"
+                  step="0.01"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  class="h-9 w-24 rounded-sm border border-hairline bg-canvas text-center text-sm font-semibold text-ink focus:outline-none"
+                />
+                <span class="font-mono text-sm text-mute font-semibold">/10</span>
+              </div>
+            </div>
+
+            <!-- Rounding Toggle -->
+            <div class="flex items-start gap-3 mt-2">
+              <input
+                type="checkbox"
+                id="rounding-checkbox"
+                checked
+                class="mt-1 h-4 w-4 rounded-sm border border-hairline bg-canvas text-primary focus:ring-primary cursor-pointer accent-primary"
+              />
+              <div>
+                <label for="rounding-checkbox" class="text-sm font-medium text-ink cursor-pointer select-none">
+                  Round up to nearest integer
+                </label>
+                <p class="text-xs text-mute mt-0.5 leading-normal">
+                  Official Mumbai University guidelines permit rounding up percentages to the next whole number (e.g. 72.1% → 73%).
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Multi-Semester GPA Calculator (Expander) -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <button
+            id="toggle-semester-btn"
+            class="w-full flex items-center justify-between text-left focus:outline-none cursor-pointer"
+          >
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono">
+              Calculate Overall CGPI from Semesters
+            </h2>
+            <svg
+              id="toggle-icon"
+              class="h-5 w-5 text-mute transform transition-transform duration-200"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="m19 9-7 7-7-7" />
+            </svg>
+          </button>
+
+          <!-- Hidden Grid panel -->
+          <div id="semester-grid" class="hidden mt-6 border-t border-hairline pt-6">
+            <p class="text-xs text-mute mb-4 leading-relaxed">
+              Enter your SGPI (Semester GPA) and Credits for each semester to compute the credit-weighted cumulative CGPI. Leaving a semester blank will exclude it from calculations.
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Sem 1 to 8 inputs -->
+              {Array.from({ length: 8 }).map((_, idx) => (
+                <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 flex flex-col gap-2.5">
+                  <span class="font-mono text-[10px] font-semibold text-mute uppercase">Semester {idx + 1}</span>
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label for={`sgpi-s${idx+1}`} class="sr-only">Sem {idx+1} SGPI</label>
+                      <input
+                        type="number"
+                        id={`sgpi-s${idx+1}`}
+                        min="0"
+                        max="10"
+                        step="0.01"
+                        placeholder="SGPI (e.g. 8.2)"
+                        class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2 text-xs text-ink placeholder-mute focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label for={`credits-s${idx+1}`} class="sr-only">Sem {idx+1} Credits</label>
+                      <input
+                        type="number"
+                        id={`credits-s${idx+1}`}
+                        min="0"
+                        placeholder="Credits (e.g. 24)"
+                        class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2 text-xs text-ink placeholder-mute focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div class="flex gap-3 mt-6">
+              <button
+                id="calculate-cumulative"
+                class="h-9 flex-1 inline-flex items-center justify-center rounded-sm bg-primary px-4 text-xs font-semibold text-on-primary hover:bg-ink/90 transition-colors cursor-pointer"
+              >
+                Compute & Apply Cumulative CGPI
+              </button>
+              <button
+                id="clear-semesters"
+                class="h-9 inline-flex items-center justify-center rounded-sm border border-hairline bg-canvas px-4 text-xs font-semibold text-ink hover:bg-canvas-soft-2 transition-colors cursor-pointer"
+              >
+                Clear
+              </button>
+            </div>
+            
+            <p id="semester-error" class="text-xs text-error font-medium mt-3 hidden">
+              Please enter valid SGPI numbers between 0 and 10.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Calculation Outputs & Share Panel -->
+      <div class="flex flex-col gap-6 lg:col-span-5">
+        
+        <!-- Live Calculations Card -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-6">
+            Equivalent Percentage
+          </h2>
+
+          <!-- Visual Gauge Block -->
+          <div class="flex flex-col items-center justify-center py-4 text-center">
+            <div id="gauge-container" class="relative flex h-36 w-36 items-center justify-center rounded-full border-[10px] border-success/30 bg-canvas transition-colors duration-300">
+              <div class="flex flex-col items-center">
+                <!-- Large current % display with tabular numbers -->
+                <span id="result-percent" class="font-sans text-3xl font-semibold tracking-tight tabular-nums text-ink">
+                  69.0%
+                </span>
+                <span class="text-[10px] font-mono font-medium text-mute mt-0.5">PERCENTAGE</span>
+              </div>
+              <!-- Colored status circle indicator -->
+              <span id="gauge-status-led" class="absolute top-2 right-2 h-3.5 w-3.5 rounded-full border-2 border-canvas shadow-sm bg-success transition-all duration-300"></span>
+            </div>
+            
+            <!-- Class Indicator Card -->
+            <div id="class-badge-container" class="mt-6 px-4 py-1.5 rounded-full border border-success/20 bg-success/5 text-xs font-semibold font-mono text-success uppercase tracking-wider">
+              First Class
+            </div>
+
+            <!-- Mathematical breakdown -->
+            <div class="mt-6 w-full rounded-sm border border-hairline bg-canvas-soft-2 p-3.5 text-left font-mono text-xs text-body leading-relaxed">
+              <span class="block font-bold text-ink mb-1 uppercase text-[10px] text-mute">Calculation Formula:</span>
+              <span id="math-breakdown">Formula: (7.25 * 8.00) + 11 = 69.0%</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Share & Export Card -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-4">
+            Share Result
+          </h2>
+          <p class="text-xs text-mute mb-4 leading-relaxed">
+            Generate a clean, copy-paste format to share with recruiters or classmates on WhatsApp.
+          </p>
+
+          <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-[11px] text-body whitespace-pre-wrap select-all leading-normal" id="share-text-box">
+            Loading results card…
+          </div>
+
+          <button
+            id="copy-share-btn"
+            class="mt-4 w-full h-9 inline-flex items-center justify-center gap-2 rounded-sm bg-primary px-4 text-xs font-semibold text-on-primary hover:bg-ink/90 transition-colors cursor-pointer"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+            <span id="copy-btn-text">Copy Results</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Detailed Guide Section -->
+    <section class="py-16 mt-16 border-t border-hairline transition-colors duration-200">
+      <div class="mx-auto max-w-4xl">
+        <span class="font-mono text-[11px] uppercase tracking-wider text-mute block text-center mb-2">Detailed Guide</span>
+        <h2 class="text-center font-sans text-2xl font-semibold tracking-tight text-ink md:text-3xl mb-12 animate-fade-in">
+          Mumbai University CGPA to Percentage Conversion Guide
+        </h2>
+
+        <div class="prose prose-sm max-w-none text-body leading-relaxed space-y-8 font-sans">
+          <div>
+            <p>
+              Under the Choice Based Credit System (CBCS) adopted by the University of Mumbai, academic performance is evaluated using a 10-point grading system. Your final marksheet displays your scores as a Cumulative Grade Performance Index (CGPI). However, when applying for placements, national competitive exams like CAT, GATE, or GRE, or when registering with government recruitment portals, you are often asked to provide an equivalent marks percentage rather than a CGPA/CGPI score.
+            </p>
+            <p class="mt-4">
+              To resolve this mismatch, Mumbai University has published specific official conversion formulas under various circulars. Using a generic multiplier (like 9.5) will result in incorrect percentages. This guide breaks down the official math, formulas, and rounding guidelines authorized by the university.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              How to Convert Mumbai University CGPA/CGPI to Percentage
+            </h3>
+            <p>
+              Conversion requires applying the official linear formula corresponding to your specific faculty and grading scheme. For the standard 10-point Choice-Based Credit and Grading System (CBCGS) introduced across Arts, Science, Commerce, and Management courses, the official conversion formula is:
+            </p>
+            
+            <div class="my-6 rounded-sm border border-hairline bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm">
+              Percentage (%) = (7.25 &times; CGPI) + 11
+            </div>
+
+            <p>
+              To run the calculation manually:
+            </p>
+            <ol class="list-decimal list-inside space-y-2 mt-4 ml-2">
+              <li>
+                <strong class="text-ink">Identify your CGPI:</strong> Look at your final semester grade report (Gazette) to find your cumulative CGPI (scale of 10).
+              </li>
+              <li>
+                <strong class="text-ink">Multiply by 7.25:</strong> Take your CGPI score and multiply it by 7.25.
+              </li>
+              <li>
+                <strong class="text-ink">Add 11:</strong> Add 11 to the product. The resulting decimal represents your exact percentage.
+              </li>
+            </ol>
+
+            <p class="mt-4">
+              For example, if a commerce student secures a CGPI of 8.00, the manual calculation would be:
+            </p>
+            <div class="my-4 rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-xs text-ink leading-relaxed pl-6">
+              Percentage = (7.25 &times; 8.00) + 11 = 58.0% + 11 = 69.0%
+            </div>
+            <p class="mt-4">
+              According to university guidelines, colleges are permitted to round up this converted percentage to the next whole number. Under this rounding rule, 69.0% remains 69%, but if a student secured a CGPI of 8.05, the exact percentage would be 69.36%, which would round up to 70.0% on official documents.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              Engineering and Technical Courses Conversion Formula
+            </h3>
+            <p>
+              The Faculty of Engineering & Technology under Mumbai University utilizes a slightly different multiplier for its CBCS 10-point grading system. The official formula for engineering batches is:
+            </p>
+
+            <div class="my-6 rounded-sm border border-hairline bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm">
+              Percentage (%) = (7.10 &times; CGPI) + 11
+            </div>
+
+            <p>
+              Let's walk through a calculation for an engineering student with a CGPI of 8.50:
+            </p>
+            <div class="my-4 rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-xs text-ink leading-relaxed pl-6 space-y-1">
+              <div>• CGPI = 8.50</div>
+              <div>• Calculation: (7.10 &times; 8.50) + 11</div>
+              <div>• Step 1: 7.10 &times; 8.50 = 60.35%</div>
+              <div>• Step 2: 60.35% + 11 = 71.35%</div>
+              <div>• Step 3 (Rounded up): 72.0%</div>
+            </div>
+            <p class="mt-4">
+              This demonstrates how a small shift in the multiplier (7.10 vs 7.25) affects the outcome. Ensure you choose the correct faculty option in the calculator to obtain accurate scores for your engineering transcript submissions.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              CBCS vs CBGS Grading Schemes (Historical Engineering Batches)
+            </h3>
+            <p>
+              Older engineering batches (prior to the introduction of the CBCS system) graduated under the CBGS (Choice Based Grading System) 10-point scale. For these students, the conversion is non-linear and uses a dual-range formula:
+            </p>
+            
+            <h4 class="font-sans text-sm font-semibold text-ink mt-6 mb-2">
+              Range A: If CGPI is less than 7.00
+            </h4>
+            <div class="my-4 rounded-sm border border-hairline bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm">
+              Percentage (%) = (7.1 &times; CGPI) + 12
+            </div>
+
+            <h4 class="font-sans text-sm font-semibold text-ink mt-6 mb-2">
+              Range B: If CGPI is 7.00 or higher
+            </h4>
+            <div class="my-4 rounded-sm border border-hairline bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm">
+              Percentage (%) = (7.4 &times; CGPI) + 12
+            </div>
+
+            <p class="mt-4">
+              For instance, if your old CBGS CGPI is 6.80:
+            </p>
+            <div class="my-4 rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-xs text-ink leading-relaxed pl-6">
+              Percentage = (7.1 &times; 6.80) + 12 = 48.28% + 12 = 60.28% (Rounds up to 61%)
+            </div>
+            <p class="mt-4">
+              However, if your CGPI is 7.20 (which is &ge; 7.00):
+            </p>
+            <div class="my-4 rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-xs text-ink leading-relaxed pl-6">
+              Percentage = (7.4 &times; 7.20) + 12 = 53.28% + 12 = 65.28% (Rounds up to 66%)
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              Understanding CGPI and GPA in Mumbai University
+            </h3>
+            <p>
+              Your academic transcript contains several grade indexes:
+            </p>
+            <ul class="list-disc list-inside space-y-2 mt-4 ml-2">
+              <li>
+                <strong class="text-ink">SGPI (Semester Grade Performance Index):</strong> Your average grade point achieved during a single isolated semester, weighted by subject credits.
+              </li>
+              <li>
+                <strong class="text-ink">CGPI (Cumulative Grade Performance Index):</strong> The cumulative weighted average of all SGPIs earned from Semester 1 to your final semester (Semester 6 or 8).
+              </li>
+            </ul>
+            <p class="mt-4">
+              To calculate your overall cumulative CGPI across multiple semesters, you cannot simply take the arithmetic mean of your SGPIs. Instead, you must calculate a credit-weighted average:
+            </p>
+            <div class="my-6 rounded-sm border border-hairline bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm">
+              Cumulative CGPI = &Sigma; (SGPI &times; Credits) / &Sigma; Credits
+            </div>
+            <p class="mt-4">
+              Our built-in **Semester CGPI Tracker** allows you to input your SGPI and Credits for semesters 1 through 8 to automate this calculation. It generates your cumulative CGPI and applies the correct conversion formula instantly.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              Class Classification & Passing Criteria
+            </h3>
+            <p>
+              Mumbai University classifies degree achievements into classes based on the converted percentage. The official boundaries are:
+            </p>
+            <div class="my-6 overflow-hidden rounded-md border border-hairline">
+              <table class="w-full border-collapse text-left text-sm">
+                <thead>
+                  <tr class="border-b border-hairline bg-canvas-soft-2 font-mono text-[10px] uppercase text-mute">
+                    <th class="py-2 px-4 font-semibold">Percentage Range</th>
+                    <th class="py-2 px-4 font-semibold">Official Class Awarded</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-hairline text-body font-mono text-xs">
+                  <tr class="hover:bg-canvas-soft-2 transition-colors">
+                    <td class="py-2 px-4">70% and Above</td>
+                    <td class="py-2 px-4 text-ink font-semibold">First Class with Distinction</td>
+                  </tr>
+                  <tr class="hover:bg-canvas-soft-2 transition-colors">
+                    <td class="py-2 px-4">60% to 69.99%</td>
+                    <td class="py-2 px-4 text-ink font-semibold">First Class</td>
+                  </tr>
+                  <tr class="hover:bg-canvas-soft-2 transition-colors">
+                    <td class="py-2 px-4">50% to 59.99%</td>
+                    <td class="py-2 px-4 text-ink font-semibold">Second Class</td>
+                  </tr>
+                  <tr class="hover:bg-canvas-soft-2 transition-colors">
+                    <td class="py-2 px-4">40% to 49.99%</td>
+                    <td class="py-2 px-4 text-ink font-semibold">Pass Class</td>
+                  </tr>
+                  <tr class="hover:bg-canvas-soft-2 transition-colors">
+                    <td class="py-2 px-4">Below 40%</td>
+                    <td class="py-2 px-4 text-error font-semibold">Fail</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="mt-4 leading-relaxed">
+              Note that to clear a semester, a student must secure a minimum of a Pass Class (40% equivalent or Grade D/E) in both internal evaluations and final theory/practical end-semester exams separately.
+            </p>
+          </div>
+        </div>
+
+        <!-- Related Utilities Grid -->
+        <div class="mt-16 border-t border-hairline pt-12">
+          <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-6">
+            Explore More Academic Utilities
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <a href="/attendance-calculator" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>Attendance & Bunk Tracker</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Calculate if you can skip today's lectures or find exactly how many classes you must attend to maintain 75% attendance.
+              </p>
+            </a>
+
+            <a href="/gpa-calculator" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>GPA Calculator</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Compute semester-wise SGPA and overall CGPA using credit-weighted grades. Plan grades needed for target score.
+              </p>
+            </a>
+
+            <a href="/marks-needed-to-pass" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>Pass Marks Calculator</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Find the minimum marks you need to score in end-semester theory exams based on internal assessment marks.
+              </p>
+            </a>
+
+            <a href="/atkt-eligibility-helper" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>ATKT Helper</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Understand university rules for backlogs, Allowed to Keep Terms (ATKT) eligibility, and academic promotions.
+              </p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-16 mt-16 border-t border-hairline transition-colors duration-200">
+      <div class="mx-auto max-w-4xl">
+        <h2 class="text-center font-sans text-2xl font-semibold tracking-tight text-ink md:text-3xl">
+          CGPA Conversion FAQ
+        </h2>
+        <p class="text-center mt-2 text-sm text-body">
+          Clarifying key doubts about Mumbai University CGPI conversions and rules.
+        </p>
+
+        <div class="mt-10 divide-y divide-hairline border-t border-b border-hairline bg-canvas px-6 rounded-md border">
+          {faq.map((item) => (
+            <div class="py-4">
+              <details class="group [&_summary::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center justify-between gap-1.5 text-base font-medium text-ink focus:outline-none select-none">
+                  <span>{item.question}</span>
+                  <span class="relative h-5 w-5 shrink-0">
+                    <svg
+                      class="absolute inset-0 h-5 w-5 opacity-100 group-open:opacity-0 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <svg
+                      class="absolute inset-0 h-5 w-5 opacity-0 group-open:opacity-100 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </summary>
+                <p class="mt-3 text-sm leading-relaxed text-body animate-fade-in">
+                  {item.answer}
+                </p>
+              </details>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  // DOM element bindings
+  const schemeSelector = document.getElementById('scheme-selector') as HTMLSelectElement | null;
+  const cgpaInput = document.getElementById('cgpa') as HTMLInputElement | null;
+  const cgpaSlider = document.getElementById('cgpa-range') as HTMLInputElement | null;
+  const roundingCheckbox = document.getElementById('rounding-checkbox') as HTMLInputElement | null;
+
+  const resultPercent = document.getElementById('result-percent');
+  const gaugeContainer = document.getElementById('gauge-container');
+  const gaugeStatusLed = document.getElementById('gauge-status-led');
+  const classBadge = document.getElementById('class-badge-container');
+  const mathBreakdown = document.getElementById('math-breakdown');
+  const shareTextBox = document.getElementById('share-text-box');
+  const copyShareBtn = document.getElementById('copy-share-btn');
+  const copyBtnText = document.getElementById('copy-btn-text');
+
+  // Semester Tracker Expander bindings
+  const toggleSemesterBtn = document.getElementById('toggle-semester-btn');
+  const toggleIcon = document.getElementById('toggle-icon');
+  const semesterGrid = document.getElementById('semester-grid');
+  const calculateCumulativeBtn = document.getElementById('calculate-cumulative');
+  const clearSemestersBtn = document.getElementById('clear-semesters');
+  const semesterError = document.getElementById('semester-error');
+
+  // Range and Slider Sync Helper
+  if (cgpaSlider && cgpaInput) {
+    cgpaSlider.addEventListener('input', () => {
+      cgpaInput.value = parseFloat(cgpaSlider.value).toFixed(2);
+      calculate();
+    });
+    cgpaInput.addEventListener('input', () => {
+      let val = parseFloat(cgpaInput.value);
+      if (isNaN(val)) val = 0.00;
+      cgpaSlider.value = Math.max(0, Math.min(10, val)).toString();
+      calculate();
+    });
+  }
+
+  // Toggle Semester Calculator Expand/Collapse
+  if (toggleSemesterBtn && semesterGrid && toggleIcon) {
+    toggleSemesterBtn.addEventListener('click', () => {
+      const isHidden = semesterGrid.classList.contains('hidden');
+      if (isHidden) {
+        semesterGrid.classList.remove('hidden');
+        toggleIcon.classList.add('rotate-180');
+      } else {
+        semesterGrid.classList.add('hidden');
+        toggleIcon.classList.remove('rotate-180');
+      }
+    });
+  }
+
+  // Main Conversion Math
+  const calculate = () => {
+    if (!schemeSelector || !cgpaInput) return;
+
+    const scheme = schemeSelector.value;
+    let cgpi = parseFloat(cgpaInput.value);
+    if (isNaN(cgpi)) cgpi = 0;
+
+    // Constrain boundary
+    cgpi = Math.max(0, Math.min(10, cgpi));
+
+    let percentage = 0;
+    let formulaText = '';
+
+    if (scheme === 'cbcs-general') {
+      percentage = 7.25 * cgpi + 11;
+      formulaText = `(7.25 * ${cgpi.toFixed(2)}) + 11`;
+    } else if (scheme === 'cbcs-engg') {
+      percentage = 7.10 * cgpi + 11;
+      formulaText = `(7.10 * ${cgpi.toFixed(2)}) + 11`;
+    } else if (scheme === 'cbgs-engg') {
+      if (cgpi < 7.00) {
+        percentage = 7.10 * cgpi + 12;
+        formulaText = `(7.10 * ${cgpi.toFixed(2)}) + 12 [CGPI < 7]`;
+      } else {
+        percentage = 7.40 * cgpi + 12;
+        formulaText = `(7.40 * ${cgpi.toFixed(2)}) + 12 [CGPI >= 7]`;
+      }
+    }
+
+    // Capture exact and round if enabled
+    const exactPercentage = percentage;
+    const roundEnabled = roundingCheckbox ? roundingCheckbox.checked : true;
+    const finalPercentage = roundEnabled ? Math.ceil(exactPercentage) : exactPercentage;
+
+    // Update dynamic fields
+    if (resultPercent) {
+      resultPercent.textContent = `${finalPercentage.toFixed(roundEnabled ? 0 : 2)}%`;
+    }
+
+    // Determine Class / Division Classification
+    let classLabel = 'Fail';
+    let classColor = 'text-error border-error/20 bg-error/5';
+    let ledColor = 'bg-error';
+    let gaugeBorder = 'border-error/30';
+
+    if (finalPercentage >= 70) {
+      classLabel = 'Distinction';
+      classColor = 'text-success border-success/20 bg-success/5';
+      ledColor = 'bg-success';
+      gaugeBorder = 'border-success/30';
+    } else if (finalPercentage >= 60) {
+      classLabel = 'First Class';
+      classColor = 'text-success border-success/20 bg-success/5';
+      ledColor = 'bg-success';
+      gaugeBorder = 'border-success/30';
+    } else if (finalPercentage >= 50) {
+      classLabel = 'Second Class';
+      classColor = 'text-warning border-warning/20 bg-warning/5';
+      ledColor = 'bg-warning';
+      gaugeBorder = 'border-warning/30';
+    } else if (finalPercentage >= 40) {
+      classLabel = 'Pass Class';
+      classColor = 'text-warning border-warning/20 bg-warning/5';
+      ledColor = 'bg-warning';
+      gaugeBorder = 'border-warning/30';
+    }
+
+    if (classBadge) {
+      classBadge.textContent = classLabel;
+      classBadge.className = `mt-6 px-4 py-1.5 rounded-full border text-xs font-semibold font-mono uppercase tracking-wider ${classColor}`;
+    }
+
+    if (gaugeContainer) {
+      gaugeContainer.className = `relative flex h-36 w-36 items-center justify-center rounded-full bg-canvas transition-colors duration-300 border-[10px] ${gaugeBorder}`;
+    }
+
+    if (gaugeStatusLed) {
+      gaugeStatusLed.className = `absolute top-2 right-2 h-3.5 w-3.5 rounded-full border-2 border-canvas shadow-sm transition-all duration-300 ${ledColor}`;
+    }
+
+    if (mathBreakdown) {
+      mathBreakdown.textContent = `Formula: ${formulaText} = ${exactPercentage.toFixed(2)}%${roundEnabled ? ` (Rounded to ${Math.ceil(exactPercentage)}%)` : ''}`;
+    }
+
+    // Update share text
+    if (shareTextBox) {
+      let schemeName = 'CBCS General';
+      if (scheme === 'cbcs-engg') schemeName = 'CBCS Engineering';
+      if (scheme === 'cbgs-engg') schemeName = 'CBGS Old Engg';
+
+      let shareMsg = `🎓 Mumbai University CGPA Conversion\n`;
+      shareMsg += `• Scheme: ${schemeName}\n`;
+      shareMsg += `• CGPI Score: ${cgpi.toFixed(2)} / 10\n`;
+      shareMsg += `• Equivalent Marks: ${finalPercentage.toFixed(roundEnabled ? 0 : 2)}%\n`;
+      shareMsg += `• Class Division: ${classLabel}\n`;
+      shareMsg += `\nConvert yours instantly at: studentutilityhub.com/cgpa-to-percentage`;
+      shareTextBox.textContent = shareMsg;
+    }
+  };
+
+  // Connect Input Listeners
+  if (schemeSelector) schemeSelector.addEventListener('change', calculate);
+  if (roundingCheckbox) roundingCheckbox.addEventListener('change', calculate);
+
+  // Copy share button logic
+  if (copyShareBtn && shareTextBox && copyBtnText) {
+    copyShareBtn.addEventListener('click', () => {
+      const textToCopy = shareTextBox.textContent || '';
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        copyBtnText.textContent = "Copied!";
+        copyShareBtn.classList.remove('bg-primary');
+        copyShareBtn.classList.add('bg-success');
+
+        setTimeout(() => {
+          copyBtnText.textContent = "Copy Results";
+          copyShareBtn.classList.remove('bg-success');
+          copyShareBtn.classList.add('bg-primary');
+        }, 2000);
+      }).catch(err => {
+        console.error("Copy failed", err);
+      });
+    });
+  }
+
+  // Cumulative Semester calculation logic
+  if (calculateCumulativeBtn) {
+    calculateCumulativeBtn.addEventListener('click', () => {
+      let totalWeightedSGPI = 0;
+      let totalCredits = 0;
+      let validSemesterFound = false;
+      let hasError = false;
+
+      if (semesterError) semesterError.classList.add('hidden');
+
+      for (let idx = 1; idx <= 8; idx++) {
+        const sgpiInput = document.getElementById(`sgpi-s${idx}`) as HTMLInputElement | null;
+        const creditsInput = document.getElementById(`credits-s${idx}`) as HTMLInputElement | null;
+
+        if (sgpiInput) {
+          const sgpiVal = sgpiInput.value.trim();
+          if (sgpiVal !== '') {
+            const sgpi = parseFloat(sgpiVal);
+            let credits = creditsInput ? parseFloat(creditsInput.value.trim()) : 0;
+            if (isNaN(credits) || credits <= 0) {
+              credits = 20; // Default weight if credits is empty or invalid
+            }
+
+            if (isNaN(sgpi) || sgpi < 0 || sgpi > 10) {
+              hasError = true;
+              break;
+            }
+
+            totalWeightedSGPI += sgpi * credits;
+            totalCredits += credits;
+            validSemesterFound = true;
+          }
+        }
+      }
+
+      if (hasError || !validSemesterFound || totalCredits <= 0) {
+        if (semesterError) {
+          semesterError.textContent = hasError ? "Please enter valid SGPI numbers between 0.0 and 10.0." : "Enter at least one semester SGPI to compute.";
+          semesterError.classList.remove('hidden');
+        }
+        return;
+      }
+
+      const cumulativeCGPI = totalWeightedSGPI / totalCredits;
+
+      if (cgpaInput && cgpaSlider) {
+        cgpaInput.value = cumulativeCGPI.toFixed(2);
+        cgpaSlider.value = cumulativeCGPI.toString();
+        calculate();
+        
+        // Auto scroll back up to the main input or results page nicely
+        cgpaInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  }
+
+  // Clear Semesters Input fields
+  if (clearSemestersBtn) {
+    clearSemestersBtn.addEventListener('click', () => {
+      for (let idx = 1; idx <= 8; idx++) {
+        const sgpiInput = document.getElementById(`sgpi-s${idx}`) as HTMLInputElement | null;
+        const creditsInput = document.getElementById(`credits-s${idx}`) as HTMLInputElement | null;
+        if (sgpiInput) sgpiInput.value = '';
+        if (creditsInput) creditsInput.value = '';
+      }
+      if (semesterError) semesterError.classList.add('hidden');
+    });
+  }
+
+  // Run initial calculations
+  calculate();
+</script>
