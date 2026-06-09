@@ -1,0 +1,99 @@
+---
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalUrl?: string;
+  noindex?: boolean;
+  faq?: FAQItem[];
+}
+
+const {
+  title,
+  description,
+  canonicalUrl = Astro.url.href,
+  noindex = false,
+  faq = []
+} = Astro.props;
+
+const siteName = "Student Utility Hub";
+
+// Generate FAQ JSON-LD if FAQ items are provided
+let faqSchemaJson = "";
+if (faq && faq.length > 0) {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faq.map(item => ({
+      "@type": "Question",
+      "name": item.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.answer
+      }
+    }))
+  };
+  faqSchemaJson = JSON.stringify(schema);
+}
+
+// Generate WebApplication JSON-LD schema for calculator pages
+const isToolPage = Astro.url.pathname !== "/" && Astro.url.pathname !== "/about" && Astro.url.pathname !== "/contact" && Astro.url.pathname !== "/privacy-policy" && Astro.url.pathname !== "/terms-of-service";
+let toolSchemaJson = "";
+if (isToolPage) {
+  const toolSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": title,
+    "description": description,
+    "url": canonicalUrl,
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires JavaScript. Requires HTML5."
+  };
+  toolSchemaJson = JSON.stringify(toolSchema);
+}
+---
+
+<!-- Primary Meta Tags -->
+<title>{title} | {siteName}</title>
+<meta name="title" content={`${title} | ${siteName}`} />
+<meta name="description" content={description} />
+<link rel="canonical" href={canonicalUrl} />
+
+<!-- Robots -->
+{noindex ? (
+  <meta name="robots" content="noindex, nofollow" />
+) : (
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+)}
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:title" content={`${title} | ${siteName}`} />
+<meta property="og:description" content={description} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:locale" content="en_IN" />
+<!-- Note: If we generate an OG image later, we can place it here -->
+<meta property="og:image" content={new URL("/favicon.svg", Astro.url).toString()} />
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary" />
+<meta property="twitter:url" content={canonicalUrl} />
+<meta property="twitter:title" content={`${title} | ${siteName}`} />
+<meta property="twitter:description" content={description} />
+<meta property="twitter:image" content={new URL("/favicon.svg", Astro.url).toString()} />
+
+<!-- JSON-LD FAQ Structured Data -->
+{faqSchemaJson && (
+  <script is:inline type="application/ld+json" set:html={faqSchemaJson}></script>
+)}
+
+<!-- JSON-LD WebApplication Structured Data -->
+{toolSchemaJson && (
+  <script is:inline type="application/ld+json" set:html={toolSchemaJson}></script>
+)}

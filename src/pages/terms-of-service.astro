@@ -1,0 +1,69 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Terms of Service"
+  description="Read the Terms of Service for Student Utility Hub."
+>
+  <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
+    <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-xs font-semibold text-mute">
+      Legal
+    </span>
+    <h1 class="mt-4 font-sans text-3xl font-semibold tracking-[-0.96px] text-ink sm:text-4xl">
+      Terms of Service.
+    </h1>
+    <p class="mt-2 text-sm text-mute font-mono">
+      Last updated: June 9, 2026
+    </p>
+
+    <div class="mt-10 flex flex-col gap-8 text-sm leading-relaxed text-body">
+      <section class="flex flex-col gap-3">
+        <h2 class="text-base font-semibold tracking-tight text-ink">
+          1. Terms and Acceptance
+        </h2>
+        <p>
+          By accessing and using <strong>Student Utility Hub</strong>, you agree to comply with and be bound by these Terms of Service. If you do not agree, please do not use the site.
+        </p>
+      </section>
+
+      <section class="flex flex-col gap-3">
+        <h2 class="text-base font-semibold tracking-tight text-ink">
+          2. Academic Disclaimer & Liability
+        </h2>
+        <p>
+          All calculators, trackers, and helpers provided on this website are for **informational and estimation purposes only**. 
+        </p>
+        <p>
+          While we make every effort to maintain accurate formulas and reflect current university regulations:
+        </p>
+        <ul class="list-disc list-inside flex flex-col gap-2 pl-2">
+          <li>We do not guarantee the accuracy of any calculation or advice.</li>
+          <li>Attendance rules, passing targets, and SGPA conversion formulas may change without notice.</li>
+          <li>We are **not responsible** for any academic decisions, exam detentions, backlog issues, or year-down outcomes resulting from calculations made on this platform.</li>
+        </ul>
+        <p>
+          Always cross-reference your records with your college's official ERP portal or examination handbook.
+        </p>
+      </section>
+
+      <section class="flex flex-col gap-3">
+        <h2 class="text-base font-semibold tracking-tight text-ink">
+          3. Local Cache Persistence
+        </h2>
+        <p>
+          Data created using the Subject Manager is saved in your local browser cache (`localStorage`). We are not liable for any loss of stored course logs due to browser updates, cache cleaning, or hardware failures.
+        </p>
+      </section>
+
+      <section class="flex flex-col gap-3">
+        <h2 class="text-base font-semibold tracking-tight text-ink">
+          4. Governing Law
+        </h2>
+        <p>
+          These terms are governed by the laws of India. Any disputes arising from the use of this website will be subject to the exclusive jurisdiction of the competent courts in Pune, Maharashtra.
+        </p>
+      </section>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,11 +1,335 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const tools = [
+  {
+    title: 'Attendance & Bunk Tracker',
+    description: 'Calculate if you can skip today\'s lectures or find exactly how many classes you must attend to maintain 75% attendance.',
+    href: '/attendance-calculator',
+    badge: 'Popular',
+    icon: 'calendar',
+    tags: ['attendance', 'bunk', 'skip class', '75 percent', 'college tracker']
+  },
+  {
+    title: 'GPA (SGPA/CGPA) Calculator',
+    description: 'Calculate semester SGPA and overall CGPA using credit-weighted grades. Supports custom target grading simulator.',
+    href: '/gpa-calculator',
+    badge: 'Core',
+    icon: 'graduation-cap',
+    tags: ['gpa', 'sgpa', 'cgpa', 'grades', 'credits', 'marks']
+  },
+  {
+    title: 'CGPA to Percentage Converter',
+    description: 'Convert 10-point CGPA to marks percentage instantly using official university formulas for SPPU, VTU, MU, and others.',
+    href: '/cgpa-to-percentage',
+    badge: 'Updated',
+    icon: 'percent',
+    tags: ['percentage', 'cgpa to percent', 'sppu', 'vtu', 'mumbai university', 'convert']
+  },
+  {
+    title: 'Marks Needed to Pass',
+    description: 'Find out exactly how much you need to score in semester-end theory exams to pass or reach your target grade.',
+    href: '/marks-needed-to-pass',
+    badge: 'New',
+    icon: 'target',
+    tags: ['pass marks', 'passing criteria', 'internals', 'theory marks', 'exam prep']
+  },
+  {
+    title: 'ATKT & Backlog Helper',
+    description: 'Check your eligibility to keep terms (ATKT) and learn the backlog promotion rules for major Indian universities.',
+    href: '/atkt-eligibility-helper',
+    badge: 'Guide',
+    icon: 'shield-alert',
+    tags: ['atkt', 'backlog', 'fail subject', 'promotion rules', 'year down', 'kt rules']
+  }
+];
+
+const faq = [
+  {
+    question: "What is Student Utility Hub?",
+    answer: "Student Utility Hub is a premium, distraction-free suite of academic calculators designed specifically for Indian college students. It provides instant, local-first calculations for attendance, grades, pass marks, and university regulations."
+  },
+  {
+    question: "Are my attendance and grade records saved?",
+    answer: "Yes, but they are stored entirely inside your browser's local storage. We do not run databases or track your personal academic details. All data stays safe and private on your device."
+  },
+  {
+    question: "Are the university conversion formulas official?",
+    answer: "Yes, our calculators utilize the standard multiplier formulas specified in the official circulars of universities like SPPU (Pune), Mumbai University, VTU, and Anna University. However, always refer to your final official transcript for administrative submissions."
+  }
+];
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<BaseLayout
+  title="Academic Calculators & Bunk Trackers for College Students"
+  description="A premium, lightning-fast suite of utility tools for Indian college students. Track attendance, calculate SGPA/CGPA, convert CGPA to percentage, and simulate passing marks."
+  {faq}
+>
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden bg-canvas py-16 md:py-24 transition-colors duration-200 border-b border-hairline">
+    <!-- Atmospheric SVG Mesh Gradient -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden select-none opacity-40 dark:opacity-20" aria-hidden="true">
+      <svg class="absolute -top-[30%] left-1/2 -translate-x-1/2 w-[120%] h-[160%] min-w-[1000px]" fill="none" viewBox="0 0 1200 1200">
+        <g filter="url(#blur-filters)">
+          <!-- Cyan-blue develop blob -->
+          <circle cx="400" cy="300" r="300" fill="url(#develop-grad)" />
+          <!-- Violet-pink preview blob -->
+          <circle cx="800" cy="500" r="350" fill="url(#preview-grad)" />
+          <!-- Coral-amber ship blob -->
+          <circle cx="550" cy="800" r="280" fill="url(#ship-grad)" />
+        </g>
+        <defs>
+          <filter id="blur-filters" x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox">
+            <feGaussianBlur stdDeviation="110" />
+          </filter>
+          <linearGradient id="develop-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#007cf0" stop-opacity="0.8" />
+            <stop offset="100%" stop-color="#00dfd8" stop-opacity="0.2" />
+          </linearGradient>
+          <linearGradient id="preview-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#7928ca" stop-opacity="0.8" />
+            <stop offset="100%" stop-color="#ff0080" stop-opacity="0.2" />
+          </linearGradient>
+          <linearGradient id="ship-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff4d4d" stop-opacity="0.7" />
+            <stop offset="100%" stop-color="#f9cb28" stop-opacity="0.1" />
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <!-- Content -->
+    <div class="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-canvas-soft px-3 py-1 text-xs font-semibold font-mono text-body tracking-tight">
+        <span class="flex h-2 w-2 rounded-full bg-success"></span>
+        Distraction-Free Utilities
+      </span>
+
+      <!-- Sentence-case period-terminated display-xl Vercel headline -->
+      <h1 class="mt-6 font-sans text-4xl font-semibold tracking-[-1.5px] leading-tight text-ink sm:text-5xl md:text-6xl md:tracking-[-2.4px]">
+        Keep your term in check.
+      </h1>
+      
+      <p class="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-body md:text-xl">
+        A fast, local-first set of calculators tailored for Indian college students. Track your attendance limits, convert semester grades, and prepare for final exams.
+      </p>
+
+      <!-- Search Input -->
+      <div class="mx-auto mt-10 max-w-md">
+        <div class="relative flex items-center">
+          <input
+            type="text"
+            id="tool-search"
+            placeholder="Search tools (e.g., bunk, cgpa, pass marks)…"
+            class="h-11 w-full rounded-md border border-hairline bg-canvas pl-10 pr-4 text-sm text-ink placeholder-mute shadow-level-2 focus:outline-none transition-shadow duration-200"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <svg
+            class="absolute left-3.5 h-4.5 w-4.5 text-mute"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Directory Grid -->
+  <section class="py-16 md:py-24 bg-canvas-soft transition-colors duration-200">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <!-- Section Title -->
+      <div class="mb-10 flex items-center justify-between">
+        <div>
+          <h2 class="text-xs font-semibold uppercase tracking-wider text-mute font-mono">
+            Directory
+          </h2>
+          <p class="mt-1 text-lg font-semibold tracking-tight text-ink">
+            Launch Academic Tools
+          </p>
+        </div>
+        <span id="results-count" class="text-xs font-mono text-mute hidden md:inline-block">
+          Showing {tools.length} utilities
+        </span>
+      </div>
+
+      <!-- No Results State -->
+      <div id="no-results" class="hidden py-16 text-center border border-dashed border-hairline rounded-md bg-canvas">
+        <svg class="mx-auto h-8 w-8 text-mute" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <p class="mt-4 text-sm font-medium text-body">No matching tools found.</p>
+        <button id="reset-search" class="mt-2 text-xs font-semibold text-link hover:underline">
+          Reset search filter
+        </button>
+      </div>
+
+      <!-- Grid Layout -->
+      <div id="tools-grid" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {tools.map(tool => (
+          <div
+            class="tool-card group relative flex flex-col justify-between overflow-hidden rounded-md border border-hairline bg-canvas p-6 shadow-level-2 hover:shadow-level-3 transition-all duration-200"
+            data-title={tool.title.toLowerCase()}
+            data-tags={tool.tags.join(' ')}
+            data-desc={tool.description.toLowerCase()}
+          >
+            <div>
+              <div class="flex items-start justify-between">
+                <!-- Icon Frame -->
+                <div class="flex h-9 w-9 items-center justify-center rounded-sm bg-canvas-soft-2 text-ink border border-hairline">
+                  {tool.icon === 'calendar' && (
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                  )}
+                  {tool.icon === 'graduation-cap' && (
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" /></svg>
+                  )}
+                  {tool.icon === 'percent' && (
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="19" y1="5" x2="5" y2="19" /><circle cx="6.5" cy="6.5" r="2.5" /><circle cx="17.5" cy="17.5" r="2.5" /></svg>
+                  )}
+                  {tool.icon === 'target' && (
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg>
+                  )}
+                  {tool.icon === 'shield-alert' && (
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+                  )}
+                </div>
+
+                <!-- Badge -->
+                <span class="rounded-full border border-hairline bg-canvas-soft px-2.5 py-0.5 font-mono text-[10px] font-medium text-body">
+                  {tool.badge}
+                </span>
+              </div>
+
+              <!-- Info -->
+              <h3 class="mt-4 font-sans text-base font-semibold tracking-tight text-ink">
+                {tool.title}
+              </h3>
+              <p class="mt-2 text-sm leading-relaxed text-body">
+                {tool.description}
+              </p>
+            </div>
+
+            <!-- CTA Link -->
+            <div class="mt-6 flex items-center text-xs font-semibold text-link group-hover:text-link-deep transition-colors duration-150">
+              Launch tool
+              <svg class="ml-1 h-3.5 w-3.5 transform transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <!-- Absolute link wrapper for overlay click -->
+              <a href={tool.href} class="absolute inset-0 z-10" aria-label={`Launch ${tool.title}`}></a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section (Self-contained schema generation) -->
+  <section class="py-16 bg-canvas border-t border-hairline transition-colors duration-200">
+    <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+      <h2 class="text-center font-sans text-2xl font-semibold tracking-tight text-ink md:text-3xl">
+        Frequently Asked Questions
+      </h2>
+      <p class="text-center mt-2 text-sm text-body">
+        General queries about Student Utility Hub features and policies.
+      </p>
+
+      <div class="mt-10 divide-y divide-hairline border-t border-b border-hairline">
+        {faq.map((item) => (
+          <div class="py-4">
+            <details class="group [&_summary::-webkit-details-marker]:hidden">
+              <summary class="flex cursor-pointer items-center justify-between gap-1.5 text-base font-medium text-ink focus:outline-none select-none">
+                <span>{item.question}</span>
+                <span class="relative h-5 w-5 shrink-0">
+                  <svg
+                    class="absolute inset-0 h-5 w-5 opacity-100 group-open:opacity-0 transition-opacity duration-200"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <svg
+                    class="absolute inset-0 h-5 w-5 opacity-0 group-open:opacity-100 transition-opacity duration-200"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </summary>
+              <p class="mt-3 text-sm leading-relaxed text-body animate-fade-in">
+                {item.answer}
+              </p>
+            </details>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // Simple client-side search logic
+  const searchInput = document.getElementById('tool-search') as HTMLInputElement | null;
+  const toolCards = document.querySelectorAll('.tool-card');
+  const noResultsDiv = document.getElementById('no-results');
+  const toolsGrid = document.getElementById('tools-grid');
+  const resultsCountSpan = document.getElementById('results-count');
+  const resetBtn = document.getElementById('reset-search');
+
+  if (searchInput && toolCards.length > 0 && noResultsDiv && toolsGrid) {
+    const filterTools = () => {
+      const query = searchInput.value.toLowerCase().trim();
+      let visibleCount = 0;
+
+      toolCards.forEach(card => {
+        const htmlCard = card as HTMLElement;
+        const title = htmlCard.dataset.title || '';
+        const tags = htmlCard.dataset.tags || '';
+        const desc = htmlCard.dataset.desc || '';
+
+        const matches = title.includes(query) || tags.includes(query) || desc.includes(query);
+
+        if (matches) {
+          htmlCard.style.display = 'flex';
+          visibleCount++;
+        } else {
+          htmlCard.style.display = 'none';
+        }
+      });
+
+      // Show/Hide grids and empty state
+      if (visibleCount === 0) {
+        toolsGrid.classList.add('hidden');
+        noResultsDiv.classList.remove('hidden');
+      } else {
+        toolsGrid.classList.remove('hidden');
+        noResultsDiv.classList.add('hidden');
+      }
+
+      // Update count
+      if (resultsCountSpan) {
+        resultsCountSpan.textContent = `Showing ${visibleCount} utilities`;
+      }
+    };
+
+    searchInput.addEventListener('input', filterTools);
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        filterTools();
+      });
+    }
+  }
+</script>

@@ -1,0 +1,128 @@
+---
+const calculatorLinks = [
+  { href: '/attendance-calculator', label: 'Attendance & Bunk Tracker' },
+  { href: '/gpa-calculator', label: 'GPA (SGPA/CGPA) Calculator' },
+  { href: '/cgpa-to-percentage', label: 'CGPA to Percentage Converter' },
+  { href: '/marks-needed-to-pass', label: 'Pass Marks Needed' },
+  { href: '/atkt-eligibility-helper', label: 'ATKT Eligibility Helper' },
+];
+
+const companyLinks = [
+  { href: '/about', label: 'About Us' },
+  { href: '/contact', label: 'Contact & Feedback' },
+];
+
+const legalLinks = [
+  { href: '/privacy-policy', label: 'Privacy Policy' },
+  { href: '/terms-of-service', label: 'Terms of Service' },
+];
+
+const resourceLinks = [
+  { href: 'https://docs.astro.build', label: 'Astro MPA Framework', external: true },
+  { href: 'https://tailwindcss.com', label: 'Tailwind CSS v4', external: true },
+  { href: 'https://pages.cloudflare.com', label: 'Cloudflare Pages', external: true },
+];
+---
+
+<footer class="w-full border-t border-hairline bg-canvas py-12 md:py-16 transition-colors duration-200">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 gap-8 md:grid-cols-4 lg:gap-12">
+      <!-- Calculators Column -->
+      <div class="flex flex-col gap-4">
+        <h3 class="font-mono text-xs font-semibold uppercase tracking-wider text-mute">
+          Calculators
+        </h3>
+        <ul class="flex flex-col gap-2">
+          {calculatorLinks.map(link => (
+            <li>
+              <a
+                href={link.href}
+                class="text-sm text-body hover:text-ink transition-colors duration-150"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Resources Column -->
+      <div class="flex flex-col gap-4">
+        <h3 class="font-mono text-xs font-semibold uppercase tracking-wider text-mute">
+          Stack
+        </h3>
+        <ul class="flex flex-col gap-2">
+          {resourceLinks.map(link => (
+            <li>
+              <a
+                href={link.href}
+                target={link.external ? "_blank" : undefined}
+                rel={link.external ? "noopener noreferrer" : undefined}
+                class="text-sm text-body hover:text-ink transition-colors duration-150 inline-flex items-center gap-1"
+              >
+                {link.label}
+                {link.external && (
+                  <svg class="h-3 w-3 opacity-60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                )}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Company Column -->
+      <div class="flex flex-col gap-4">
+        <h3 class="font-mono text-xs font-semibold uppercase tracking-wider text-mute">
+          Company
+        </h3>
+        <ul class="flex flex-col gap-2">
+          {companyLinks.map(link => (
+            <li>
+              <a
+                href={link.href}
+                class="text-sm text-body hover:text-ink transition-colors duration-150"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Legal Column -->
+      <div class="flex flex-col gap-4">
+        <h3 class="font-mono text-xs font-semibold uppercase tracking-wider text-mute">
+          Legal
+        </h3>
+        <ul class="flex flex-col gap-2">
+          {legalLinks.map(link => (
+            <li>
+              <a
+                href={link.href}
+                class="text-sm text-body hover:text-ink transition-colors duration-150"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-12 border-t border-hairline pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2.5">
+        <svg class="h-4 w-4 fill-mute stroke-mute" viewBox="0 0 24 24">
+          <path d="M12 2L2 22h20L12 2z" stroke-width="2" stroke-linejoin="round" />
+        </svg>
+        <span class="text-xs text-mute font-medium">
+          © {new Date().getFullYear()} Student Utility Hub. All rights reserved.
+        </span>
+      </div>
+      <p class="text-xs text-mute text-center sm:text-right">
+        Created for Indian college students to solve academic bottlenecks and plan their course terms.
+      </p>
+    </div>
+  </div>
+</footer>

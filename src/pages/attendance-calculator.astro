@@ -1,0 +1,651 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const faq = [
+  {
+    question: "How does the Bunk Calculator determine skip limits?",
+    answer: "If your current attendance is above your target percentage, the calculator determines the maximum number of consecutive classes you can skip without your percentage dropping below that threshold. The formula is: Bunk Limit = Math.floor((100 * Attended - Target * Conducted) / Target)."
+  },
+  {
+    question: "How is the required class count calculated for low attendance?",
+    answer: "If your attendance falls below the target (e.g., 75%), the calculator finds the minimum number of consecutive upcoming lectures you must attend to pull your average back up. The formula is: Required Classes = Math.ceil((Target * Conducted - 100 * Attended) / (100 - Target))."
+  },
+  {
+    question: "Is the 75% attendance rule mandatory in all Indian colleges?",
+    answer: "Under UGC, AICTE, and bar council regulations, a 75% attendance threshold is standard in most Indian universities (such as SPPU, Mumbai University, VTU, and JNTU) to be eligible for final exams. Some universities allow relaxation down to 60% or 65% in case of documented medical emergencies."
+  },
+  {
+    question: "Can I track multiple subjects separately?",
+    answer: "Yes. Using our built-in Subject Manager, you can save your attendance values for individual subjects (e.g., Math, Physics, CS) locally on your device. It requires no login and uses your browser's LocalStorage."
+  }
+];
+---
+
+<BaseLayout
+  title="Unified Attendance & Bunk Calculator for College Students"
+  description="Calculate your current attendance percentage, find out exactly how many lectures you can bunk (skip), or how many consecutive classes you need to attend to meet the 75% rule."
+  {faq}
+>
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <!-- Breadcrumb & Header -->
+    <nav class="flex mb-4" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center gap-1.5 font-mono text-xs text-mute">
+        <li>
+          <a href="/" class="hover:text-ink transition-colors">Home</a>
+        </li>
+        <li class="flex items-center gap-1.5 select-none">
+          <span>/</span>
+          <span class="text-body font-semibold">Attendance Calculator</span>
+        </li>
+      </ol>
+    </nav>
+
+    <div class="mb-10">
+      <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-xs font-semibold text-mute">
+        Tool 01
+      </span>
+      <h1 class="mt-4 font-sans text-3xl font-semibold tracking-[-0.96px] text-ink sm:text-4xl">
+        Know when to bunk.
+      </h1>
+      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-body">
+        Check your current status, calculate skips, and plan your academic recovery instantly. Save subjects locally to track progress over the semester.
+      </p>
+    </div>
+
+    <!-- Main Tool Workspace -->
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <!-- Calculator Inputs & Subject Manager -->
+      <div class="flex flex-col gap-8 lg:col-span-7">
+        
+        <!-- Interactive Form -->
+        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-6">
+            Calculator Inputs
+          </h2>
+
+          <div class="flex flex-col gap-6">
+            <!-- Target Percentage Selector -->
+            <div>
+              <label for="target-percent" class="block text-sm font-medium text-ink mb-2">
+                Target Attendance Percentage
+              </label>
+              <div class="flex items-center gap-4">
+                <input
+                  type="range"
+                  id="target-percent-range"
+                  min="50"
+                  max="100"
+                  value="75"
+                  step="5"
+                  class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary"
+                  aria-label="Target percentage slider"
+                />
+                <input
+                  type="number"
+                  id="target-percent"
+                  value="75"
+                  min="50"
+                  max="100"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  class="h-9 w-20 rounded-sm border border-hairline bg-canvas text-center text-sm font-semibold text-ink focus:outline-none"
+                />
+                <span class="font-mono text-sm text-mute font-semibold">%</span>
+              </div>
+            </div>
+
+            <!-- Total Classes Conducted -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label for="conducted" class="text-sm font-medium text-ink">
+                  Total Classes Conducted
+                </label>
+                <span class="text-xs font-mono text-mute">Includes labs & lectures</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <input
+                  type="range"
+                  id="conducted-range"
+                  min="0"
+                  max="150"
+                  value="40"
+                  class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary"
+                  aria-label="Total conducted classes slider"
+                />
+                <input
+                  type="number"
+                  id="conducted"
+                  value="40"
+                  min="0"
+                  placeholder="40…"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  class="h-9 w-20 rounded-sm border border-hairline bg-canvas text-center text-sm font-semibold text-ink focus:outline-none"
+                />
+                <span class="font-mono text-sm text-mute font-semibold">lectures</span>
+              </div>
+            </div>
+
+            <!-- Classes Attended -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label for="attended" class="text-sm font-medium text-ink">
+                  Classes Attended
+                </label>
+                <span id="attended-warning" class="text-xs text-error font-medium hidden">Cannot exceed conducted!</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <input
+                  type="range"
+                  id="attended-range"
+                  min="0"
+                  max="150"
+                  value="32"
+                  class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary"
+                  aria-label="Classes attended slider"
+                />
+                <input
+                  type="number"
+                  id="attended"
+                  value="32"
+                  min="0"
+                  placeholder="32…"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  class="h-9 w-20 rounded-sm border border-hairline bg-canvas text-center text-sm font-semibold text-ink focus:outline-none"
+                />
+                <span class="font-mono text-sm text-mute font-semibold">lectures</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subject Profiles Manager -->
+        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono">
+              Subject Manager (LocalStorage)
+            </h2>
+            <span class="text-[10px] font-mono bg-canvas-soft-2 border border-hairline rounded-full px-2 py-0.5 text-mute">
+              Offline Cache
+            </span>
+          </div>
+
+          <!-- Save Current Values Panel -->
+          <div class="flex flex-col sm:flex-row gap-3 mb-6">
+            <input
+              type="text"
+              id="subject-name"
+              placeholder="e.g., Mathematics-II…"
+              class="h-9 flex-1 rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink placeholder-mute focus:outline-none"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button
+              id="save-subject"
+              class="h-9 inline-flex items-center justify-center rounded-sm bg-primary px-4 text-xs font-semibold text-on-primary hover:bg-ink/90 transition-colors"
+            >
+              Save Subject
+            </button>
+          </div>
+
+          <!-- Subject Dashboard Grid -->
+          <div id="subject-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-1">
+            <!-- Dynamically populated -->
+          </div>
+          
+          <div id="subject-empty-state" class="py-6 text-center border border-dashed border-hairline rounded-sm bg-canvas-soft">
+            <p class="text-xs text-mute font-medium">No saved subjects yet. Enter a name above to start tracking.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Calculation Outputs & Share Panel -->
+      <div class="flex flex-col gap-6 lg:col-span-5">
+        
+        <!-- Live Calculations Card -->
+        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-6">
+            Calculated Results
+          </h2>
+
+          <!-- Visual Gauge Block -->
+          <div class="flex flex-col items-center justify-center py-6 text-center">
+            <div id="gauge-container" class="relative flex h-36 w-36 items-center justify-center rounded-full border-[10px] border-canvas-soft-2 bg-canvas transition-colors duration-300">
+              <div class="flex flex-col items-center">
+                <!-- Large current % display with tabular numbers -->
+                <span id="result-percent" class="font-sans text-3xl font-semibold tracking-tight tabular-nums text-ink">
+                  80.0%
+                </span>
+                <span class="text-[10px] font-mono font-medium text-mute mt-0.5">CURRENT</span>
+              </div>
+              <!-- Colored status circle indicator -->
+              <span id="gauge-status-led" class="absolute top-2 right-2 h-3.5 w-3.5 rounded-full border-2 border-canvas shadow-sm bg-success transition-all duration-300"></span>
+            </div>
+            
+            <p id="gauge-advice" class="mt-6 text-sm leading-relaxed text-body font-medium px-4">
+              Your attendance is in the safe zone.
+            </p>
+          </div>
+
+          <div class="h-px bg-hairline my-6"></div>
+
+          <!-- Concrete Outcomes -->
+          <div class="flex flex-col gap-4">
+            <!-- Safe Bunks Info -->
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-body">Safe Bunks Remaining:</span>
+              <span id="result-bunks" class="font-mono text-sm font-semibold text-success bg-success/10 px-2.5 py-0.5 rounded-full">
+                0 classes
+              </span>
+            </div>
+
+            <!-- Recovery Plan Info -->
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-body">Recovery Classes Needed:</span>
+              <span id="result-recovery" class="font-mono text-sm font-semibold text-mute bg-canvas-soft-2 px-2.5 py-0.5 rounded-full">
+                0 classes
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Share & Export Card -->
+        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-4">
+            Share Calculations
+          </h2>
+          <p class="text-xs text-mute mb-4 leading-relaxed">
+            Generate a clean, copy-paste format to share with classmates on WhatsApp or Telegram groups.
+          </p>
+
+          <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-xs text-body whitespace-pre-wrap select-all leading-normal" id="share-text-box">
+            Loading results card…
+          </div>
+
+          <button
+            id="copy-share-btn"
+            class="mt-4 w-full h-9 inline-flex items-center justify-center gap-2 rounded-sm bg-primary px-4 text-xs font-semibold text-on-primary hover:bg-ink/90 transition-colors"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+            <span id="copy-btn-text">Copy Results</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <section class="py-16 mt-16 border-t border-hairline transition-colors duration-200">
+      <div class="mx-auto max-w-4xl">
+        <h2 class="text-center font-sans text-2xl font-semibold tracking-tight text-ink md:text-3xl">
+          Attendance Calculations FAQ
+        </h2>
+        <p class="text-center mt-2 text-sm text-body">
+          Clarifying key doubts about university attendance, skip limits, and rules.
+        </p>
+
+        <div class="mt-10 divide-y divide-hairline border-t border-b border-hairline bg-canvas px-6 rounded-md border">
+          {faq.map((item) => (
+            <div class="py-4">
+              <details class="group [&_summary::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center justify-between gap-1.5 text-base font-medium text-ink focus:outline-none select-none">
+                  <span>{item.question}</span>
+                  <span class="relative h-5 w-5 shrink-0">
+                    <svg
+                      class="absolute inset-0 h-5 w-5 opacity-100 group-open:opacity-0 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <svg
+                      class="absolute inset-0 h-5 w-5 opacity-0 group-open:opacity-100 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </summary>
+                <p class="mt-3 text-sm leading-relaxed text-body animate-fade-in">
+                  {item.answer}
+                </p>
+              </details>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  // DOM element selections
+  const targetInput = document.getElementById('target-percent') as HTMLInputElement | null;
+  const targetSlider = document.getElementById('target-percent-range') as HTMLInputElement | null;
+  const conductedInput = document.getElementById('conducted') as HTMLInputElement | null;
+  const conductedSlider = document.getElementById('conducted-range') as HTMLInputElement | null;
+  const attendedInput = document.getElementById('attended') as HTMLInputElement | null;
+  const attendedSlider = document.getElementById('attended-range') as HTMLInputElement | null;
+
+  const attendedWarning = document.getElementById('attended-warning');
+  
+  const resultPercent = document.getElementById('result-percent');
+  const resultBunks = document.getElementById('result-bunks');
+  const resultRecovery = document.getElementById('result-recovery');
+  
+  const gaugeContainer = document.getElementById('gauge-container');
+  const gaugeStatusLed = document.getElementById('gauge-status-led');
+  const gaugeAdvice = document.getElementById('gauge-advice');
+  
+  const shareTextBox = document.getElementById('share-text-box');
+  const copyShareBtn = document.getElementById('copy-share-btn');
+  const copyBtnText = document.getElementById('copy-btn-text');
+
+  // Subject Manager DOM elements
+  const subjectNameInput = document.getElementById('subject-name') as HTMLInputElement | null;
+  const saveSubjectBtn = document.getElementById('save-subject');
+  const subjectListDiv = document.getElementById('subject-list');
+  const emptyStateDiv = document.getElementById('subject-empty-state');
+
+  interface Subject {
+    id: string;
+    name: string;
+    conducted: number;
+    attended: number;
+    target: number;
+  }
+
+  // Load subjects from LocalStorage
+  let subjects: Subject[] = [];
+  try {
+    const cached = localStorage.getItem('hub_attendance_subjects');
+    if (cached) {
+      subjects = JSON.parse(cached);
+    }
+  } catch (e) {
+    console.error("Failed to parse local storage", e);
+  }
+
+  // Double binding range sliders to inputs
+  const syncRangeInput = (slider: HTMLInputElement | null, numInput: HTMLInputElement | null, updateCallback: () => void) => {
+    if (slider && numInput) {
+      slider.addEventListener('input', () => {
+        numInput.value = slider.value;
+        updateCallback();
+      });
+      numInput.addEventListener('input', () => {
+        let val = parseInt(numInput.value);
+        if (isNaN(val)) val = 0;
+        
+        const min = parseInt(slider.min);
+        const max = parseInt(slider.max);
+        
+        slider.value = Math.max(min, Math.min(max, val)).toString();
+        updateCallback();
+      });
+    }
+  };
+
+  // Perform Calculations
+  const calculate = () => {
+    if (!targetInput || !conductedInput || !attendedInput) return;
+
+    let target = parseFloat(targetInput.value);
+    let conducted = parseInt(conductedInput.value);
+    let attended = parseInt(attendedInput.value);
+
+    // Validate inputs
+    if (isNaN(target)) target = 75;
+    if (isNaN(conducted)) conducted = 0;
+    if (isNaN(attended)) attended = 0;
+
+    // Boundary constraints
+    if (attended > conducted) {
+      if (attendedWarning) attendedWarning.classList.remove('hidden');
+      attended = conducted;
+      attendedInput.value = conducted.toString();
+      if (attendedSlider) attendedSlider.value = conducted.toString();
+    } else {
+      if (attendedWarning) attendedWarning.classList.add('hidden');
+    }
+
+    // Calculations
+    const currentPercent = conducted > 0 ? (attended / conducted) * 100 : 100.0;
+    
+    let bunks = 0;
+    let recovery = 0;
+    let message = "";
+    let statusClass = "border-success";
+    let ledColor = "bg-success";
+
+    if (currentPercent >= target) {
+      // Safe to bunk calculation
+      // attended / (conducted + B) >= target/100
+      // 100 * attended >= target * conducted + target * B
+      // B = Math.floor((100 * attended - target * conducted) / target)
+      bunks = conducted > 0 ? Math.floor((100 * attended - target * conducted) / target) : 0;
+      if (bunks < 0) bunks = 0;
+    } else {
+      // Recovery calculation
+      // (attended + R) / (conducted + R) >= target/100
+      // 100 * attended + 100 * R >= target * conducted + target * R
+      // (100 - target) * R >= target * conducted - 100 * attended
+      // R = Math.ceil((target * conducted - 100 * attended) / (100 - target))
+      recovery = target < 100 ? Math.ceil((target * conducted - 100 * attended) / (100 - target)) : 0;
+    }
+
+    // Update displays
+    if (resultPercent) {
+      resultPercent.textContent = `${currentPercent.toFixed(1)}%`;
+    }
+
+    if (resultBunks) {
+      if (currentPercent >= target && bunks > 0) {
+        resultBunks.textContent = `${bunks} classes`;
+        resultBunks.className = "font-mono text-sm font-semibold text-success bg-success/10 px-2.5 py-0.5 rounded-full";
+      } else {
+        resultBunks.textContent = "0 classes";
+        resultBunks.className = "font-mono text-sm font-semibold text-mute bg-canvas-soft-2 px-2.5 py-0.5 rounded-full";
+      }
+    }
+
+    if (resultRecovery) {
+      if (currentPercent < target && recovery > 0) {
+        resultRecovery.textContent = `${recovery} classes`;
+        resultRecovery.className = "font-mono text-sm font-semibold text-error bg-error/10 px-2.5 py-0.5 rounded-full";
+      } else {
+        resultRecovery.textContent = "0 classes";
+        resultRecovery.className = "font-mono text-sm font-semibold text-mute bg-canvas-soft-2 px-2.5 py-0.5 rounded-full";
+      }
+    }
+
+    // Visual gauge styling
+    if (currentPercent >= target) {
+      statusClass = "border-[10px] border-success/30";
+      ledColor = "bg-success";
+      if (bunks > 0) {
+        message = `You are in the safe zone. You can safely bunk the next **${bunks} classes** consecutively.`;
+      } else if (currentPercent === target) {
+        message = `You are exactly at the boundary of your target. Do not skip any upcoming classes.`;
+      } else {
+        message = `You are maintaining your target attendance.`;
+      }
+    } else {
+      statusClass = "border-[10px] border-error/30";
+      ledColor = "bg-error";
+      message = `Attendance shortage. You must attend the next **${recovery} classes** consecutively to recover.`;
+    }
+
+    if (gaugeContainer) {
+      // Split previous class names and replace them cleanly
+      gaugeContainer.className = `relative flex h-36 w-36 items-center justify-center rounded-full bg-canvas transition-colors duration-300 ${statusClass}`;
+    }
+
+    if (gaugeStatusLed) {
+      gaugeStatusLed.className = `absolute top-2 right-2 h-3.5 w-3.5 rounded-full border-2 border-canvas shadow-sm transition-all duration-300 ${ledColor}`;
+    }
+
+    if (gaugeAdvice) {
+      gaugeAdvice.innerHTML = message.replace(/\*\*(.*?)\*\*/g, '<span class="font-bold">$1</span>');
+    }
+
+    // Share Text Card update
+    if (shareTextBox) {
+      let shareMsg = `📊 Attendance Status Card\n`;
+      shareMsg += `• Current Percentage: ${currentPercent.toFixed(1)}%\n`;
+      shareMsg += `• Status: ${currentPercent >= target ? '✅ Safe' : '⚠️ Attendance Shortage'}\n`;
+      if (currentPercent >= target && bunks > 0) {
+        shareMsg += `• Safe to skip: Next ${bunks} lectures\n`;
+      } else if (currentPercent < target && recovery > 0) {
+        shareMsg += `• Plan: Attend next ${recovery} lectures consecutively\n`;
+      }
+      shareMsg += `\nCalculate yours at studentutilityhub.com/attendance-calculator`;
+      shareTextBox.textContent = shareMsg;
+    }
+  };
+
+  // Register Event Bindings
+  syncRangeInput(targetSlider, targetInput, calculate);
+  syncRangeInput(conductedSlider, conductedInput, calculate);
+  syncRangeInput(attendedSlider, attendedInput, calculate);
+
+  // Copy share card script
+  if (copyShareBtn && shareTextBox && copyBtnText) {
+    copyShareBtn.addEventListener('click', () => {
+      const textToCopy = shareTextBox.textContent || '';
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        copyBtnText.textContent = "Copied!";
+        copyShareBtn.classList.remove('bg-primary');
+        copyShareBtn.classList.add('bg-success');
+
+        setTimeout(() => {
+          copyBtnText.textContent = "Copy Results";
+          copyShareBtn.classList.remove('bg-success');
+          copyShareBtn.classList.add('bg-primary');
+        }, 2000);
+      }).catch(err => {
+        console.error("Copy failed", err);
+      });
+    });
+  }
+
+  // Subject Profile List Rendering
+  const renderSubjects = () => {
+    if (!subjectListDiv || !emptyStateDiv) return;
+
+    if (subjects.length === 0) {
+      subjectListDiv.classList.add('hidden');
+      emptyStateDiv.classList.remove('hidden');
+      return;
+    }
+
+    subjectListDiv.classList.remove('hidden');
+    emptyStateDiv.classList.add('hidden');
+    
+    subjectListDiv.innerHTML = '';
+
+    subjects.forEach(sub => {
+      const currentPercent = sub.conducted > 0 ? (sub.attended / sub.conducted) * 100 : 100.0;
+      const card = document.createElement('div');
+      card.className = "flex items-center justify-between rounded-sm border border-hairline bg-canvas-soft-2 p-3 group/sub transition-shadow hover:shadow-sm";
+      
+      const isOk = currentPercent >= sub.target;
+      const statusColor = isOk ? 'text-success' : 'text-error';
+
+      card.innerHTML = `
+        <button class="flex-1 text-left select-none focus:outline-none load-sub-trigger" data-id="${sub.id}">
+          <p class="font-sans text-xs font-semibold text-ink line-clamp-1">${sub.name}</p>
+          <div class="flex items-center gap-2 mt-1">
+            <span class="font-mono text-[10px] text-mute">${sub.attended}/${sub.conducted} Attended</span>
+            <span class="font-mono text-[10px] ${statusColor} font-semibold">${currentPercent.toFixed(1)}%</span>
+          </div>
+        </button>
+        <button 
+          class="h-6 w-6 inline-flex items-center justify-center rounded-md text-mute hover:text-error hover:bg-error/10 transition-colors opacity-0 group-hover/sub:opacity-100 focus:opacity-100 delete-sub-trigger"
+          data-id="${sub.id}"
+          aria-label="Delete ${sub.name}"
+        >
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      `;
+
+      subjectListDiv.appendChild(card);
+    });
+
+    // Attach listeners for dynamic element clicks
+    document.querySelectorAll('.load-sub-trigger').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = (e.currentTarget as HTMLElement).dataset.id;
+        const sub = subjects.find(s => s.id === id);
+        if (sub) {
+          if (targetInput) {
+            targetInput.value = sub.target.toString();
+            if (targetSlider) targetSlider.value = sub.target.toString();
+          }
+          if (conductedInput) {
+            conductedInput.value = sub.conducted.toString();
+            if (conductedSlider) conductedSlider.value = sub.conducted.toString();
+          }
+          if (attendedInput) {
+            attendedInput.value = sub.attended.toString();
+            if (attendedSlider) attendedSlider.value = sub.attended.toString();
+          }
+          calculate();
+        }
+      });
+    });
+
+    document.querySelectorAll('.delete-sub-trigger').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = (e.currentTarget as HTMLElement).dataset.id;
+        subjects = subjects.filter(s => s.id !== id);
+        localStorage.setItem('hub_attendance_subjects', JSON.stringify(subjects));
+        renderSubjects();
+      });
+    });
+  };
+
+  // Add Subject button trigger
+  if (saveSubjectBtn && subjectNameInput) {
+    saveSubjectBtn.addEventListener('click', () => {
+      const name = subjectNameInput.value.trim();
+      if (!name) return;
+
+      if (!targetInput || !conductedInput || !attendedInput) return;
+
+      const conducted = parseInt(conductedInput.value) || 0;
+      const attended = parseInt(attendedInput.value) || 0;
+      const target = parseFloat(targetInput.value) || 75;
+
+      const newSub: Subject = {
+        id: Date.now().toString(),
+        name,
+        conducted,
+        attended,
+        target
+      };
+
+      subjects.push(newSub);
+      localStorage.setItem('hub_attendance_subjects', JSON.stringify(subjects));
+      
+      subjectNameInput.value = '';
+      renderSubjects();
+    });
+  }
+
+  // Initial Calculation Run
+  calculate();
+  renderSubjects();
+</script>
