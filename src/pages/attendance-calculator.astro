@@ -22,14 +22,14 @@ const faq = [
 ---
 
 <BaseLayout
-  title="Unified Attendance & Bunk Calculator for College Students"
-  description="Calculate your current attendance percentage, find out exactly how many lectures you can bunk (skip), or how many consecutive classes you need to attend to meet the 75% rule."
+  title="Attendance Calculator & Bunk Tracker (75% Rule)"
+  description="Free college attendance calculator and bunk planner. Find how many lectures you can safely skip/bunk, or how many you must attend to maintain 75% attendance."
   {faq}
 >
-  <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     <!-- Breadcrumb & Header -->
     <nav class="flex mb-4" aria-label="Breadcrumb">
-      <ol class="inline-flex items-center gap-1.5 font-mono text-xs text-mute">
+      <ol class="inline-flex items-center gap-1.5 font-mono text-[11px] text-mute">
         <li>
           <a href="/" class="hover:text-ink transition-colors">Home</a>
         </li>
@@ -40,8 +40,8 @@ const faq = [
       </ol>
     </nav>
 
-    <div class="mb-10">
-      <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-xs font-semibold text-mute">
+    <div class="mb-8">
+      <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-[11px] font-semibold text-mute">
         Tool 01
       </span>
       <h1 class="mt-4 font-sans text-3xl font-semibold tracking-[-0.96px] text-ink sm:text-4xl">
@@ -55,10 +55,10 @@ const faq = [
     <!-- Main Tool Workspace -->
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
       <!-- Calculator Inputs & Subject Manager -->
-      <div class="flex flex-col gap-8 lg:col-span-7">
+      <div class="flex flex-col gap-6 lg:col-span-7">
         
         <!-- Interactive Form -->
-        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200">
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
           <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-6">
             Calculator Inputs
           </h2>
@@ -100,7 +100,7 @@ const faq = [
                 <label for="conducted" class="text-sm font-medium text-ink">
                   Total Classes Conducted
                 </label>
-                <span class="text-xs font-mono text-mute">Includes labs & lectures</span>
+                <span class="text-[11px] font-mono text-mute">Includes labs & lectures</span>
               </div>
               <div class="flex items-center gap-4">
                 <input
@@ -161,10 +161,10 @@ const faq = [
         </div>
 
         <!-- Subject Profiles Manager -->
-        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200">
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
           <div class="flex items-center justify-between mb-6">
             <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono">
-              Subject Manager (LocalStorage)
+              Subject Manager
             </h2>
             <span class="text-[10px] font-mono bg-canvas-soft-2 border border-hairline rounded-full px-2 py-0.5 text-mute">
               Offline Cache
@@ -183,7 +183,7 @@ const faq = [
             />
             <button
               id="save-subject"
-              class="h-9 inline-flex items-center justify-center rounded-sm bg-primary px-4 text-xs font-semibold text-on-primary hover:bg-ink/90 transition-colors"
+              class="h-9 inline-flex items-center justify-center rounded-sm bg-primary px-4 text-xs font-semibold text-on-primary hover:bg-ink/90 transition-colors cursor-pointer"
             >
               Save Subject
             </button>
@@ -205,13 +205,13 @@ const faq = [
       <div class="flex flex-col gap-6 lg:col-span-5">
         
         <!-- Live Calculations Card -->
-        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200">
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
           <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-6">
             Calculated Results
           </h2>
 
           <!-- Visual Gauge Block -->
-          <div class="flex flex-col items-center justify-center py-6 text-center">
+          <div class="flex flex-col items-center justify-center py-4 text-center">
             <div id="gauge-container" class="relative flex h-36 w-36 items-center justify-center rounded-full border-[10px] border-canvas-soft-2 bg-canvas transition-colors duration-300">
               <div class="flex flex-col items-center">
                 <!-- Large current % display with tabular numbers -->
@@ -224,9 +224,43 @@ const faq = [
               <span id="gauge-status-led" class="absolute top-2 right-2 h-3.5 w-3.5 rounded-full border-2 border-canvas shadow-sm bg-success transition-all duration-300"></span>
             </div>
             
-            <p id="gauge-advice" class="mt-6 text-sm leading-relaxed text-body font-medium px-4">
+            <p id="gauge-advice" class="mt-5 text-sm leading-relaxed text-body font-medium px-4">
               Your attendance is in the safe zone.
             </p>
+
+            <!-- Progress Bar toward target attendance -->
+            <div class="w-full mt-6 px-4">
+              <div class="flex justify-between text-[10px] font-mono text-mute mb-1.5">
+                <span>0%</span>
+                <span id="target-marker" class="font-semibold text-primary">Target: 75%</span>
+                <span>100%</span>
+              </div>
+              <div class="h-2 w-full rounded-full bg-canvas-soft-2 overflow-hidden border border-hairline relative">
+                <!-- Target vertical line marker -->
+                <div id="target-line" class="absolute top-0 bottom-0 w-0.5 bg-primary/40 z-10 transition-all duration-300" style="left: 75%;"></div>
+                <!-- Progress fill -->
+                <div id="progress-bar-fill" class="h-full bg-success transition-all duration-300" style="width: 80%;"></div>
+              </div>
+            </div>
+
+            <!-- Exam Eligibility Status Card -->
+            <div id="eligibility-card" class="mt-6 w-full rounded-sm border p-3.5 flex items-start gap-3 text-left transition-all duration-300 bg-success/5 border-success/20">
+              <div id="eligibility-icon" class="text-success mt-0.5">
+                <!-- Dynamic svg check/alert -->
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" />
+                </svg>
+              </div>
+              <div>
+                <h4 id="eligibility-title" class="text-xs font-semibold uppercase tracking-wider text-success font-mono">
+                  Exam Eligible
+                </h4>
+                <p id="eligibility-desc" class="text-xs text-body mt-1 leading-normal">
+                  Your attendance is above the 75% threshold. You are fully eligible for semester exams.
+                </p>
+              </div>
+            </div>
+
           </div>
 
           <div class="h-px bg-hairline my-6"></div>
@@ -252,7 +286,7 @@ const faq = [
         </div>
 
         <!-- Share & Export Card -->
-        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200">
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
           <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-4">
             Share Calculations
           </h2>
@@ -260,13 +294,13 @@ const faq = [
             Generate a clean, copy-paste format to share with classmates on WhatsApp or Telegram groups.
           </p>
 
-          <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-xs text-body whitespace-pre-wrap select-all leading-normal" id="share-text-box">
+          <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-[11px] text-body whitespace-pre-wrap select-all leading-normal" id="share-text-box">
             Loading results card…
           </div>
 
           <button
             id="copy-share-btn"
-            class="mt-4 w-full h-9 inline-flex items-center justify-center gap-2 rounded-sm bg-primary px-4 text-xs font-semibold text-on-primary hover:bg-ink/90 transition-colors"
+            class="mt-4 w-full h-9 inline-flex items-center justify-center gap-2 rounded-sm bg-primary px-4 text-xs font-semibold text-on-primary hover:bg-ink/90 transition-colors cursor-pointer"
           >
             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
@@ -275,6 +309,74 @@ const faq = [
           </button>
         </div>
 
+      </div>
+    </div>
+
+    <!-- Attendance Forecast Grid Panel (Full Width) -->
+    <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 mt-8 transition-colors duration-200">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono">
+            Attendance Forecast
+          </h2>
+          <p class="text-xs text-mute mt-1">
+            Simulate how skipping or attending future classes impacts your percentage.
+          </p>
+        </div>
+        
+        <!-- Tab Switches (Vercel Pill style) -->
+        <div class="inline-flex rounded-full bg-canvas-soft-2 p-0.5 border border-hairline self-start sm:self-auto">
+          <button
+            id="tab-bunks"
+            class="rounded-full px-3 py-1 text-xs font-medium bg-canvas text-ink shadow-sm transition-all focus:outline-none cursor-pointer"
+          >
+            Bunk Simulation (+1 to +10)
+          </button>
+          <button
+            id="tab-attendance"
+            class="rounded-full px-3 py-1 text-xs font-medium text-body hover:text-ink transition-all focus:outline-none cursor-pointer"
+          >
+            Attend Simulation (+1 to +10)
+          </button>
+        </div>
+      </div>
+
+      <!-- Bunk Forecast Table -->
+      <div id="bunks-forecast-container" class="overflow-x-auto -mx-4 sm:mx-0">
+        <div class="inline-block min-w-full align-middle px-4 sm:px-0">
+          <table class="w-full border-collapse text-left">
+            <thead>
+              <tr class="border-b border-hairline bg-canvas-soft-2">
+                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Missed Lectures</th>
+                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Projected Conducted</th>
+                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider text-right">Projected Attendance</th>
+                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody id="bunks-forecast-body" class="divide-y divide-hairline font-mono text-xs text-body tabular-nums">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Attend Forecast Table (Hidden by default) -->
+      <div id="attendance-forecast-container" class="hidden overflow-x-auto -mx-4 sm:mx-0">
+        <div class="inline-block min-w-full align-middle px-4 sm:px-0">
+          <table class="w-full border-collapse text-left">
+            <thead>
+              <tr class="border-b border-hairline bg-canvas-soft-2">
+                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Attended Lectures</th>
+                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Projected Conducted</th>
+                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider text-right">Projected Attendance</th>
+                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-forecast-body" class="divide-y divide-hairline font-mono text-xs text-body tabular-nums">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -345,6 +447,19 @@ const faq = [
   const gaugeContainer = document.getElementById('gauge-container');
   const gaugeStatusLed = document.getElementById('gauge-status-led');
   const gaugeAdvice = document.getElementById('gauge-advice');
+
+  // Progress Bar & Eligibility Cards
+  const progressBarFill = document.getElementById('progress-bar-fill');
+  const targetLine = document.getElementById('target-line');
+  const targetMarker = document.getElementById('target-marker');
+  const eligibilityCard = document.getElementById('eligibility-card');
+  const eligibilityIcon = document.getElementById('eligibility-icon');
+  const eligibilityTitle = document.getElementById('eligibility-title');
+  const eligibilityDesc = document.getElementById('eligibility-desc');
+
+  // Forecast DOM Elements
+  const bunksForecastBody = document.getElementById('bunks-forecast-body');
+  const attendanceForecastBody = document.getElementById('attendance-forecast-body');
   
   const shareTextBox = document.getElementById('share-text-box');
   const copyShareBtn = document.getElementById('copy-share-btn');
@@ -428,18 +543,9 @@ const faq = [
     let ledColor = "bg-success";
 
     if (currentPercent >= target) {
-      // Safe to bunk calculation
-      // attended / (conducted + B) >= target/100
-      // 100 * attended >= target * conducted + target * B
-      // B = Math.floor((100 * attended - target * conducted) / target)
       bunks = conducted > 0 ? Math.floor((100 * attended - target * conducted) / target) : 0;
       if (bunks < 0) bunks = 0;
     } else {
-      // Recovery calculation
-      // (attended + R) / (conducted + R) >= target/100
-      // 100 * attended + 100 * R >= target * conducted + target * R
-      // (100 - target) * R >= target * conducted - 100 * attended
-      // R = Math.ceil((target * conducted - 100 * attended) / (100 - target))
       recovery = target < 100 ? Math.ceil((target * conducted - 100 * attended) / (100 - target)) : 0;
     }
 
@@ -486,7 +592,6 @@ const faq = [
     }
 
     if (gaugeContainer) {
-      // Split previous class names and replace them cleanly
       gaugeContainer.className = `relative flex h-36 w-36 items-center justify-center rounded-full bg-canvas transition-colors duration-300 ${statusClass}`;
     }
 
@@ -496,6 +601,103 @@ const faq = [
 
     if (gaugeAdvice) {
       gaugeAdvice.innerHTML = message.replace(/\*\*(.*?)\*\*/g, '<span class="font-bold">$1</span>');
+    }
+
+    // Update Progress Bar
+    if (progressBarFill) {
+      progressBarFill.style.width = `${Math.min(100, currentPercent)}%`;
+      if (currentPercent >= target) {
+        progressBarFill.className = "h-full bg-success transition-all duration-300";
+      } else {
+        progressBarFill.className = "h-full bg-error transition-all duration-300";
+      }
+    }
+    if (targetLine) {
+      targetLine.style.left = `${target}%`;
+    }
+    if (targetMarker) {
+      targetMarker.textContent = `Target: ${target}%`;
+    }
+
+    // Update Exam Eligibility Card
+    if (eligibilityCard && eligibilityTitle && eligibilityDesc && eligibilityIcon) {
+      if (currentPercent >= target) {
+        // Eligible (>= target)
+        eligibilityCard.className = "mt-6 w-full rounded-sm border p-3.5 flex items-start gap-3 text-left transition-all duration-300 bg-success/5 border-success/20";
+        eligibilityTitle.textContent = "Exam Eligible";
+        eligibilityTitle.className = "text-xs font-semibold uppercase tracking-wider text-success font-mono";
+        eligibilityIcon.className = "text-success mt-0.5";
+        eligibilityIcon.innerHTML = `<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`;
+        eligibilityDesc.textContent = `Your attendance (${currentPercent.toFixed(1)}%) is above the ${target}% target. You are eligible for examinations.`;
+      } else if (currentPercent >= 60) {
+        // Condonation Bracket (60% to target-1%)
+        eligibilityCard.className = "mt-6 w-full rounded-sm border p-3.5 flex items-start gap-3 text-left transition-all duration-300 bg-warning/5 border-warning/20";
+        eligibilityTitle.textContent = "Condonation Bracket";
+        eligibilityTitle.className = "text-xs font-semibold uppercase tracking-wider text-warning font-mono";
+        eligibilityIcon.className = "text-warning mt-0.5";
+        eligibilityIcon.innerHTML = `<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+        eligibilityDesc.textContent = `You are in the condonation range. You may require a medical certificate or dean's permission to sit for exams.`;
+      } else {
+        // Detained (< 60%)
+        eligibilityCard.className = "mt-6 w-full rounded-sm border p-3.5 flex items-start gap-3 text-left transition-all duration-300 bg-error/5 border-error/20";
+        eligibilityTitle.textContent = "Detained / High Risk";
+        eligibilityTitle.className = "text-xs font-semibold uppercase tracking-wider text-error font-mono";
+        eligibilityIcon.className = "text-error mt-0.5";
+        eligibilityIcon.innerHTML = `<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+        eligibilityDesc.textContent = `Detention alert. Your percentage is below the 60% baseline. You are at high risk of academic detention.`;
+      }
+    }
+
+    // Populate Forecast Tables
+    if (bunksForecastBody) {
+      bunksForecastBody.innerHTML = '';
+      for (let i = 1; i <= 10; i++) {
+        const projConducted = conducted + i;
+        const projPercent = projConducted > 0 ? (attended / projConducted) * 100 : 100.0;
+        const isOk = projPercent >= target;
+        const statusText = isOk ? 'Safe' : 'Shortage';
+        const colorClass = isOk ? 'text-success' : 'text-error';
+        const bgStatusClass = isOk ? 'bg-success/10 text-success' : 'bg-error/10 text-error';
+
+        bunksForecastBody.innerHTML += `
+          <tr class="hover:bg-canvas-soft-2 transition-colors">
+            <td class="py-2.5 px-4 font-semibold text-ink">+${i} bunk${i > 1 ? 's' : ''}</td>
+            <td class="py-2.5 px-4">${conducted} conducted → <span class="text-ink font-medium">${projConducted}</span></td>
+            <td class="py-2.5 px-4 text-right font-semibold ${colorClass}">${projPercent.toFixed(1)}%</td>
+            <td class="py-2.5 px-4 text-right">
+              <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${bgStatusClass}">
+                ${statusText}
+              </span>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    if (attendanceForecastBody) {
+      attendanceForecastBody.innerHTML = '';
+      for (let i = 1; i <= 10; i++) {
+        const projConducted = conducted + i;
+        const projAttended = attended + i;
+        const projPercent = projConducted > 0 ? (projAttended / projConducted) * 100 : 100.0;
+        const isOk = projPercent >= target;
+        const statusText = isOk ? 'Safe' : 'Shortage';
+        const colorClass = isOk ? 'text-success' : 'text-error';
+        const bgStatusClass = isOk ? 'bg-success/10 text-success' : 'bg-error/10 text-error';
+
+        attendanceForecastBody.innerHTML += `
+          <tr class="hover:bg-canvas-soft-2 transition-colors">
+            <td class="py-2.5 px-4 font-semibold text-ink">+${i} class${i > 1 ? 'es' : ''}</td>
+            <td class="py-2.5 px-4">${conducted} conducted → <span class="text-ink font-medium">${projConducted}</span></td>
+            <td class="py-2.5 px-4 text-right font-semibold ${colorClass}">${projPercent.toFixed(1)}%</td>
+            <td class="py-2.5 px-4 text-right">
+              <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${bgStatusClass}">
+                ${statusText}
+              </span>
+            </td>
+          </tr>
+        `;
+      }
     }
 
     // Share Text Card update
@@ -538,6 +740,28 @@ const faq = [
     });
   }
 
+  // Forecast Tab Switching Logic
+  const tabBunks = document.getElementById('tab-bunks');
+  const tabAttendance = document.getElementById('tab-attendance');
+  const bunksContainer = document.getElementById('bunks-forecast-container');
+  const attendanceContainer = document.getElementById('attendance-forecast-container');
+
+  if (tabBunks && tabAttendance && bunksContainer && attendanceContainer) {
+    tabBunks.addEventListener('click', () => {
+      tabBunks.className = "rounded-full px-3 py-1 text-xs font-medium bg-canvas text-ink shadow-sm transition-all focus:outline-none cursor-pointer";
+      tabAttendance.className = "rounded-full px-3 py-1 text-xs font-medium text-body hover:text-ink transition-all focus:outline-none cursor-pointer";
+      bunksContainer.classList.remove('hidden');
+      attendanceContainer.classList.add('hidden');
+    });
+
+    tabAttendance.addEventListener('click', () => {
+      tabAttendance.className = "rounded-full px-3 py-1 text-xs font-medium bg-canvas text-ink shadow-sm transition-all focus:outline-none cursor-pointer";
+      tabBunks.className = "rounded-full px-3 py-1 text-xs font-medium text-body hover:text-ink transition-all focus:outline-none cursor-pointer";
+      bunksContainer.classList.add('hidden');
+      attendanceContainer.classList.remove('hidden');
+    });
+  }
+
   // Subject Profile List Rendering
   const renderSubjects = () => {
     if (!subjectListDiv || !emptyStateDiv) return;
@@ -562,7 +786,7 @@ const faq = [
       const statusColor = isOk ? 'text-success' : 'text-error';
 
       card.innerHTML = `
-        <button class="flex-1 text-left select-none focus:outline-none load-sub-trigger" data-id="${sub.id}">
+        <button class="flex-1 text-left select-none focus:outline-none load-sub-trigger cursor-pointer" data-id="${sub.id}">
           <p class="font-sans text-xs font-semibold text-ink line-clamp-1">${sub.name}</p>
           <div class="flex items-center gap-2 mt-1">
             <span class="font-mono text-[10px] text-mute">${sub.attended}/${sub.conducted} Attended</span>
@@ -570,7 +794,7 @@ const faq = [
           </div>
         </button>
         <button 
-          class="h-6 w-6 inline-flex items-center justify-center rounded-md text-mute hover:text-error hover:bg-error/10 transition-colors opacity-0 group-hover/sub:opacity-100 focus:opacity-100 delete-sub-trigger"
+          class="h-6 w-6 inline-flex items-center justify-center rounded-md text-mute hover:text-error hover:bg-error/10 transition-colors opacity-0 group-hover/sub:opacity-100 focus:opacity-100 delete-sub-trigger cursor-pointer"
           data-id="${sub.id}"
           aria-label="Delete ${sub.name}"
         >
