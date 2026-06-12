@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://studentutilityhub.com/sitemap.xml
+Sitemap: https://student-utility-hub-e7l.pages.dev/sitemap.xml
