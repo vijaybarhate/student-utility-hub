@@ -1,0 +1,789 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const faq = [
+  {
+    question: "What is SGPA and how is it calculated?",
+    answer: "SGPA stands for Semester Grade Point Average. It is calculated by multiplying the grade points earned in each subject by the credits assigned to that course, summing these weighted grade points, and dividing the total by the sum of all semester credits. Formula: SGPA = Σ(Credits * Grade Point) / Σ(Credits)."
+  },
+  {
+    question: "How do course credits affect my overall GPA?",
+    answer: "Credits act as weight multipliers in your GPA calculation. A subject with 4 credits has double the impact on your final SGPA compared to a subject with 2 credits. Securing an outstanding grade in high-credit subjects (like core labs or project work) is crucial to pulling up your average."
+  },
+  {
+    question: "What is the standard UGC 10-point grading scale?",
+    answer: "The University Grants Commission (UGC) mandates a standard 10-point letter grading system: O (Outstanding = 10), A+ (Excellent = 9), A (Very Good = 8), B+ (Good = 7), B (Above Average = 6), C (Average = 5), D (Pass = 4), F (Fail = 0), and Ab (Absent = 0)."
+  },
+  {
+    question: "How do I convert SGPA to equivalent marks percentage?",
+    answer: "Conversion formulas vary by university. The standard UGC formula is: Percentage (%) = (SGPA - 0.75) * 10. For Mumbai University, the formula is: Percentage (%) = 7.25 * SGPA + 11 (Arts/Commerce/Science) or 7.10 * SGPA + 11 (Engineering). This calculator supports instant conversion across these major schemes."
+  },
+  {
+    question: "What is the minimum SGPA required to pass a semester?",
+    answer: "In most Indian universities, a student must secure a minimum grade point of 4 (Grade D/Pass) in each individual subject, resulting in an overall SGPA of at least 4.00, to pass a semester. Falling below this or failing a subject results in an ATKT (Allowed to Keep Terms) or backlog."
+  },
+  {
+    question: "Can I save my calculated GPA results?",
+    answer: "Yes. All calculations and inputs run client-side. You can copy your results card using the 'Copy Results' button to share it or save it in your notes."
+  }
+];
+---
+
+<BaseLayout
+  title="GPA Calculator & Semester SGPA Planner (10-Point Scale)"
+  description="Calculate your semester SGPA or cumulative GPA using credit-weighted grades. Supports UGC and Mumbai University 10-point grading scales with dynamic rows."
+  {faq}
+>
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Breadcrumb & Header -->
+    <nav class="flex mb-4" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center gap-1.5 font-mono text-[11px] text-mute">
+        <li>
+          <a href="/" class="hover:text-ink transition-colors">Home</a>
+        </li>
+        <li class="flex items-center gap-1.5 select-none">
+          <span>/</span>
+          <span class="text-body font-semibold">GPA Calculator</span>
+        </li>
+      </ol>
+    </nav>
+
+    <div class="mb-8">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-[11px] font-semibold text-mute">
+          Tool 03
+        </span>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-mute">
+          Semester Grade Point Average
+        </span>
+      </div>
+      <h1 class="mt-4 font-sans text-3xl font-semibold tracking-[-0.96px] text-ink sm:text-4xl">
+        GPA Calculator & SGPA Planner
+      </h1>
+      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-body">
+        Calculate your semester SGPA using credit-weighted grades. Add dynamic subject rows, view overall credit distributions, and instantly convert scores to percentages.
+      </p>
+    </div>
+
+    <!-- Main Tool Workspace -->
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <!-- Subject Inputs Board -->
+      <div class="flex flex-col gap-6 lg:col-span-7">
+        
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono">
+              Subject Grades Board
+            </h2>
+            <span class="text-[10px] font-mono bg-canvas-soft-2 border border-hairline rounded-full px-2 py-0.5 text-mute">
+              Dynamic Rows
+            </span>
+          </div>
+
+          <!-- Subjects Input Table -->
+          <div class="overflow-x-auto -mx-4 sm:mx-0">
+            <table class="w-full border-collapse text-left text-sm mb-6">
+              <thead>
+                <tr class="border-b border-hairline bg-canvas-soft-2 font-mono text-[10px] uppercase text-mute">
+                  <th class="py-2.5 px-3 font-semibold">Subject Name (Optional)</th>
+                  <th class="py-2.5 px-3 font-semibold w-24">Credits</th>
+                  <th class="py-2.5 px-3 font-semibold w-36">Grade</th>
+                  <th class="py-2.5 px-3 font-semibold w-16 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="subject-rows" class="divide-y divide-hairline">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table Controls -->
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button
+              id="add-subject-row"
+              class="h-9 flex-1 inline-flex items-center justify-center gap-2 rounded-sm border border-hairline bg-canvas text-xs font-semibold text-ink hover:bg-canvas-soft-2 transition-colors cursor-pointer"
+            >
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              Add Subject Row
+            </button>
+            <button
+              id="reset-calculator"
+              class="h-9 inline-flex items-center justify-center rounded-sm border border-hairline bg-canvas px-4 text-xs font-semibold text-error hover:bg-error/5 hover:border-error/20 transition-colors cursor-pointer"
+            >
+              Reset Board
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Calculation Outputs & Share Panel -->
+      <div class="flex flex-col gap-6 lg:col-span-5">
+        
+        <!-- Live Calculations Card -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-6">
+            Calculated SGPA
+          </h2>
+
+          <!-- Visual Gauge Block -->
+          <div class="flex flex-col items-center justify-center py-4 text-center">
+            <div id="gauge-container" class="relative flex h-36 w-36 items-center justify-center rounded-full border-[10px] border-canvas-soft-2 bg-canvas transition-colors duration-300">
+              <div class="flex flex-col items-center">
+                <!-- Large current % display with tabular numbers -->
+                <span id="result-gpa" class="font-sans text-3xl font-semibold tracking-tight tabular-nums text-ink">
+                  0.00
+                </span>
+                <span class="text-[10px] font-mono font-medium text-mute mt-0.5">SGPA Score</span>
+              </div>
+              <!-- Colored status circle indicator -->
+              <span id="gauge-status-led" class="absolute top-2 right-2 h-3.5 w-3.5 rounded-full border-2 border-canvas shadow-sm bg-mute transition-all duration-300"></span>
+            </div>
+            
+            <p id="gpa-advice" class="mt-5 text-sm leading-relaxed text-body font-medium px-4">
+              Enter subject grades to compute your semester average.
+            </p>
+
+            <!-- Credit Distribution details -->
+            <div class="w-full grid grid-cols-2 gap-3 mt-6 border-t border-hairline pt-6 font-mono text-xs text-body">
+              <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 text-left">
+                <span class="block text-[10px] text-mute uppercase font-semibold">Total Credits:</span>
+                <span id="result-credits" class="text-sm font-bold text-ink mt-0.5 block">0</span>
+              </div>
+              <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 text-left">
+                <span class="block text-[10px] text-mute uppercase font-semibold">Earned Points:</span>
+                <span id="result-points" class="text-sm font-bold text-ink mt-0.5 block">0</span>
+              </div>
+            </div>
+
+            <!-- Equivalent Percentage Converter Card -->
+            <div class="mt-4 w-full rounded-sm border border-hairline bg-canvas-soft-2 p-3 text-left">
+              <div class="flex items-center justify-between gap-3 mb-2">
+                <span class="font-mono text-[10px] text-mute uppercase font-semibold">Equivalent Percentage:</span>
+                <select id="univ-selector" class="h-6 rounded-sm border border-hairline bg-canvas px-1.5 font-sans text-[11px] text-ink focus:outline-none cursor-pointer">
+                  <option value="mu-general">Mumbai University (General)</option>
+                  <option value="mu-engg">Mumbai University (Engg)</option>
+                  <option value="ugc">UGC standard (10-point)</option>
+                  <option value="cbse">CBSE scale (9.5x)</option>
+                </select>
+              </div>
+              <div class="flex items-baseline gap-1 mt-1">
+                <span id="result-converted-percent" class="font-sans text-xl font-bold text-ink">0%</span>
+                <span class="text-[10px] font-mono text-mute font-medium" id="conversion-formula">(7.25 * GPA) + 11</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Share & Export Card -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-4">
+            Share Grade Card
+          </h2>
+          <p class="text-xs text-mute mb-4 leading-relaxed">
+            Generate a clean, copy-paste format to share with recruiters or post on academic trackers.
+          </p>
+
+          <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-[11px] text-body whitespace-pre-wrap select-all leading-normal" id="share-text-box">
+            Loading grade card…
+          </div>
+
+          <button
+            id="copy-share-btn"
+            class="mt-4 w-full h-9 inline-flex items-center justify-center gap-2 rounded-sm bg-primary px-4 text-xs font-semibold text-on-primary hover:bg-ink/90 transition-colors cursor-pointer"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+            <span id="copy-btn-text">Copy Results</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Detailed Guide Section -->
+    <section class="py-16 mt-16 border-t border-hairline transition-colors duration-200">
+      <div class="mx-auto max-w-4xl">
+        <span class="font-mono text-[11px] uppercase tracking-wider text-mute block text-center mb-2">Detailed Guide</span>
+        <h2 class="text-center font-sans text-2xl font-semibold tracking-tight text-ink md:text-3xl mb-12 animate-fade-in">
+          Calculating Academic SGPA & Credits weighting
+        </h2>
+
+        <div class="prose prose-sm max-w-none text-body leading-relaxed space-y-8 font-sans">
+          <div>
+            <p>
+              In higher education institutions across India, performance is evaluated using a credit-weighted grading system. Rather than looking solely at average marks, universities assign a specific credit value to each subject, lab course, or project report. This ensures that subjects demanding higher study hours and complexity have a proportionally larger influence on your final grade reports.
+            </p>
+            <p class="mt-4">
+              The primary index of semester performance is the **Semester Grade Point Average (SGPA)**. This guide outlines how to calculate your SGPA manually, how credits function as mathematical weights, and how the results convert to equivalent percentages under various university regulations.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              How SGPA Is Calculated
+            </h3>
+            <p>
+              SGPA measures your grade point performance across all subjects in a single academic semester, weighted by course credits. The standard mathematical formula for calculating SGPA is:
+            </p>
+            
+            <div class="my-6 rounded-sm border border-hairline bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm">
+              SGPA = Σ(Subject Credits &times; Grade Points Earned) / Total Semester Credits
+            </div>
+
+            <p>
+              To calculate your semester score, follow these steps:
+            </p>
+            <ol class="list-decimal list-inside space-y-2 mt-4 ml-2">
+              <li>
+                <strong class="text-ink">Multiply Credits by Grade Points:</strong> For each subject, take the credit points assigned to that course (e.g. 4 credits) and multiply it by the grade points you earned (e.g. A grade = 8 points). This product is the "Credit Points Earned" for that subject.
+              </li>
+              <li>
+                <strong class="text-ink">Sum the Weighted Points:</strong> Add together these products for all courses taken during the semester.
+              </li>
+              <li>
+                <strong class="text-ink">Divide by Total Credits:</strong> Add up the credits of all courses in that semester, then divide the sum of weighted points by this total credit count.
+              </li>
+            </ol>
+
+            <p class="mt-4">
+              For example, let's assume you took 5 subjects in a semester:
+            </p>
+            <div class="my-4 overflow-hidden rounded-md border border-hairline bg-canvas">
+              <table class="w-full border-collapse text-left text-xs">
+                <thead>
+                  <tr class="border-b border-hairline bg-canvas-soft-2 font-mono text-[10px] uppercase text-mute">
+                    <th class="py-2 px-4">Subject</th>
+                    <th class="py-2 px-4">Credits</th>
+                    <th class="py-2 px-4">Letter Grade</th>
+                    <th class="py-2 px-4">Grade Point</th>
+                    <th class="py-2 px-4">Credit &times; Point</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-hairline text-body font-mono">
+                  <tr>
+                    <td class="py-2 px-4">Mathematics-I</td>
+                    <td class="py-2 px-4">4</td>
+                    <td class="py-2 px-4">A+</td>
+                    <td class="py-2 px-4">9</td>
+                    <td class="py-2 px-4">36</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-4">Physics Lab</td>
+                    <td class="py-2 px-4">2</td>
+                    <td class="py-2 px-4">O</td>
+                    <td class="py-2 px-4">10</td>
+                    <td class="py-2 px-4">20</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-4">Programming in C</td>
+                    <td class="py-2 px-4">4</td>
+                    <td class="py-2 px-4">A</td>
+                    <td class="py-2 px-4">8</td>
+                    <td class="py-2 px-4">32</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-4">Engineering Drawing</td>
+                    <td class="py-2 px-4">3</td>
+                    <td class="py-2 px-4">B+</td>
+                    <td class="py-2 px-4">7</td>
+                    <td class="py-2 px-4">21</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-4">Professional Ethics</td>
+                    <td class="py-2 px-4">2</td>
+                    <td class="py-2 px-4">B</td>
+                    <td class="py-2 px-4">6</td>
+                    <td class="py-2 px-4">12</td>
+                  </tr>
+                  <tr class="bg-canvas-soft font-semibold text-ink">
+                    <td class="py-2 px-4">Total</td>
+                    <td class="py-2 px-4">15</td>
+                    <td class="py-2 px-4">-</td>
+                    <td class="py-2 px-4">-</td>
+                    <td class="py-2 px-4">121</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="mt-4">
+              Dividing the total credit points earned (121) by the total credits conducted (15) yields:
+            </p>
+            <div class="my-4 rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-xs text-ink leading-relaxed pl-6">
+              SGPA = 121 / 15 = 8.07 / 10.00
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              How Course Credits Impact Your GPA Math
+            </h3>
+            <p>
+              Course credits act as weighting factors. A common mistake among students is taking the simple average of their grade points (e.g. `(9 + 10 + 8 + 7 + 6) / 5 = 8.00`), which fails to account for course credit differences.
+            </p>
+            <p class="mt-4">
+              In our example, the student scored a perfect `O (10)` in Physics Lab, but because it only carries 2 credits, it contributes less to the overall GPA than Mathematics-I (which carries 4 credits). If the student had scored `O (10)` in Mathematics-I and `A (8)` in Physics Lab, their resulting SGPA would rise significantly because the higher grade point was achieved in the higher-weighted subject.
+            </p>
+            <p class="mt-4">
+              To maximize your GPA, focus your effort on high-credit subjects (typically core lectures, final year projects, and major lab classes) as they have the largest impact on your final transcript records.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              Grading Scales and Points in Indian Universities
+            </h3>
+            <p>
+              Under the Choice Based Credit System (CBCS) standardized by the UGC, most universities in India (including Savitribai Phule Pune University, Mumbai University, and VTU) utilize a 10-point letter grading scale:
+            </p>
+            <ul class="list-disc list-inside space-y-2 mt-4 ml-2">
+              <li><strong class="text-ink">O (Outstanding):</strong> 10 Grade Points</li>
+              <li><strong class="text-ink">A+ (Excellent):</strong> 9 Grade Points</li>
+              <li><strong class="text-ink">A (Very Good):</strong> 8 Grade Points</li>
+              <li><strong class="text-ink">B+ (Good):</strong> 7 Grade Points</li>
+              <li><strong class="text-ink">B (Above Average):</strong> 6 Grade Points</li>
+              <li><strong class="text-ink">C (Average):</strong> 5 Grade Points</li>
+              <li><strong class="text-ink">D (Pass):</strong> 4 Grade Points</li>
+              <li><strong class="text-ink">F (Fail):</strong> 0 Grade Points</li>
+            </ul>
+            <p class="mt-4">
+              Securing a grade of `F` in any course means you fail to earn those course credits. You will have to clear the backlog in supplementary exams to earn the credits and update your cumulative GPA.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              Converting SGPA to Percentage
+            </h3>
+            <p>
+              When applying for private placements or government exams, you may be required to convert your GPA score into a marks percentage. Because there is no single standardized formula in India, we provide conversions for the most common regulations:
+            </p>
+            <div class="space-y-4 mt-6">
+              <div class="border-l-2 border-hairline pl-4">
+                <strong class="text-ink text-sm block">UGC Standard 10-Point Scale</strong>
+                <p class="text-xs text-body mt-1 leading-relaxed">
+                  Formula: `Percentage = (SGPA - 0.75) * 10`. For example, an SGPA of 8.00 converts to `(8.00 - 0.75) * 10 = 72.5%`.
+                </p>
+              </div>
+
+              <div class="border-l-2 border-hairline pl-4">
+                <strong class="text-ink text-sm block">Mumbai University (CBCS General)</strong>
+                <p class="text-xs text-body mt-1 leading-relaxed">
+                  Formula: `Percentage = 7.25 * SGPA + 11`. For example, an SGPA of 8.00 converts to `(7.25 * 8) + 11 = 69%` (permitting rounding up to the next integer).
+                </p>
+              </div>
+
+              <div class="border-l-2 border-hairline pl-4">
+                <strong class="text-ink text-sm block">CBSE/Generic Scale</strong>
+                <p class="text-xs text-body mt-1 leading-relaxed">
+                  Formula: `Percentage = SGPA * 9.5`. For example, an SGPA of 8.00 converts to `8.00 * 9.5 = 76.0%`.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Related Utilities Grid -->
+        <div class="mt-16 border-t border-hairline pt-12">
+          <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-6">
+            Explore More Academic Utilities
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <a href="/attendance-calculator" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>Attendance & Bunk Tracker</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Calculate if you can skip today's lectures or find exactly how many classes you must attend to maintain 75% attendance.
+              </p>
+            </a>
+
+            <a href="/cgpa-to-percentage" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>CGPA to Percentage Converter</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Convert 10-point scale CGPA/CGPI to equivalent marks percentage instantly using official university formulas.
+              </p>
+            </a>
+
+            <a href="/marks-needed-to-pass" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>Pass Marks Calculator</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Find the minimum marks you need to score in end-semester theory exams based on internal assessment marks.
+              </p>
+            </a>
+
+            <a href="/atkt-eligibility-helper" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>ATKT Helper</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Understand university rules for backlogs, Allowed to Keep Terms (ATKT) eligibility, and academic promotions.
+              </p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-16 mt-16 border-t border-hairline transition-colors duration-200">
+      <div class="mx-auto max-w-4xl">
+        <h2 class="text-center font-sans text-2xl font-semibold tracking-tight text-ink md:text-3xl">
+          GPA Calculations FAQ
+        </h2>
+        <p class="text-center mt-2 text-sm text-body">
+          Clarifying key doubts about university grade averages, credit weightings, and conversion rules.
+        </p>
+
+        <div class="mt-10 divide-y divide-hairline border-t border-b border-hairline bg-canvas px-6 rounded-md border">
+          {faq.map((item) => (
+            <div class="py-4">
+              <details class="group [&_summary::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center justify-between gap-1.5 text-base font-medium text-ink focus:outline-none select-none">
+                  <span>{item.question}</span>
+                  <span class="relative h-5 w-5 shrink-0">
+                    <svg
+                      class="absolute inset-0 h-5 w-5 opacity-100 group-open:opacity-0 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <svg
+                      class="absolute inset-0 h-5 w-5 opacity-0 group-open:opacity-100 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </summary>
+                <p class="mt-3 text-sm leading-relaxed text-body animate-fade-in">
+                  {item.answer}
+                </p>
+              </details>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  // DOM element bindings
+  const subjectRowsContainer = document.getElementById('subject-rows');
+  const addSubjectRowBtn = document.getElementById('add-subject-row');
+  const resetCalculatorBtn = document.getElementById('reset-calculator');
+
+  const resultGpa = document.getElementById('result-gpa');
+  const gaugeContainer = document.getElementById('gauge-container');
+  const gaugeStatusLed = document.getElementById('gauge-status-led');
+  const gpaAdvice = document.getElementById('gpa-advice');
+
+  const resultCredits = document.getElementById('result-credits');
+  const resultPoints = document.getElementById('result-points');
+  
+  const univSelector = document.getElementById('univ-selector') as HTMLSelectElement | null;
+  const resultConvertedPercent = document.getElementById('result-converted-percent');
+  const conversionFormula = document.getElementById('conversion-formula');
+
+  const shareTextBox = document.getElementById('share-text-box');
+  const copyShareBtn = document.getElementById('copy-share-btn');
+  const copyBtnText = document.getElementById('copy-btn-text');
+
+  // Initial subjects load
+  let subjects = [
+    { name: "Mathematics-I", credits: 4, grade: 9 }, // A+
+    { name: "Applied Physics", credits: 4, grade: 8 }, // A
+    { name: "Programming Lab", credits: 2, grade: 10 }, // O
+    { name: "Mechanics", credits: 3, grade: 7 }, // B+
+    { name: "Communication Skills", credits: 2, grade: 6 } // B
+  ];
+
+  // Render Rows dynamically
+  const renderRows = () => {
+    if (!subjectRowsContainer) return;
+    subjectRowsContainer.innerHTML = '';
+
+    subjects.forEach((sub, idx) => {
+      const tr = document.createElement('tr');
+      tr.className = "hover:bg-canvas-soft transition-colors";
+      tr.innerHTML = `
+        <td class="py-3 px-3">
+          <input
+            type="text"
+            placeholder="e.g. Subject ${idx + 1}…"
+            value="${sub.name}"
+            class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2 text-xs text-ink focus:outline-none subject-name-input"
+            data-index="${idx}"
+          />
+        </td>
+        <td class="py-3 px-3">
+          <input
+            type="number"
+            min="1"
+            max="8"
+            value="${sub.credits}"
+            class="w-full h-8 rounded-sm border border-hairline bg-canvas text-center text-xs font-semibold text-ink focus:outline-none subject-credits-input"
+            data-index="${idx}"
+          />
+        </td>
+        <td class="py-3 px-3">
+          <select
+            class="w-full h-8 rounded-sm border border-hairline bg-canvas px-1.5 text-xs text-ink focus:outline-none subject-grade-select cursor-pointer"
+            data-index="${idx}"
+          >
+            <option value="10" ${sub.grade === 10 ? 'selected' : ''}>O (10)</option>
+            <option value="9" ${sub.grade === 9 ? 'selected' : ''}>A+ (9)</option>
+            <option value="8" ${sub.grade === 8 ? 'selected' : ''}>A (8)</option>
+            <option value="7" ${sub.grade === 7 ? 'selected' : ''}>B+ (7)</option>
+            <option value="6" ${sub.grade === 6 ? 'selected' : ''}>B (6)</option>
+            <option value="5" ${sub.grade === 5 ? 'selected' : ''}>C (5)</option>
+            <option value="4" ${sub.grade === 4 ? 'selected' : ''}>D (4)</option>
+            <option value="0" ${sub.grade === 0 ? 'selected' : ''}>F (0)</option>
+          </select>
+        </td>
+        <td class="py-3 px-3 text-center">
+          <button
+            class="h-7 w-7 inline-flex items-center justify-center rounded-sm border border-hairline text-mute hover:text-error hover:bg-error/5 hover:border-error/20 transition-colors delete-row-btn cursor-pointer"
+            data-index="${idx}"
+            aria-label="Delete Subject"
+          >
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </td>
+      `;
+      subjectRowsContainer.appendChild(tr);
+    });
+
+    // Attach listeners
+    document.querySelectorAll('.subject-name-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        const index = parseInt(target.dataset.index || '0');
+        subjects[index].name = target.value;
+        updateShareMessage();
+      });
+    });
+
+    document.querySelectorAll('.subject-credits-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        const index = parseInt(target.dataset.index || '0');
+        let val = parseInt(target.value);
+        if (isNaN(val) || val <= 0) val = 1;
+        subjects[index].credits = val;
+        calculate();
+      });
+    });
+
+    document.querySelectorAll('.subject-grade-select').forEach(select => {
+      select.addEventListener('change', (e) => {
+        const target = e.target as HTMLSelectElement;
+        const index = parseInt(target.dataset.index || '0');
+        subjects[index].grade = parseInt(target.value);
+        calculate();
+      });
+    });
+
+    document.querySelectorAll('.delete-row-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = (e.currentTarget as HTMLElement);
+        const index = parseInt(target.dataset.index || '0');
+        subjects.splice(index, 1);
+        renderRows();
+        calculate();
+      });
+    });
+  };
+
+  // Main Calculation Logic
+  const calculate = () => {
+    let totalWeightedPoints = 0;
+    let totalCredits = 0;
+
+    subjects.forEach(sub => {
+      totalWeightedPoints += sub.grade * sub.credits;
+      totalCredits += sub.credits;
+    });
+
+    const gpa = totalCredits > 0 ? (totalWeightedPoints / totalCredits) : 0.00;
+
+    // Update displays
+    if (resultGpa) {
+      resultGpa.textContent = gpa.toFixed(2);
+    }
+    if (resultCredits) {
+      resultCredits.textContent = totalCredits.toString();
+    }
+    if (resultPoints) {
+      resultPoints.textContent = totalWeightedPoints.toString();
+    }
+
+    // Visual gauge indicators
+    let ledColor = 'bg-mute';
+    let gaugeBorder = 'border-canvas-soft-2';
+    let adviceText = 'Enter subject grades to compute your semester average.';
+
+    if (totalCredits > 0) {
+      if (gpa >= 8.5) {
+        ledColor = 'bg-success';
+        gaugeBorder = 'border-success/30';
+        adviceText = 'Excellent performance! You are in the outstanding academic range.';
+      } else if (gpa >= 7.0) {
+        ledColor = 'bg-success';
+        gaugeBorder = 'border-success/20';
+        adviceText = 'Great work! You are maintaining a strong First Class standing.';
+      } else if (gpa >= 5.0) {
+        ledColor = 'bg-warning';
+        gaugeBorder = 'border-warning/30';
+        adviceText = 'Satisfactory performance. Focus on high-credit subjects to raise your score.';
+      } else {
+        ledColor = 'bg-error';
+        gaugeBorder = 'border-error/30';
+        adviceText = 'High risk. Your average is low; consider seeking guidance for recovery.';
+      }
+    }
+
+    if (gaugeContainer) {
+      gaugeContainer.className = `relative flex h-36 w-36 items-center justify-center rounded-full bg-canvas transition-colors duration-300 border-[10px] ${gaugeBorder}`;
+    }
+    if (gaugeStatusLed) {
+      gaugeStatusLed.className = `absolute top-2 right-2 h-3.5 w-3.5 rounded-full border-2 border-canvas shadow-sm transition-all duration-300 ${ledColor}`;
+    }
+    if (gpaAdvice) {
+      gpaAdvice.textContent = adviceText;
+    }
+
+    // Equivalent Percentage calculations
+    calculatePercentage(gpa);
+  };
+
+  const calculatePercentage = (gpa: number) => {
+    if (!univSelector || !resultConvertedPercent || !conversionFormula) return;
+
+    const scheme = univSelector.value;
+    let percentage = 0;
+    let formulaStr = '';
+
+    if (scheme === 'mu-general') {
+      percentage = gpa > 0 ? 7.25 * gpa + 11 : 0;
+      formulaStr = '(7.25 * GPA) + 11';
+    } else if (scheme === 'mu-engg') {
+      percentage = gpa > 0 ? 7.10 * gpa + 11 : 0;
+      formulaStr = '(7.10 * GPA) + 11';
+    } else if (scheme === 'ugc') {
+      percentage = gpa >= 0.75 ? (gpa - 0.75) * 10 : 0;
+      formulaStr = '(GPA - 0.75) * 10';
+    } else if (scheme === 'cbse') {
+      percentage = gpa * 9.5;
+      formulaStr = 'GPA * 9.5';
+    }
+
+    resultConvertedPercent.textContent = `${percentage.toFixed(1)}%`;
+    conversionFormula.textContent = formulaStr;
+
+    updateShareMessage();
+  };
+
+  const updateShareMessage = () => {
+    if (!shareTextBox || !resultGpa || !resultCredits || !resultConvertedPercent || !univSelector) return;
+
+    const gpa = resultGpa.textContent || '0.00';
+    const credits = resultCredits.textContent || '0';
+    const percent = resultConvertedPercent.textContent || '0%';
+    const univ = univSelector.options[univSelector.selectedIndex].text;
+
+    let shareMsg = `📊 Semester SGPA Card\n`;
+    shareMsg += `• Calculated SGPA: ${gpa} / 10.00\n`;
+    shareMsg += `• Total Semester Credits: ${credits}\n`;
+    shareMsg += `• Equivalent Marks: ${percent} (${univ})\n`;
+    shareMsg += `\nCalculate yours at: studentutilityhub.com/gpa-calculator`;
+    shareTextBox.textContent = shareMsg;
+  };
+
+  // Add Subject Row Button
+  if (addSubjectRowBtn) {
+    addSubjectRowBtn.addEventListener('click', () => {
+      subjects.push({
+        name: `Subject ${subjects.length + 1}`,
+        credits: 4,
+        grade: 8
+      });
+      renderRows();
+      calculate();
+    });
+  }
+
+  // Reset Button
+  if (resetCalculatorBtn) {
+    resetCalculatorBtn.addEventListener('click', () => {
+      subjects = [
+        { name: "Subject 1", credits: 4, grade: 8 },
+        { name: "Subject 2", credits: 4, grade: 8 },
+        { name: "Subject 3", credits: 3, grade: 8 }
+      ];
+      renderRows();
+      calculate();
+    });
+  }
+
+  // Univ selection change triggers conversion update
+  if (univSelector) {
+    univSelector.addEventListener('change', () => {
+      const gpa = resultGpa ? parseFloat(resultGpa.textContent || '0') : 0;
+      calculatePercentage(gpa);
+    });
+  }
+
+  // Copy results code
+  if (copyShareBtn && shareTextBox && copyBtnText) {
+    copyShareBtn.addEventListener('click', () => {
+      const textToCopy = shareTextBox.textContent || '';
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        copyBtnText.textContent = "Copied!";
+        copyShareBtn.classList.remove('bg-primary');
+        copyShareBtn.classList.add('bg-success');
+
+        setTimeout(() => {
+          copyBtnText.textContent = "Copy Results";
+          copyShareBtn.classList.remove('bg-success');
+          copyShareBtn.classList.add('bg-primary');
+        }, 2000);
+      }).catch(err => {
+        console.error("Copy failed", err);
+      });
+    });
+  }
+
+  // Initial Run
+  renderRows();
+  calculate();
+</script>
