@@ -1,0 +1,804 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const faq = [
+  {
+    question: "What is the passing mark for an 80-mark theory paper at Mumbai University?",
+    answer: "For engineering and most courses under Mumbai University following the 80:20 pattern, the passing threshold is 40%. This means you must secure a minimum of 32 marks out of 80 in the end-semester theory examination."
+  },
+  {
+    question: "Do I need to pass theory and internal assessments separately?",
+    answer: "Yes. Under Mumbai University regulations, separate passing is mandatory. In an 80:20 engineering scheme, you must secure at least 32/80 in the theory exam and 8/20 in the internal assessments. Scoring well in one cannot compensate for failing in the other."
+  },
+  {
+    question: "How does the calculator determine marks needed to pass?",
+    answer: "The calculator applies two rules: first, it checks the independent minimum passing mark for the theory paper. Second, it calculates the combined passing marks needed to reach the overall percentage (typically 40%). It outputs the higher of these two values: Theory Needed = Math.max(Theory Min Pass, Combined Pass Total - Internals Scored)."
+  },
+  {
+    question: "What happens if I score less than 8 out of 20 in internals?",
+    answer: "If your internal assessment score is below the 40% threshold (8/20 for MU Engineering), you fail the internal head of passing. You will be marked as failed in the subject (under backlog/KT) and must reappear for internals or submit supplementary term work in the next term."
+  },
+  {
+    question: "Can I use this calculator to target a specific grade?",
+    answer: "Yes. By entering your target overall percentage (e.g. 60% for First Class, 70% for Distinction), the simulator calculates exactly what you must score in the end-semester theory exam to achieve that target grade."
+  },
+  {
+    question: "Are my marks saved or sent to any server?",
+    answer: "No. Student Utility Hub values your privacy. All calculator calculations, presets, and sliders run 100% locally in your browser. No academic data is sent to our servers."
+  }
+];
+---
+
+<BaseLayout
+  title="Pass Marks Calculator & Target Grade Simulator"
+  description="Calculate the minimum theory marks needed to pass your college exams. Supports Mumbai University 80:20 and 75:25 patterns with separate passing rules."
+  {faq}
+>
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Breadcrumb & Header -->
+    <nav class="flex mb-4" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center gap-1.5 font-mono text-[11px] text-mute">
+        <li>
+          <a href="/" class="hover:text-ink transition-colors">Home</a>
+        </li>
+        <li class="flex items-center gap-1.5 select-none">
+          <span>/</span>
+          <span class="text-body font-semibold">Pass Marks Calculator</span>
+        </li>
+      </ol>
+    </nav>
+
+    <div class="mb-8">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-[11px] font-semibold text-mute">
+          Tool 04
+        </span>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-mute">
+          Exam Prep Planner
+        </span>
+      </div>
+      <h1 class="mt-4 font-sans text-3xl font-semibold tracking-[-0.96px] text-ink sm:text-4xl">
+        Pass Marks & Target Marks Calculator
+      </h1>
+      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-body">
+        Find out exactly what you need to score in end-semester theory exams to pass or reach your target grade. Supports separate passing rules for Mumbai University and custom configurations.
+      </p>
+    </div>
+
+    <!-- Main Tool Workspace -->
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <!-- Calculator Inputs -->
+      <div class="flex flex-col gap-6 lg:col-span-7">
+        
+        <!-- Main Form Card -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-6">
+            Calculator Setup
+          </h2>
+
+          <div class="flex flex-col gap-6">
+            <!-- University / Marking Pattern Preset Selection -->
+            <div>
+              <label for="preset-selector" class="block text-sm font-medium text-ink mb-2">
+                Marking Scheme / Preset
+              </label>
+              <select
+                id="preset-selector"
+                class="w-full h-10 rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
+              >
+                <option value="mu-engg">Mumbai University Engineering (80 Theory + 20 Internals, 40% Pass)</option>
+                <option value="mu-degree">Mumbai University B.Sc/B.Com (75 Theory + 25 Internals, 40% Pass)</option>
+                <option value="generic-60-40">Generic Degree Scheme (60 Theory + 40 Internals, 40% Pass)</option>
+                <option value="std-100-40">Standard 100 Marks (No Internals, 40% Pass)</option>
+                <option value="std-100-35">Standard 100 Marks (No Internals, 35% Pass)</option>
+                <option value="custom">Custom Scheme (Define your own limits…)</option>
+              </select>
+            </div>
+
+            <!-- Custom Configuration Inputs (Hidden by default) -->
+            <div id="custom-config-container" class="hidden rounded-sm border border-hairline bg-canvas-soft-2 p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="sm:col-span-2">
+                <span class="font-mono text-[10px] font-semibold text-mute uppercase">Custom Scheme Parameters</span>
+              </div>
+              <div>
+                <label for="theory-max-input" class="block text-xs text-ink mb-1.5 font-medium">Theory Max Marks</label>
+                <input type="number" id="theory-max-input" value="80" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+              </div>
+              <div>
+                <label for="theory-pass-percent" class="block text-xs text-ink mb-1.5 font-medium">Theory Min Pass (%)</label>
+                <input type="number" id="theory-pass-percent" value="40" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+              </div>
+              <div>
+                <label for="internal-max-input" class="block text-xs text-ink mb-1.5 font-medium">Internals Max Marks</label>
+                <input type="number" id="internal-max-input" value="20" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+              </div>
+              <div>
+                <label for="internal-pass-percent" class="block text-xs text-ink mb-1.5 font-medium">Internals Min Pass (%)</label>
+                <input type="number" id="internal-pass-percent" value="40" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+              </div>
+              <div class="sm:col-span-2">
+                <label for="overall-pass-percent" class="block text-xs text-ink mb-1.5 font-medium">Combined Overall Pass (%)</label>
+                <input type="number" id="overall-pass-percent" value="40" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+              </div>
+            </div>
+
+            <!-- Internal Marks Scored (Conditional on IA Max > 0) -->
+            <div id="internal-input-container">
+              <div class="flex items-center justify-between mb-2">
+                <label for="internal-scored" class="text-sm font-medium text-ink">
+                  Internal Assessment Marks Scored
+                </label>
+                <span id="internal-max-label" class="text-[11px] font-mono text-mute">out of 20</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <input
+                  type="range"
+                  id="internal-scored-range"
+                  min="0"
+                  max="20"
+                  value="15"
+                  class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary"
+                  aria-label="Internal marks slider"
+                />
+                <input
+                  type="number"
+                  id="internal-scored"
+                  value="15"
+                  min="0"
+                  max="20"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  class="h-9 w-20 rounded-sm border border-hairline bg-canvas text-center text-sm font-semibold text-ink focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <!-- Target Marks / Grade Simulation -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label for="target-percent" class="text-sm font-medium text-ink">
+                  Target Combined Grade / Percentage
+                </label>
+                <span id="target-percent-val" class="text-[11px] font-mono text-mute font-semibold">60% (First Class)</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <input
+                  type="range"
+                  id="target-percent-range"
+                  min="40"
+                  max="100"
+                  value="60"
+                  step="5"
+                  class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary"
+                  aria-label="Target percentage slider"
+                />
+                <input
+                  type="number"
+                  id="target-percent"
+                  value="60"
+                  min="40"
+                  max="100"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  class="h-9 w-20 rounded-sm border border-hairline bg-canvas text-center text-sm font-semibold text-ink focus:outline-none"
+                />
+                <span class="font-mono text-sm text-mute font-semibold">%</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Calculation Outputs & Share Panel -->
+      <div class="flex flex-col gap-6 lg:col-span-5">
+        
+        <!-- Live Calculations Card -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-6">
+            Required Theory Score
+          </h2>
+
+          <!-- Main results -->
+          <div class="flex flex-col items-center justify-center py-4 text-center">
+            
+            <div id="gauge-container" class="relative flex h-36 w-36 items-center justify-center rounded-full border-[10px] border-success/30 bg-canvas transition-colors duration-300">
+              <div class="flex flex-col items-center">
+                <span id="result-theory-needed" class="font-sans text-3xl font-bold tracking-tight tabular-nums text-ink">
+                  32
+                </span>
+                <span id="result-theory-max" class="text-[10px] font-mono font-medium text-mute mt-0.5">OUT OF 80</span>
+              </div>
+              <span id="gauge-status-led" class="absolute top-2 right-2 h-3.5 w-3.5 rounded-full border-2 border-canvas shadow-sm bg-success transition-all duration-300"></span>
+            </div>
+
+            <p id="theory-advice" class="mt-5 text-sm leading-relaxed text-body font-medium px-4">
+              You must score at least 32 marks in the theory exam to pass the course.
+            </p>
+
+            <!-- Warnings / Alert Banners -->
+            <div id="internal-status-card" class="mt-6 w-full rounded-sm border p-3.5 flex items-start gap-3 text-left transition-all duration-300 bg-success/5 border-success/20">
+              <div id="internal-status-icon" class="text-success mt-0.5">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" />
+                </svg>
+              </div>
+              <div>
+                <h4 id="internal-status-title" class="text-xs font-semibold uppercase tracking-wider text-success font-mono">
+                  Internals Cleared
+                </h4>
+                <p id="internal-status-desc" class="text-xs text-body mt-1 leading-normal">
+                  Your internal assessment score is above the passing minimum.
+                </p>
+              </div>
+            </div>
+
+            <!-- Target marks output -->
+            <div class="mt-6 w-full rounded-sm border border-hairline bg-canvas-soft-2 p-3.5 text-left font-mono text-xs text-body leading-relaxed">
+              <span class="block font-bold text-ink mb-1 uppercase text-[10px] text-mute">Target Score Simulator:</span>
+              <span id="target-breakdown">To reach 60% overall, you need 45 marks in the theory paper.</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Share & Export Card -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-4">
+            Share Results
+          </h2>
+          <p class="text-xs text-mute mb-4 leading-relaxed">
+            Generate a copy-paste status card to share on student study groups.
+          </p>
+
+          <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-[11px] text-body whitespace-pre-wrap select-all leading-normal" id="share-text-box">
+            Loading results…
+          </div>
+
+          <button
+            id="copy-share-btn"
+            class="mt-4 w-full h-9 inline-flex items-center justify-center gap-2 rounded-sm bg-primary px-4 text-xs font-semibold text-on-primary hover:bg-ink/90 transition-colors cursor-pointer"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+            <span id="copy-btn-text">Copy Results</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Detailed Guide Section -->
+    <section class="py-16 mt-16 border-t border-hairline transition-colors duration-200">
+      <div class="mx-auto max-w-4xl">
+        <span class="font-mono text-[11px] uppercase tracking-wider text-mute block text-center mb-2">Detailed Guide</span>
+        <h2 class="text-center font-sans text-2xl font-semibold tracking-tight text-ink md:text-3xl mb-12 animate-fade-in">
+          Understanding College Passing Marks and Target Calculations
+        </h2>
+
+        <div class="prose prose-sm max-w-none text-body leading-relaxed space-y-8 font-sans">
+          <div>
+            <p>
+              Preparing for college exams involves more than just studying; it requires planning. To optimize your study hours and reduce academic anxiety, you need to know exactly how many marks you must secure in your end-semester theory papers to pass. Furthermore, if you are aiming for a specific overall grade (like a First Class or Distinction), you need to know how much you must score based on your existing internal assessment marks.
+            </p>
+            <p class="mt-4">
+              In most Indian universities, passing criteria are multi-layered. Simply adding your internals and end-semester scores is not enough due to separate passing regulations. This guide outlines how passing marks are calculated, how separate passing rules work in institutions like Mumbai University, and how to simulate targets effectively.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              How College Passing Marks Are Calculated
+            </h3>
+            <p>
+              To calculate the minimum theory marks you need to pass a course, you must apply both of the following rules:
+            </p>
+            <ol class="list-decimal list-inside space-y-2 mt-4 ml-2">
+              <li>
+                <strong class="text-ink">Independent Theory Minimum:</strong> The minimum score required in the theory exam alone. E.g. for an 80-mark theory paper with a 40% threshold, you must score at least 32 marks.
+              </li>
+              <li>
+                <strong class="text-ink">Overall Combined Minimum:</strong> The total combined marks (Theory + Internals) needed to reach the overall passing percentage. E.g. for a combined 100 marks with a 40% overall threshold, you need at least 40 marks total.
+              </li>
+            </ol>
+            <p class="mt-4">
+              The mathematical formula to determine the marks needed in the theory paper is:
+            </p>
+            
+            <div class="my-6 rounded-sm border border-hairline bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm">
+              Theory Marks Needed = Math.max(Theory Min Pass, Combined Pass Total - Internal Scored)
+            </div>
+
+            <p class="mt-4">
+              This formula ensures that even if your high internal assessment score (e.g. 19/20) means you only need 21 marks to reach the overall 40-mark passing total, you are still restricted by the individual theory minimum (32 marks). You must hit 32 in the theory paper to pass the course.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              Mumbai University Passing Rules (80:20 and 75:25 Patterns)
+            </h3>
+            <p>
+              The University of Mumbai enforces strict "separate passing" criteria across its various programs:
+            </p>
+
+            <div class="space-y-6 mt-6">
+              <div class="border-l-2 border-hairline pl-4">
+                <h4 class="font-sans text-sm font-semibold text-ink">Engineering Programs (80:20 Pattern)</h4>
+                <p class="text-xs text-body mt-1 leading-relaxed">
+                  Engineering courses feature an 80-mark end-semester theory exam and a 20-mark internal assessment (term work/quizzes). The passing threshold is 40% for both heads independently. You must secure at least 32/80 in the theory paper and 8/20 in internals. Securing 40/80 in theory but only 6/20 in internals results in a fail status under the internal backlog head.
+                </p>
+              </div>
+
+              <div class="border-l-2 border-hairline pl-4">
+                <h4 class="font-sans text-sm font-semibold text-ink">Degree Programs (75:25 Pattern)</h4>
+                <p class="text-xs text-body mt-1 leading-relaxed">
+                  B.Sc, B.Com, and B.A. degree courses under the CBCS scheme often use a 75-mark end-semester theory exam and a 25-mark internal evaluation. The passing threshold is 40% separately. This requires a minimum of 30/75 in the theory paper and 10/25 in internal marks.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              Understanding Separate Passing in Engineering and Degrees
+            </h3>
+            <p>
+              The rationale behind separate passing is to prevent students from bypassing theory preparation by accumulating maximum internal marks, or vice-versa. Because college faculty grade internal assignments, term work, and presentations locally, there is a risk of grade inflation. Enforcing an independent 40% threshold on the university-conducted end-semester theory paper maintains academic integrity and ensures that all students demonstrate a baseline level of understanding under controlled exam conditions.
+            </p>
+            <p class="mt-4">
+              If you fall short of the internal passing minimum (e.g. scoring 6 out of 20), you are ineligible to clear the subject, even if you write a perfect theory paper. You will have to submit supplementary assignments, repeat term work, or clear a backlog fee to update your internal records in the subsequent term.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-3">
+              Simulating Marks to Reach a Target Grade
+            </h3>
+            <p>
+              If your academic goal is not just passing but achieving a specific grade bracket, you must plan your end-semester prep accordingly. For instance, in Mumbai University, degree classifications are awarded as follows:
+            </p>
+            <ul class="list-disc list-inside space-y-2 mt-4 ml-2">
+              <li><strong class="text-ink">First Class with Distinction:</strong> 70% and above</li>
+              <li><strong class="text-ink">First Class:</strong> 60% to 69.99%</li>
+              <li><strong class="text-ink">Second Class:</strong> 50% to 59.99%</li>
+            </ul>
+            <p class="mt-4">
+              To calculate what you must score in theory to reach these targets, subtract your internal marks from the target total marks:
+            </p>
+            <div class="my-4 rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-xs text-ink leading-relaxed pl-6">
+              Theory Score for Target = Combined Target Marks - Internals Scored
+            </div>
+            <p class="mt-4">
+              Our built-in **Target Grade Simulator** computes this value dynamically. If your internal assessment score is low, you will see a warning indicating if your target requires more marks than the theory paper conducts (e.g., needing 85 marks on an 80-mark paper). This helps you set realistic targets or allocate study time to other subjects where a higher grade is still mathematically achievable.
+            </p>
+          </div>
+        </div>
+
+        <!-- Related Utilities Grid -->
+        <div class="mt-16 border-t border-hairline pt-12">
+          <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-6">
+            Explore More Academic Utilities
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <a href="/attendance-calculator" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>Attendance & Bunk Tracker</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Calculate if you can skip today's lectures or find exactly how many classes you must attend to maintain 75% attendance.
+              </p>
+            </a>
+
+            <a href="/gpa-calculator" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>GPA Calculator</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Compute semester-wise SGPA and overall CGPA using credit-weighted grades. Plan grades needed for target score.
+              </p>
+            </a>
+
+            <a href="/cgpa-to-percentage" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>CGPA Calculator</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Convert 10-point scale CGPA/CGPI to equivalent marks percentage instantly using official university formulas.
+              </p>
+            </a>
+
+            <a href="/atkt-eligibility-helper" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+              <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+                <span>ATKT Helper</span>
+                <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </h4>
+              <p class="text-xs text-body mt-2 leading-relaxed">
+                Understand university rules for backlogs, Allowed to Keep Terms (ATKT) eligibility, and academic promotions.
+              </p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-16 mt-16 border-t border-hairline transition-colors duration-200">
+      <div class="mx-auto max-w-4xl">
+        <h2 class="text-center font-sans text-2xl font-semibold tracking-tight text-ink md:text-3xl">
+          Exam Passing FAQ
+        </h2>
+        <p class="text-center mt-2 text-sm text-body">
+          Clarifying key doubts about university passing scores, internal limits, and target marks.
+        </p>
+
+        <div class="mt-10 divide-y divide-hairline border-t border-b border-hairline bg-canvas px-6 rounded-md border">
+          {faq.map((item) => (
+            <div class="py-4">
+              <details class="group [&_summary::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center justify-between gap-1.5 text-base font-medium text-ink focus:outline-none select-none">
+                  <span>{item.question}</span>
+                  <span class="relative h-5 w-5 shrink-0">
+                    <svg
+                      class="absolute inset-0 h-5 w-5 opacity-100 group-open:opacity-0 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <svg
+                      class="absolute inset-0 h-5 w-5 opacity-0 group-open:opacity-100 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </summary>
+                <p class="mt-3 text-sm leading-relaxed text-body animate-fade-in">
+                  {item.answer}
+                </p>
+              </details>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  // DOM element bindings
+  const presetSelector = document.getElementById('preset-selector') as HTMLSelectElement | null;
+  const customConfigContainer = document.getElementById('custom-config-container');
+
+  // Custom configuration inputs
+  const theoryMaxInput = document.getElementById('theory-max-input') as HTMLInputElement | null;
+  const theoryPassPercentInput = document.getElementById('theory-pass-percent') as HTMLInputElement | null;
+  const internalMaxInput = document.getElementById('internal-max-input') as HTMLInputElement | null;
+  const internalPassPercentInput = document.getElementById('internal-pass-percent') as HTMLInputElement | null;
+  const overallPassPercentInput = document.getElementById('overall-pass-percent') as HTMLInputElement | null;
+
+  // Main interactive inputs
+  const internalInputContainer = document.getElementById('internal-input-container');
+  const internalScoredInput = document.getElementById('internal-scored') as HTMLInputElement | null;
+  const internalScoredSlider = document.getElementById('internal-scored-range') as HTMLInputElement | null;
+  const internalMaxLabel = document.getElementById('internal-max-label');
+
+  const targetPercentInput = document.getElementById('target-percent') as HTMLInputElement | null;
+  const targetPercentSlider = document.getElementById('target-percent-range') as HTMLInputElement | null;
+  const targetPercentValLabel = document.getElementById('target-percent-val');
+
+  // Outputs
+  const resultTheoryNeeded = document.getElementById('result-theory-needed');
+  const resultTheoryMax = document.getElementById('result-theory-max');
+  const theoryAdvice = document.getElementById('theory-advice');
+
+  const internalStatusCard = document.getElementById('internal-status-card');
+  const internalStatusIcon = document.getElementById('internal-status-icon');
+  const internalStatusTitle = document.getElementById('internal-status-title');
+  const internalStatusDesc = document.getElementById('internal-status-desc');
+
+  const targetBreakdown = document.getElementById('target-breakdown');
+  const shareTextBox = document.getElementById('share-text-box');
+  const copyShareBtn = document.getElementById('copy-share-btn');
+  const copyBtnText = document.getElementById('copy-btn-text');
+  const gaugeContainer = document.getElementById('gauge-container');
+  const gaugeStatusLed = document.getElementById('gauge-status-led');
+
+  // Double binding range sliders to inputs
+  const syncRangeInput = (slider: HTMLInputElement | null, numInput: HTMLInputElement | null, updateCallback: () => void) => {
+    if (slider && numInput) {
+      slider.addEventListener('input', () => {
+        numInput.value = slider.value;
+        updateCallback();
+      });
+      numInput.addEventListener('input', () => {
+        let val = parseInt(numInput.value);
+        if (isNaN(val)) val = 0;
+        const min = parseInt(slider.min);
+        const max = parseInt(slider.max);
+        slider.value = Math.max(min, Math.min(max, val)).toString();
+        updateCallback();
+      });
+    }
+  };
+
+  // Preset configuration change handler
+  const handlePresetChange = () => {
+    if (!presetSelector) return;
+
+    const preset = presetSelector.value;
+    if (customConfigContainer) {
+      if (preset === 'custom') {
+        customConfigContainer.classList.remove('hidden');
+      } else {
+        customConfigContainer.classList.add('hidden');
+      }
+    }
+
+    // Apply presets
+    let internalMax = 20;
+
+    if (preset === 'mu-engg') {
+      internalMax = 20;
+    } else if (preset === 'mu-degree') {
+      internalMax = 25;
+    } else if (preset === 'generic-60-40') {
+      internalMax = 40;
+    } else if (preset === 'std-100-40') {
+      internalMax = 0;
+    } else if (preset === 'std-100-35') {
+      internalMax = 0;
+    } else if (preset === 'custom') {
+      // Read from custom inputs
+      internalMax = parseInt(internalMaxInput?.value || '20');
+    }
+
+    // Update Slider boundaries for internals
+    if (internalInputContainer && internalScoredSlider && internalScoredInput) {
+      if (internalMax === 0) {
+        internalInputContainer.classList.add('hidden');
+        internalScoredInput.value = '0';
+        internalScoredSlider.value = '0';
+      } else {
+        internalInputContainer.classList.remove('hidden');
+        internalScoredSlider.max = internalMax.toString();
+        internalScoredInput.max = internalMax.toString();
+        if (parseInt(internalScoredInput.value) > internalMax) {
+          internalScoredInput.value = internalMax.toString();
+          internalScoredSlider.value = internalMax.toString();
+        }
+        if (internalMaxLabel) {
+          internalMaxLabel.textContent = `out of ${internalMax}`;
+        }
+      }
+    }
+
+    calculate();
+  };
+
+  // Perform pass calculations
+  const calculate = () => {
+    if (!presetSelector) return;
+
+    const preset = presetSelector.value;
+    let theoryMax = 80;
+    let theoryPass = 40;
+    let internalMax = 20;
+    let internalPass = 40;
+    let overallPass = 40;
+
+    if (preset === 'mu-engg') {
+      theoryMax = 80; theoryPass = 40; internalMax = 20; internalPass = 40; overallPass = 40;
+    } else if (preset === 'mu-degree') {
+      theoryMax = 75; theoryPass = 40; internalMax = 25; internalPass = 40; overallPass = 40;
+    } else if (preset === 'generic-60-40') {
+      theoryMax = 60; theoryPass = 40; internalMax = 40; internalPass = 40; overallPass = 40;
+    } else if (preset === 'std-100-40') {
+      theoryMax = 100; theoryPass = 40; internalMax = 0; internalPass = 0; overallPass = 40;
+    } else if (preset === 'std-100-35') {
+      theoryMax = 100; theoryPass = 35; internalMax = 0; internalPass = 0; overallPass = 35;
+    } else if (preset === 'custom') {
+      theoryMax = parseInt(theoryMaxInput?.value || '80');
+      theoryPass = parseInt(theoryPassPercentInput?.value || '40');
+      internalMax = parseInt(internalMaxInput?.value || '20');
+      internalPass = parseInt(internalPassPercentInput?.value || '40');
+      overallPass = parseInt(overallPassPercentInput?.value || '40');
+    }
+
+    // Constraints check
+    if (isNaN(theoryMax) || theoryMax <= 0) theoryMax = 80;
+    if (isNaN(theoryPass) || theoryPass < 0) theoryPass = 40;
+    if (isNaN(internalMax) || internalMax < 0) internalMax = 20;
+    if (isNaN(internalPass) || internalPass < 0) internalPass = 40;
+    if (isNaN(overallPass) || overallPass < 0) overallPass = 40;
+
+    let internalsScored = 0;
+    if (internalMax > 0 && internalScoredInput) {
+      internalsScored = parseInt(internalScoredInput.value);
+      if (isNaN(internalsScored)) internalsScored = 0;
+      if (internalsScored > internalMax) {
+        internalsScored = internalMax;
+        internalScoredInput.value = internalMax.toString();
+        if (internalScoredSlider) internalScoredSlider.value = internalMax.toString();
+      }
+    }
+
+    let targetPercent = 60;
+    if (targetPercentInput) {
+      targetPercent = parseInt(targetPercentInput.value);
+      if (isNaN(targetPercent)) targetPercent = 60;
+      if (targetPercent < overallPass) {
+        targetPercent = overallPass;
+        targetPercentInput.value = overallPass.toString();
+        if (targetPercentSlider) targetPercentSlider.value = overallPass.toString();
+      }
+    }
+
+    // Calculations
+    const theoryMinPass = Math.ceil(theoryMax * (theoryPass / 100));
+    const internalMinPass = Math.ceil(internalMax * (internalPass / 100));
+    const combinedPassTotal = Math.ceil((theoryMax + internalMax) * (overallPass / 100));
+    const targetTotal = Math.ceil((theoryMax + internalMax) * (targetPercent / 100));
+
+    // Theory marks needed to pass
+    const theoryPassNeeded = Math.max(theoryMinPass, combinedPassTotal - internalsScored);
+
+    // Theory marks needed to reach target
+    const theoryTargetNeeded = targetTotal - internalsScored;
+
+    // Display Pass Result
+    if (resultTheoryNeeded) {
+      resultTheoryNeeded.textContent = theoryPassNeeded.toString();
+    }
+    if (resultTheoryMax) {
+      resultTheoryMax.textContent = `OUT OF ${theoryMax}`;
+    }
+
+    // Update Advice text
+    if (theoryAdvice) {
+      theoryAdvice.innerHTML = `You must score at least <span class="font-bold">${theoryPassNeeded} marks</span> out of ${theoryMax} in the theory exam to pass the course.`;
+    }
+
+    // Update Internal Status Card
+    if (internalStatusCard && internalStatusIcon && internalStatusTitle && internalStatusDesc) {
+      if (internalMax === 0) {
+        internalStatusCard.className = "hidden";
+      } else {
+        internalStatusCard.className = "mt-6 w-full rounded-sm border p-3.5 flex items-start gap-3 text-left transition-all duration-300";
+        if (internalsScored >= internalMinPass) {
+          // Pass
+          internalStatusCard.classList.add('bg-success/5', 'border-success/20');
+          internalStatusTitle.textContent = "Internals Cleared";
+          internalStatusTitle.className = "text-xs font-semibold uppercase tracking-wider text-success font-mono";
+          internalStatusIcon.className = "text-success mt-0.5";
+          internalStatusIcon.innerHTML = `<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`;
+          internalStatusDesc.textContent = `Your internals score (${internalsScored}/${internalMax}) is above the minimum required ${internalMinPass} marks.`;
+        } else {
+          // Fail
+          internalStatusCard.classList.add('bg-error/5', 'border-error/20');
+          internalStatusTitle.textContent = "Internals Shortage!";
+          internalStatusTitle.className = "text-xs font-semibold uppercase tracking-wider text-error font-mono";
+          internalStatusIcon.className = "text-error mt-0.5";
+          internalStatusIcon.innerHTML = `<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+          internalStatusDesc.textContent = `Alert: Your internals score is below the passing minimum of ${internalMinPass} marks. You fail the internal head separately.`;
+        }
+      }
+    }
+
+    // Update Target Grade output
+    if (targetBreakdown) {
+      if (theoryTargetNeeded > theoryMax) {
+        targetBreakdown.innerHTML = `To reach <span class="font-bold">${targetPercent}%</span> overall: <span class="text-error font-bold font-mono">Mathematically Impossible</span> (requires ${theoryTargetNeeded} marks but the paper is only out of ${theoryMax}).`;
+      } else if (theoryTargetNeeded <= theoryPassNeeded) {
+        targetBreakdown.innerHTML = `To reach <span class="font-bold">${targetPercent}%</span> overall, you only need the passing minimum of <span class="font-bold">${theoryPassNeeded} marks</span>.`;
+      } else {
+        targetBreakdown.innerHTML = `To reach <span class="font-bold">${targetPercent}%</span> overall, you must score <span class="font-bold">${theoryTargetNeeded} marks</span> in the theory paper.`;
+      }
+    }
+
+    // Visual gauge indicators
+    let ledColor = 'bg-success';
+    let gaugeBorder = 'border-success/30';
+    if (internalMax > 0 && internalsScored < internalMinPass) {
+      ledColor = 'bg-error';
+      gaugeBorder = 'border-error/30';
+    }
+
+    if (gaugeContainer) {
+      gaugeContainer.className = `relative flex h-36 w-36 items-center justify-center rounded-full bg-canvas transition-colors duration-300 border-[10px] ${gaugeBorder}`;
+    }
+    if (gaugeStatusLed) {
+      gaugeStatusLed.className = `absolute top-2 right-2 h-3.5 w-3.5 rounded-full border-2 border-canvas shadow-sm transition-all duration-300 ${ledColor}`;
+    }
+
+    // Update Target display label
+    if (targetPercentValLabel) {
+      let gradeLabel = 'Pass Class';
+      if (targetPercent >= 70) gradeLabel = 'First Class with Distinction';
+      else if (targetPercent >= 60) gradeLabel = 'First Class';
+      else if (targetPercent >= 50) gradeLabel = 'Second Class';
+
+      targetPercentValLabel.textContent = `${targetPercent}% (${gradeLabel})`;
+    }
+
+    // Update share text
+    if (shareTextBox) {
+      let schemeName = 'Custom Marking Pattern';
+      if (preset === 'mu-engg') schemeName = 'Mumbai Univ Engineering (80:20)';
+      if (preset === 'mu-degree') schemeName = 'Mumbai Univ Degree (75:25)';
+      if (preset === 'generic-60-40') schemeName = 'Degree Scheme (60:40)';
+      if (preset === 'std-100-40') schemeName = 'Standard Scheme (100 Marks)';
+
+      let shareMsg = `📊 Exam Pass Marks Card\n`;
+      shareMsg += `• Scheme: ${schemeName}\n`;
+      if (internalMax > 0) {
+        shareMsg += `• Internals Scored: ${internalsScored} / ${internalMax} (${internalsScored >= internalMinPass ? 'Pass' : 'Shortage'})\n`;
+      }
+      shareMsg += `• Min Theory Needed to Pass: ${theoryPassNeeded} / ${theoryMax}\n`;
+      if (theoryTargetNeeded <= theoryMax) {
+        shareMsg += `• Theory for Target (${targetPercent}%): ${theoryTargetNeeded} marks\n`;
+      } else {
+        shareMsg += `• Target (${targetPercent}%): Impossible\n`;
+      }
+      shareMsg += `\nCalculate yours at: student-utility-hub-e7l.pages.dev/marks-needed-to-pass`;
+      shareTextBox.textContent = shareMsg;
+    }
+  };
+
+  // Sync range inputs
+  syncRangeInput(internalScoredSlider, internalScoredInput, calculate);
+  syncRangeInput(targetPercentSlider, targetPercentInput, calculate);
+
+  // Hook preset selector change
+  if (presetSelector) {
+    presetSelector.addEventListener('change', handlePresetChange);
+  }
+
+  // Hook custom configuration changes
+  const customInputs = [theoryMaxInput, theoryPassPercentInput, internalMaxInput, internalPassPercentInput, overallPassPercentInput];
+  customInputs.forEach(input => {
+    if (input) input.addEventListener('input', calculate);
+  });
+
+  // Copy share button logic
+  if (copyShareBtn && shareTextBox && copyBtnText) {
+    copyShareBtn.addEventListener('click', () => {
+      const textToCopy = shareTextBox.textContent || '';
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        copyBtnText.textContent = "Copied!";
+        copyShareBtn.classList.remove('bg-primary');
+        copyShareBtn.classList.add('bg-success');
+
+        setTimeout(() => {
+          copyBtnText.textContent = "Copy Results";
+          copyShareBtn.classList.remove('bg-success');
+          copyShareBtn.classList.add('bg-primary');
+        }, 2000);
+      }).catch(err => {
+        console.error("Copy failed", err);
+      });
+    });
+  }
+
+  // Initial Calculation Run
+  handlePresetChange();
+</script>
