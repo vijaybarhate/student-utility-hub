@@ -15,13 +15,21 @@ const navLinks = [
     <!-- Logo -->
     <div class="flex items-center gap-6">
       <a href="/" class="flex items-center gap-2.5 group focus:outline-none">
-        <!-- Stark minimal triangle icon inspired by Vercel -->
+        <!-- Graduation cap logo -->
         <svg
-          class="h-5 w-5 fill-ink stroke-ink transition-transform duration-200 group-hover:scale-105"
+          class="h-5 w-5 transition-transform duration-200 group-hover:scale-105"
           viewBox="0 0 24 24"
+          fill="currentColor"
           aria-hidden="true"
         >
-          <path d="M12 2L2 22h20L12 2z" stroke-width="2" stroke-linejoin="round" />
+          <!-- mortarboard top -->
+          <polygon points="12,3 22,8.5 12,14 2,8.5" />
+          <!-- hanging body -->
+          <rect x="8" y="12" width="8" height="6" rx="0.5" />
+          <!-- tassel string -->
+          <line x1="20" y1="8.5" x2="20" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          <!-- tassel ball -->
+          <circle cx="20" cy="15.8" r="1" />
         </svg>
         <span class="font-sans text-base font-semibold tracking-[-0.6px] text-ink">
           Student Utility Hub
