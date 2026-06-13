@@ -279,12 +279,14 @@ const faq = [
           <button
             id="copy-share-btn"
             class="mt-4 w-full h-9 inline-flex items-center justify-center gap-2 rounded-sm bg-primary px-4 text-xs font-semibold text-on-primary hover:bg-ink/90 transition-colors cursor-pointer"
+            aria-label="Copy CGPA conversion results to clipboard"
           >
             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
             <span id="copy-btn-text">Copy Results</span>
           </button>
+          <span id="copy-status-live" role="status" aria-live="polite" class="sr-only"></span>
         </div>
 
       </div>
@@ -754,11 +756,14 @@ const faq = [
         copyBtnText.textContent = "Copied!";
         copyShareBtn.classList.remove('bg-primary');
         copyShareBtn.classList.add('bg-success');
+        const liveRegion = document.getElementById('copy-status-live');
+        if (liveRegion) liveRegion.textContent = 'Results copied to clipboard';
 
         setTimeout(() => {
           copyBtnText.textContent = "Copy Results";
           copyShareBtn.classList.remove('bg-success');
           copyShareBtn.classList.add('bg-primary');
+          if (liveRegion) liveRegion.textContent = '';
         }, 2000);
       }).catch(err => {
         console.error("Copy failed", err);
@@ -772,7 +777,6 @@ const faq = [
       let totalWeightedSGPI = 0;
       let totalCredits = 0;
       let validSemesterFound = false;
-      let hasError = false;
 
       if (semesterError) semesterError.classList.add('hidden');
 
@@ -784,14 +788,21 @@ const faq = [
           const sgpiVal = sgpiInput.value.trim();
           if (sgpiVal !== '') {
             const sgpi = parseFloat(sgpiVal);
-            let credits = creditsInput ? parseFloat(creditsInput.value.trim()) : 0;
-            if (isNaN(credits) || credits <= 0) {
-              credits = 20; // Default weight if credits is empty or invalid
+            if (isNaN(sgpi) || sgpi < 0 || sgpi > 10) {
+              if (semesterError) {
+                semesterError.textContent = `Please enter a valid SGPI between 0.0 and 10.0 for Semester ${idx}.`;
+                semesterError.classList.remove('hidden');
+              }
+              return;
             }
 
-            if (isNaN(sgpi) || sgpi < 0 || sgpi > 10) {
-              hasError = true;
-              break;
+            let credits = creditsInput ? parseFloat(creditsInput.value.trim()) : NaN;
+            if (isNaN(credits) || credits <= 0) {
+              if (semesterError) {
+                semesterError.textContent = `Please enter valid Credits for Semester ${idx} — credits cannot be blank or zero.`;
+                semesterError.classList.remove('hidden');
+              }
+              return;
             }
 
             totalWeightedSGPI += sgpi * credits;
@@ -801,9 +812,9 @@ const faq = [
         }
       }
 
-      if (hasError || !validSemesterFound || totalCredits <= 0) {
+      if (!validSemesterFound || totalCredits <= 0) {
         if (semesterError) {
-          semesterError.textContent = hasError ? "Please enter valid SGPI numbers between 0.0 and 10.0." : "Enter at least one semester SGPI to compute.";
+          semesterError.textContent = "Enter at least one semester SGPI to compute.";
           semesterError.classList.remove('hidden');
         }
         return;

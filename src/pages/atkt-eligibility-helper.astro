@@ -290,7 +290,7 @@ const faq = [
             Current Semester Status
           </h2>
           <p class="text-xs text-mute mb-5 leading-normal">
-            Quick check — can you sit for next semester's exams, and are you at risk of detention?
+            Quick check for <strong>this semester only</strong> — can you sit for exams, and are you at risk of detention? For year-promotion eligibility, use the <strong>Academic Standings Setup</strong> tool above.
           </p>
 
           <div class="flex flex-col gap-4">
@@ -378,7 +378,7 @@ const faq = [
           </p>
 
           <div class="overflow-x-auto mb-4 border border-hairline rounded-sm">
-            <table class="w-full text-left border-collapse text-xs">
+            <table class="w-full text-left border-collapse text-xs min-w-[480px] sm:min-w-0">
               <thead>
                 <tr class="bg-canvas-soft border-b border-hairline text-mute font-mono">
                   <th class="py-2.5 px-3 font-semibold">Subject Name</th>
@@ -469,13 +469,14 @@ const faq = [
               <button
                 id="share-btn"
                 class="w-full h-10 inline-flex items-center justify-center gap-2 rounded-pill bg-primary text-on-primary text-sm font-semibold hover:bg-opacity-90 transition-all cursor-pointer"
+                aria-label="Copy academic ATKT report to clipboard"
               >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path d="M8.684 10.742 12.02 12.2l3.336-1.458m0 0a3 3 0 1 0-4.137-3.69L7.88 8.58a3 3 0 1 0 .805 2.162M16 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
                 Copy Academic Report
               </button>
-              <div id="share-toast" class="mt-2 text-center text-xs text-success font-mono font-semibold opacity-0 transition-opacity duration-300">
+              <div id="share-toast" class="mt-2 text-center text-xs text-success font-mono font-semibold opacity-0 transition-opacity duration-300" role="status" aria-live="polite">
                 Copied Report card to clipboard!
               </div>
             </div>
@@ -878,8 +879,17 @@ const faq = [
     [currentSemSelect, semFailedEse, semFailedInternal].forEach(el => {
       if (el) el.addEventListener('input', updateSemesterStatus);
     });
+    if (currentSemSelect) {
+      currentSemSelect.addEventListener('change', () => {
+        syncLoggerToCounters();
+        updateSemesterStatus();
+      });
+    }
     // Also re-run when scheme changes
-    schemeSelect.addEventListener('change', updateSemesterStatus);
+    schemeSelect.addEventListener('change', () => {
+      syncLoggerToCounters();
+      updateSemesterStatus();
+    });
 
     // Initial render
     updateSemesterStatus();
@@ -1049,6 +1059,16 @@ const faq = [
             input.classList.remove('bg-canvas-soft-2', 'text-mute');
           }
         });
+        if (semFailedEse) {
+          semFailedEse.value = '0';
+          semFailedEse.removeAttribute('readonly');
+          semFailedEse.classList.remove('bg-canvas-soft-2', 'text-mute');
+        }
+        if (semFailedInternal) {
+          semFailedInternal.value = '0';
+          semFailedInternal.removeAttribute('readonly');
+          semFailedInternal.classList.remove('bg-canvas-soft-2', 'text-mute');
+        }
         return;
       }
 
@@ -1059,6 +1079,14 @@ const faq = [
           input.classList.add('bg-canvas-soft-2', 'text-mute');
         }
       });
+      if (semFailedEse) {
+        semFailedEse.setAttribute('readonly', 'true');
+        semFailedEse.classList.add('bg-canvas-soft-2', 'text-mute');
+      }
+      if (semFailedInternal) {
+        semFailedInternal.setAttribute('readonly', 'true');
+        semFailedInternal.classList.add('bg-canvas-soft-2', 'text-mute');
+      }
 
       // Show active sync note
       if (scheme === 'mu-engg' && enggSyncNote) {
@@ -1098,6 +1126,21 @@ const faq = [
       if (failedEvenInput) failedEvenInput.value = evenCount.toString();
       if (customInputHeads) customInputHeads.value = (eseCount + internalCount).toString();
       if (customInputEse) customInputEse.value = eseCount.toString();
+
+      // Count fails for selected semester
+      if (currentSemSelect && semFailedEse && semFailedInternal) {
+        const selectedSem = currentSemSelect.value;
+        let semEse = 0;
+        let semInt = 0;
+        loggedCourses.forEach(c => {
+          if (c.sem === selectedSem) {
+            if (c.type === 'theory' || c.type === 'both') semEse++;
+            if (c.type === 'internal' || c.type === 'both') semInt++;
+          }
+        });
+        semFailedEse.value = semEse.toString();
+        semFailedInternal.value = semInt.toString();
+      }
     }
 
     // MAIN RULES CALCULATOR & STATE BINDER

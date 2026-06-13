@@ -149,7 +149,7 @@ const faq = [
                 <label for="attended" class="text-sm font-medium text-ink">
                   Classes Attended
                 </label>
-                <span id="attended-warning" class="text-xs text-error font-medium hidden">Cannot exceed conducted!</span>
+                <span id="attended-warning" class="text-xs text-error font-medium hidden" role="alert" aria-live="polite">Cannot exceed conducted!</span>
               </div>
               <div class="flex items-center gap-4">
                 <input
@@ -318,12 +318,14 @@ const faq = [
           <button
             id="copy-share-btn"
             class="mt-4 w-full h-9 inline-flex items-center justify-center gap-2 rounded-sm bg-primary px-4 text-xs font-semibold text-on-primary hover:bg-ink/90 transition-colors cursor-pointer"
+            aria-label="Copy attendance calculation results to clipboard"
           >
             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
             <span id="copy-btn-text">Copy Results</span>
           </button>
+          <span id="copy-status-live" role="status" aria-live="polite" class="sr-only"></span>
         </div>
 
       </div>
@@ -364,9 +366,9 @@ const faq = [
           <table class="w-full border-collapse text-left">
             <thead>
               <tr class="border-b border-hairline bg-canvas-soft-2">
-                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Missed Lectures</th>
-                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Projected Conducted</th>
-                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider text-right">Projected Attendance</th>
+                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Bunked</th>
+                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Conducted</th>
+                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider text-right">Attendance</th>
                 <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider text-right">Status</th>
               </tr>
             </thead>
@@ -383,9 +385,9 @@ const faq = [
           <table class="w-full border-collapse text-left">
             <thead>
               <tr class="border-b border-hairline bg-canvas-soft-2">
-                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Attended Lectures</th>
-                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Projected Conducted</th>
-                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider text-right">Projected Attendance</th>
+                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Attended</th>
+                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Conducted</th>
+                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider text-right">Attendance</th>
                 <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider text-right">Status</th>
               </tr>
             </thead>

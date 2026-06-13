@@ -194,12 +194,14 @@ const faq = [
           <button
             id="copy-share-btn"
             class="mt-4 w-full h-9 inline-flex items-center justify-center gap-2 rounded-sm bg-primary px-4 text-xs font-semibold text-on-primary hover:bg-ink/90 transition-colors cursor-pointer"
+            aria-label="Copy grade results to clipboard"
           >
             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
             <span id="copy-btn-text">Copy Results</span>
           </button>
+          <span id="copy-status-live" role="status" aria-live="polite" class="sr-only"></span>
         </div>
 
       </div>
@@ -600,8 +602,14 @@ const faq = [
         const target = e.target as HTMLInputElement;
         const index = parseInt(target.dataset.index || '0');
         let val = parseInt(target.value);
-        if (isNaN(val) || val <= 0) val = 1;
-        subjects[index].credits = val;
+        if (isNaN(val) || val <= 0) {
+          // Show red border — do NOT silently override. Keep 0 so user sees the problem.
+          target.classList.add('border-error', 'ring-1', 'ring-error/40');
+          subjects[index].credits = 0;
+        } else {
+          target.classList.remove('border-error', 'ring-1', 'ring-error/40');
+          subjects[index].credits = val;
+        }
         calculate();
       });
     });
@@ -636,6 +644,9 @@ const faq = [
       totalCredits += sub.credits;
     });
 
+    // Warn user if any subject has 0 credits (invalid)
+    const zeroCreditsExists = subjects.some(s => s.credits <= 0);
+    
     const gpa = totalCredits > 0 ? (totalWeightedPoints / totalCredits) : 0.00;
 
     // Update displays
@@ -681,7 +692,11 @@ const faq = [
       gaugeStatusLed.className = `absolute top-2 right-2 h-3.5 w-3.5 rounded-full border-2 border-canvas shadow-sm transition-all duration-300 ${ledColor}`;
     }
     if (gpaAdvice) {
-      gpaAdvice.textContent = adviceText;
+      if (zeroCreditsExists) {
+        gpaAdvice.textContent = '⚠ One or more subjects have 0 credits. Fix credit values (highlighted in red) for an accurate SGPA.';
+      } else {
+        gpaAdvice.textContent = adviceText;
+      }
     }
 
     // Equivalent Percentage calculations
@@ -773,11 +788,14 @@ const faq = [
         copyBtnText.textContent = "Copied!";
         copyShareBtn.classList.remove('bg-primary');
         copyShareBtn.classList.add('bg-success');
+        const liveRegion = document.getElementById('copy-status-live');
+        if (liveRegion) liveRegion.textContent = 'Results copied to clipboard';
 
         setTimeout(() => {
           copyBtnText.textContent = "Copy Results";
           copyShareBtn.classList.remove('bg-success');
           copyShareBtn.classList.add('bg-primary');
+          if (liveRegion) liveRegion.textContent = '';
         }, 2000);
       }).catch(err => {
         console.error("Copy failed", err);
