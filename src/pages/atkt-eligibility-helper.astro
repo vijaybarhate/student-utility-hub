@@ -280,37 +280,52 @@ const faq = [
                   </div>
                 </div>
             </div>
+            </div>
 
             <!-- 6. Autonomous College Rules Setup -->
             <div id="autonomous-panel" class="hidden flex flex-col gap-4 border-t border-hairline pt-4 animate-fade-in">
               <label class="block text-xs font-semibold uppercase tracking-wider text-mute font-mono mb-2 flex items-center justify-between">
                 <span>Configure Autonomous College Rules</span>
-                <span id="autonomous-sync-note" class="hidden text-[10px] text-link font-sans font-normal normal-case (synced from logger) animate-fade-in">(synced from logger)</span>
+                <span id="autonomous-sync-note" class="hidden text-[10px] text-link font-sans font-normal normal-case animate-fade-in">(synced from logger)</span>
               </label>
+
+              <!-- Policy note -->
+              <div class="rounded-sm border border-warning/30 bg-warning-soft/10 px-3 py-2 text-[11px] text-warning-deep leading-relaxed">
+                <strong>Autonomous colleges vary widely.</strong> Configure the rules that match your college's specific ordinance — do not rely on defaults. Some colleges allow unlimited Golden KTs; some block Sem 7 entry if any Sem 3/4 KT is pending.
+              </div>
+
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-sm border border-hairline bg-canvas-soft p-4">
                 <label class="flex items-center gap-2 text-xs text-body cursor-pointer sm:col-span-2">
-                  <input type="checkbox" id="autonomous-req-prior" checked class="accent-primary h-4 w-4" />
-                  <span>Enforce Year-Clearance? (Must pass Year N-2 to enter Year N, e.g. FY backlog blocks Sem 5 entry)</span>
+                  <input type="checkbox" id="autonomous-req-prior" class="accent-primary h-4 w-4" />
+                  <span>Enforce Year-Clearance? <span class="text-mute">(Unchecked = Golden KTs from earlier years are allowed)</span></span>
                 </label>
                 <div>
-                  <label for="autonomous-max-heads" class="block text-[10px] text-ink mb-1 font-medium">Max Failed Heads Allowed (per year)</label>
-                  <input type="number" id="autonomous-max-heads" value="8" min="0" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2 text-xs focus:outline-none" />
+                  <label for="autonomous-max-heads" class="block text-[10px] text-ink mb-1 font-medium">Max Failed Heads Allowed (current year, 0 = unlimited)</label>
+                  <input type="number" id="autonomous-max-heads" value="0" min="0" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2 text-xs focus:outline-none" />
                 </div>
                 <div>
-                  <label for="autonomous-max-ese" class="block text-[10px] text-ink mb-1 font-medium">Max Failed ESE (Theory) Allowed</label>
-                  <input type="number" id="autonomous-max-ese" value="5" min="0" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2 text-xs focus:outline-none" />
+                  <label for="autonomous-max-ese" class="block text-[10px] text-ink mb-1 font-medium">Max Failed ESE (Theory) Allowed (0 = unlimited)</label>
+                  <input type="number" id="autonomous-max-ese" value="0" min="0" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2 text-xs focus:outline-none" />
+                </div>
+                <div>
+                  <label for="autonomous-max-golden" class="block text-[10px] text-ink mb-1 font-medium">Max Golden KTs Allowed (prior years, 0 = unlimited)</label>
+                  <input type="number" id="autonomous-max-golden" value="0" min="0" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2 text-xs focus:outline-none" />
                 </div>
               </div>
 
               <!-- Manual Backlog Inputs for Autonomous Scheme -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                 <div>
-                  <label for="autonomous-input-heads" class="block text-xs text-ink mb-1.5 font-medium">Failed Heads (Current Year)</label>
+                  <label for="autonomous-input-heads" class="block text-xs text-ink mb-1.5 font-medium">Failed Heads (Current Year only)</label>
                   <input type="number" id="autonomous-input-heads" value="0" min="0" class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
                 </div>
                 <div>
-                  <label for="autonomous-input-ese" class="block text-xs text-ink mb-1.5 font-medium">Failed ESE (Theory Exams)</label>
+                  <label for="autonomous-input-ese" class="block text-xs text-ink mb-1.5 font-medium">Failed ESE Theory (Current Year)</label>
                   <input type="number" id="autonomous-input-ese" value="0" min="0" class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+                </div>
+                <div>
+                  <label for="autonomous-input-golden" class="block text-xs text-ink mb-1.5 font-medium">Active Golden KTs (from prior years)</label>
+                  <input type="number" id="autonomous-input-golden" value="0" min="0" class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
                 </div>
               </div>
             </div>
@@ -706,8 +721,10 @@ const faq = [
     const autonomousReqPrior = document.getElementById('autonomous-req-prior');
     const autonomousMaxHeads = document.getElementById('autonomous-max-heads');
     const autonomousMaxEse = document.getElementById('autonomous-max-ese');
+    const autonomousMaxGolden = document.getElementById('autonomous-max-golden');
     const autonomousInputHeads = document.getElementById('autonomous-input-heads');
     const autonomousInputEse = document.getElementById('autonomous-input-ese');
+    const autonomousInputGolden = document.getElementById('autonomous-input-golden');
     const autonomousSyncNote = document.getElementById('autonomous-sync-note');
 
     // Status Board Elements
@@ -1002,8 +1019,8 @@ const faq = [
       priorClearYes, priorClearNo,
       customReqPrior, customMaxHeads, customMaxEse, customMinCredits,
       customInputHeads, customInputEse, customInputCredits, customInputTotalCredits,
-      autonomousReqPrior, autonomousMaxHeads, autonomousMaxEse,
-      autonomousInputHeads, autonomousInputEse
+      autonomousReqPrior, autonomousMaxHeads, autonomousMaxEse, autonomousMaxGolden,
+      autonomousInputHeads, autonomousInputEse, autonomousInputGolden
     ].forEach(el => {
       if (el) el.addEventListener('input', () => {
         // If they manually edit counters, they are breaking the direct sync with logger list
@@ -1171,7 +1188,8 @@ const faq = [
         customInputHeads,
         customInputEse,
         autonomousInputHeads,
-        autonomousInputEse
+        autonomousInputEse,
+        autonomousInputGolden
       ];
 
       // Hide all sync notes by default
@@ -1261,8 +1279,32 @@ const faq = [
       if (failedEvenInput) failedEvenInput.value = evenCount.toString();
       if (customInputHeads) customInputHeads.value = (eseCount + internalCount).toString();
       if (customInputEse) customInputEse.value = eseCount.toString();
-      if (autonomousInputHeads) autonomousInputHeads.value = (eseCount + internalCount).toString();
-      if (autonomousInputEse) autonomousInputEse.value = eseCount.toString();
+
+      // For autonomous: separate current-year heads vs prior-year (Golden KT) heads
+      // "Prior year" depends on the target semester selection
+      const autoTarget = targetSelect.value;
+      let autoCurrentHeads = 0;
+      let autoCurrentEse = 0;
+      let autoGoldenKTs = 0;
+      loggedCourses.forEach(c => {
+        if (c.status === 'cleared') return;
+        const semNum = parseInt(c.sem);
+        // Prior year: sems that are 2+ years earlier than current target
+        // y1-y2: no prior sems; y2-y3: sems 1-2 are prior; y3-y4: sems 1-4 are prior
+        let isPriorSem = false;
+        if (autoTarget === 'y2-y3' && semNum <= 2) isPriorSem = true;
+        if (autoTarget === 'y3-y4' && semNum <= 4) isPriorSem = true;
+
+        if (isPriorSem) {
+          autoGoldenKTs += (c.type === 'both') ? 2 : 1;
+        } else {
+          if (c.type === 'theory' || c.type === 'both') { autoCurrentEse++; autoCurrentHeads++; }
+          if (c.type === 'internal' || c.type === 'both') autoCurrentHeads++;
+        }
+      });
+      if (autonomousInputHeads) autonomousInputHeads.value = autoCurrentHeads.toString();
+      if (autonomousInputEse) autonomousInputEse.value = autoCurrentEse.toString();
+      if (autonomousInputGolden) autonomousInputGolden.value = autoGoldenKTs.toString();
 
       // Count fails for selected semester
       if (currentSemSelect && semFailedEse && semFailedInternal) {
@@ -1582,43 +1624,67 @@ const faq = [
           adviceText = 'You are not eligible for promotion based on your custom-defined criteria. Check your inputs and backlog counters.';
         }
       } else if (scheme === 'autonomous') {
-        const reqPrior = autonomousReqPrior ? autonomousReqPrior.checked : true;
-        const maxHeads = autonomousMaxHeads ? (parseInt(autonomousMaxHeads.value) || 0) : 8;
-        const maxEse = autonomousMaxEse ? (parseInt(autonomousMaxEse.value) || 0) : 5;
+        // ─── Autonomous College Logic ────────────────────────────────────────────
+        // Autonomous colleges have wildly different rules. This section models:
+        //  1. Promotion Eligibility   – are you allowed to enter the next year?
+        //  2. Current-Year Backlog Limit – max failed heads in the current year
+        //  3. Golden KT Tracking     – prior-year backlogs (separate concern)
+        // If year-clearance is NOT enforced, Golden KTs do NOT block promotion.
+        const reqPrior = autonomousReqPrior ? autonomousReqPrior.checked : false;
+        const maxHeads = autonomousMaxHeads ? (parseInt(autonomousMaxHeads.value) || 0) : 0; // 0 = unlimited
+        const maxEse = autonomousMaxEse ? (parseInt(autonomousMaxEse.value) || 0) : 0;       // 0 = unlimited
+        const maxGolden = autonomousMaxGolden ? (parseInt(autonomousMaxGolden.value) || 0) : 0; // 0 = unlimited
 
         const inputHeads = autonomousInputHeads ? (parseInt(autonomousInputHeads.value) || 0) : 0;
         const inputEse = autonomousInputEse ? (parseInt(autonomousInputEse.value) || 0) : 0;
+        const inputGolden = autonomousInputGolden ? (parseInt(autonomousInputGolden.value) || 0) : 0;
 
+        // 1. Promotion eligibility — prior year clearance (optional, college-specific)
         if (reqPrior && target !== 'y1-y2') {
           const priorYearLabel = target === 'y2-y3' ? 'First Year (Sem 1 & 2) Cleared' : 'First & Second Year (Sem 1-4) Cleared';
           if (isPriorClear) {
-            checks.push({ label: priorYearLabel, passed: true, detail: '0 prior backlogs remaining' });
+            checks.push({ label: priorYearLabel, passed: true, detail: 'No prior-year backlogs outstanding' });
           } else {
-            checks.push({ label: priorYearLabel, passed: false, detail: 'Must clear prior year to enter next year' });
+            checks.push({ label: priorYearLabel, passed: false, detail: 'Your college enforces year-clearance — prior backlogs block promotion' });
             isEligible = false;
             statusType = 'drop';
           }
+        } else if (!reqPrior && target !== 'y1-y2') {
+          // Year-clearance not enforced — Golden KTs are tracked but don't block promotion
+          checks.push({
+            label: 'Year-Clearance',
+            passed: true,
+            detail: 'Not enforced — Golden KTs from prior years do not block promotion (verify with your college)'
+          });
         }
 
+        // 2. Current-year failed heads check (only if college has a limit)
         if (maxHeads > 0) {
           const headsOk = inputHeads <= maxHeads;
           checks.push({
-            label: `Total Failed Heads (≤ ${maxHeads})`,
+            label: `Current-Year Failed Heads (≤ ${maxHeads})`,
             passed: headsOk,
-            detail: `${inputHeads} / ${maxHeads} failed`
+            detail: `${inputHeads} / ${maxHeads} failed heads`
           });
           if (!headsOk) {
             isEligible = false;
             statusType = 'drop';
           }
+        } else if (inputHeads > 0) {
+          checks.push({
+            label: 'Current-Year Backlogs (no limit configured)',
+            passed: true,
+            detail: `${inputHeads} active backlog head(s) — verify if your college has a cap`
+          });
         }
 
+        // 3. Current-year ESE/theory check (only if college has a limit)
         if (maxEse > 0) {
           const eseOk = inputEse <= maxEse;
           checks.push({
             label: `Theory/ESE Failed (≤ ${maxEse})`,
             passed: eseOk,
-            detail: `${inputEse} / ${maxEse} failed`
+            detail: `${inputEse} / ${maxEse} failed ESE papers`
           });
           if (!eseOk) {
             isEligible = false;
@@ -1626,27 +1692,59 @@ const faq = [
           }
         }
 
-        // Autonomous gauge (heads)
-        const autoLimit = maxHeads || 8;
-        updateGauge('Autonomous Backlogs', inputHeads, autoLimit, isEligible);
+        // 4. Golden KT (prior-year backlog) limit check
+        if (!reqPrior && inputGolden > 0) {
+          if (maxGolden > 0) {
+            const goldenOk = inputGolden <= maxGolden;
+            checks.push({
+              label: `Golden KTs (prior-year limit ≤ ${maxGolden})`,
+              passed: goldenOk,
+              detail: `${inputGolden} Golden KT(s) tracked — ${goldenOk ? 'within limit' : 'exceeds college limit'}`
+            });
+            if (!goldenOk) {
+              isEligible = false;
+              statusType = 'drop';
+            }
+          } else {
+            checks.push({
+              label: 'Golden KTs (no limit set)',
+              passed: true,
+              detail: `${inputGolden} Golden KT(s) from prior years — being tracked, no cap configured`
+            });
+          }
+        }
+
+        // Gauge: show current-year heads (or golden if no current heads)
+        const autoGaugeMax = maxHeads > 0 ? maxHeads : (inputHeads > 0 ? inputHeads + 4 : 8);
+        updateGauge('Current-Year Backlog Heads', inputHeads, autoGaugeMax, isEligible);
 
         // State evaluation
+        const hasActiveBacklogs = inputHeads > 0 || inputGolden > 0;
         if (isEligible) {
-          if (inputHeads > 0) {
+          if (hasActiveBacklogs) {
             statusType = 'warning';
-            statusMsg = 'ELIGIBLE (WITH BACKLOGS)';
-            statusSubtitleText = 'LIMITS SATISFIED';
-            adviceText = `You are eligible to progress under your autonomous college ATKT guidelines, but you are carrying ${inputHeads} active backlog heads. Make sure to clear them.`;
+            statusMsg = 'ELIGIBLE (BACKLOGS REMAIN)';
+            statusSubtitleText = 'PROVISIONAL PROMOTION';
+            const backlogSummary = [];
+            if (inputHeads > 0) backlogSummary.push(`${inputHeads} current-year backlog head(s)`);
+            if (inputGolden > 0) backlogSummary.push(`${inputGolden} Golden KT(s) from prior semesters`);
+            adviceText = `You appear eligible to progress based on your configured rules. You have ${backlogSummary.join(' and ')}. Important: verify your eligibility directly with your exam section — autonomous rules vary per college and per ordinance year.`;
           } else {
             statusType = 'eligible';
             statusMsg = 'ELIGIBLE (ALL CLEAR)';
             statusSubtitleText = 'REGULAR PROMOTION';
-            adviceText = 'Excellent! You have passed all components and are fully eligible to proceed to the next year.';
+            adviceText = 'All configured checks passed. You have no active backlogs. You should be eligible for regular promotion — confirm with your college exam section.';
           }
         } else {
           statusMsg = 'DETENTION / YEAR DROP';
-          statusSubtitleText = 'ATKT LIMITS EXCEEDED';
-          adviceText = `You have exceeded the autonomous progression limits. Focus on clearing these backlog courses in the upcoming supplementary exams.`;
+          statusSubtitleText = 'CONFIGURED LIMIT EXCEEDED';
+          if (reqPrior && !isPriorClear && target !== 'y1-y2') {
+            adviceText = 'Your college enforces year-clearance. You have outstanding backlogs from a prior year that block your promotion. Focus on clearing those specific subjects in the next supplementary exam cycle. Confirm this rule with your exam cell.';
+          } else if (maxGolden > 0 && inputGolden > maxGolden) {
+            adviceText = `Your college limits Golden KTs (prior-year carry-overs) to ${maxGolden}. You have ${inputGolden} Golden KTs, which exceeds this limit. You must reduce your pending Golden KTs to be eligible for promotion.`;
+          } else {
+            adviceText = `You have exceeded the configured backlog limit for your autonomous college. Check your college's specific ordinance for the exact promotion criteria and attempt the supplementary exams.`;
+          }
         }
       }
 
