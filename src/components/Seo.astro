@@ -92,11 +92,13 @@ if (pathSegments.length > 0) {
     "itemListElement": itemListElement
   });
 }
+
+const displayTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
 ---
 
 <!-- Primary Meta Tags -->
-<title>{title} | {siteName}</title>
-<meta name="title" content={`${title} | {siteName}`} />
+<title>{displayTitle}</title>
+<meta name="title" content={displayTitle} />
 <meta name="description" content={description} />
 <link rel="canonical" href={canonicalUrl} />
 <meta name="google-site-verification" content="9hrHdMd8RPchanS1-eALqbY5NBUB-73iywYaVQQoReQ" />
@@ -111,7 +113,7 @@ if (pathSegments.length > 0) {
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content={canonicalUrl} />
-<meta property="og:title" content={`${title} | ${siteName}`} />
+<meta property="og:title" content={displayTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:site_name" content={siteName} />
 <meta property="og:locale" content="en_IN" />
@@ -123,7 +125,7 @@ if (pathSegments.length > 0) {
 <!-- Twitter / X -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:url" content={canonicalUrl} />
-<meta name="twitter:title" content={`${title} | ${siteName}`} />
+<meta name="twitter:title" content={displayTitle} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={new URL("/og-image.png", Astro.url).toString()} />
 <meta name="twitter:image:alt" content={`${siteName} — Free academic tools for Indian university students`} />
