@@ -284,6 +284,82 @@ const faq = [
           </div>
         </div>
 
+        <!-- Current Semester Status Card -->
+        <div id="sem-status-card" class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-1">
+            Current Semester Status
+          </h2>
+          <p class="text-xs text-mute mb-5 leading-normal">
+            Quick check — can you sit for next semester's exams, and are you at risk of detention?
+          </p>
+
+          <div class="flex flex-col gap-4">
+            <!-- Semester Selector -->
+            <div>
+              <label for="current-sem" class="block text-xs font-medium text-ink mb-1.5">
+                Which semester are you currently in?
+              </label>
+              <select
+                id="current-sem"
+                class="w-full h-9 rounded-sm border border-hairline bg-canvas px-3 text-xs text-ink focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
+              >
+                <option value="1">Semester 1 (First Year — Odd)</option>
+                <option value="2">Semester 2 (First Year — Even)</option>
+                <option value="3">Semester 3 (Second Year — Odd)</option>
+                <option value="4">Semester 4 (Second Year — Even)</option>
+                <option value="5" selected>Semester 5 (Third Year — Odd)</option>
+                <option value="6">Semester 6 (Third Year — Even)</option>
+                <option value="7">Semester 7 (Final Year — Odd)</option>
+                <option value="8">Semester 8 (Final Year — Even)</option>
+              </select>
+            </div>
+
+            <!-- Failed Counts this semester -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label for="sem-failed-ese" class="block text-xs font-medium text-ink mb-1.5">
+                  Failed Theory (ESE) this sem
+                </label>
+                <input
+                  type="number" id="sem-failed-ese" value="0" min="0" max="10"
+                  class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none"
+                />
+              </div>
+              <div>
+                <label for="sem-failed-internal" class="block text-xs font-medium text-ink mb-1.5">
+                  Failed Internals / Practicals
+                </label>
+                <input
+                  type="number" id="sem-failed-internal" value="0" min="0" max="15"
+                  class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <!-- Result Chips -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1">
+              <!-- Can Appear -->
+              <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 flex flex-col gap-1">
+                <span class="text-[10px] font-mono font-semibold uppercase tracking-wider text-mute">Can appear for Sem</span>
+                <span id="sem-appear-val" class="text-base font-bold text-success">YES</span>
+                <span id="sem-appear-note" class="text-[10px] text-mute leading-tight">Exams happen regardless of backlogs</span>
+              </div>
+              <!-- Can Get Promoted -->
+              <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 flex flex-col gap-1">
+                <span class="text-[10px] font-mono font-semibold uppercase tracking-wider text-mute">Year Promotion</span>
+                <span id="sem-promote-val" class="text-base font-bold text-success">ON TRACK</span>
+                <span id="sem-promote-note" class="text-[10px] text-mute leading-tight">No year drop risk right now</span>
+              </div>
+              <!-- Risk Level -->
+              <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 flex flex-col gap-1">
+                <span class="text-[10px] font-mono font-semibold uppercase tracking-wider text-mute">Risk Level</span>
+                <span id="sem-risk-val" class="text-base font-bold text-success">LOW</span>
+                <span id="sem-risk-note" class="text-[10px] text-mute leading-tight">Well within ATKT limits</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Subject Logger Card -->
         <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
           <div class="flex items-center justify-between mb-4">
@@ -507,8 +583,18 @@ const faq = [
 <script is:inline define:vars={{ SITE_URL }}>
   // Wait for the DOM to load
   document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
+    // DOM References
     const schemeSelect = document.getElementById('scheme-selector');
+    // Current Semester Status card
+    const currentSemSelect = document.getElementById('current-sem');
+    const semFailedEse = document.getElementById('sem-failed-ese');
+    const semFailedInternal = document.getElementById('sem-failed-internal');
+    const semAppearVal = document.getElementById('sem-appear-val');
+    const semAppearNote = document.getElementById('sem-appear-note');
+    const semPromoteVal = document.getElementById('sem-promote-val');
+    const semPromoteNote = document.getElementById('sem-promote-note');
+    const semRiskVal = document.getElementById('sem-risk-val');
+    const semRiskNote = document.getElementById('sem-risk-note');
     const targetSelect = document.getElementById('target-selector');
     
     const priorClearancePanel = document.getElementById('prior-clearance-panel');
@@ -685,6 +771,118 @@ const faq = [
       syncLoggerToCounters();
       calculateStanding();
     });
+
+    // ─── Current Semester Status Logic ─────────────────────────────────────────
+    function updateSemesterStatus() {
+      const scheme = schemeSelect.value;
+      const semNum = parseInt(currentSemSelect?.value || '5');
+      const eseCount = parseInt(semFailedEse?.value || '0') || 0;
+      const internalCount = parseInt(semFailedInternal?.value || '0') || 0;
+      const totalHeads = eseCount + internalCount;
+
+      // Show/hide card — only makes full sense for MU Engineering (heads of passing system)
+      const isEngg = scheme === 'mu-engg' || scheme === 'custom';
+
+      // --- Can Appear? ---
+      // In MU, you can ALWAYS appear for the next semester's exams regardless of backlogs.
+      // The only exception: if you have a Year Drop you cannot register for the year.
+      // But appearing for an individual semester exam is always allowed.
+      let canAppear = true;
+      let appearNote = 'You can appear for exams regardless of KTs';
+
+      // --- Can Get Promoted (year-on-year)? ---
+      // Only relevant at even sems (end of year): Sem 2 → Y2, Sem 4 → Y3, Sem 6 → Y4
+      const isEndOfYear = semNum % 2 === 0;
+      let promoteStatus = 'ON TRACK';
+      let promoteNote = 'No year drop risk yet';
+      let promoteColor = 'text-success';
+
+      if (isEngg) {
+        if (!isEndOfYear) {
+          // Mid-year — projection based on current semester failures
+          if (totalHeads === 0) {
+            promoteStatus = 'ON TRACK';
+            promoteNote = 'No failures so far this semester';
+            promoteColor = 'text-success';
+          } else if (totalHeads <= 4) {
+            promoteStatus = 'WATCH OUT';
+            promoteNote = `${totalHeads} head${totalHeads > 1 ? 's' : ''} failed — manageable but track ESE limit`;
+            promoteColor = 'text-warning-deep';
+          } else if (totalHeads <= 8) {
+            promoteStatus = 'AT RISK';
+            promoteNote = `${totalHeads}/8 heads — approaching limit. Clear in KT cycle.`;
+            promoteColor = 'text-error';
+          } else {
+            promoteStatus = 'YEAR DROP RISK';
+            promoteNote = `${totalHeads} heads exceeds MU limit of 8. Year drop likely.`;
+            promoteColor = 'text-error';
+          }
+        } else {
+          // End of year — definitive check
+          if (totalHeads <= 8 && eseCount <= 5) {
+            if (totalHeads === 0) {
+              promoteStatus = 'PROMOTED';
+              promoteNote = 'All clear — eligible for regular promotion';
+              promoteColor = 'text-success';
+            } else {
+              promoteStatus = 'ATKT ELIGIBLE';
+              promoteNote = `${totalHeads} backlog${totalHeads > 1 ? 's' : ''} — promoted with KTs`;
+              promoteColor = 'text-warning-deep';
+            }
+          } else {
+            promoteStatus = 'YEAR DROP';
+            promoteNote = eseCount > 5 ? `ESE limit exceeded (${eseCount}/5)` : `Total heads exceeded (${totalHeads}/8)`;
+            promoteColor = 'text-error';
+          }
+        }
+      } else {
+        // For degree / NEP — simplified
+        promoteStatus = 'CHECK MAIN PANEL';
+        promoteNote = 'Use the Academic Standings Setup above';
+        promoteColor = 'text-mute';
+      }
+
+      // --- Risk Level ---
+      let riskLevel = 'LOW';
+      let riskNote = 'Well within ATKT limits';
+      let riskColor = 'text-success';
+
+      if (isEngg) {
+        if (totalHeads === 0) {
+          riskLevel = 'NONE'; riskNote = 'No failures logged this semester'; riskColor = 'text-success';
+        } else if (totalHeads <= 3 && eseCount <= 2) {
+          riskLevel = 'LOW'; riskNote = 'Few backlogs — manageable in KT cycle'; riskColor = 'text-success';
+        } else if (totalHeads <= 6 || eseCount <= 4) {
+          riskLevel = 'MEDIUM'; riskNote = 'Moderate backlog load — plan your KT cycle'; riskColor = 'text-warning-deep';
+        } else if (totalHeads <= 8 && eseCount <= 5) {
+          riskLevel = 'HIGH'; riskNote = 'At the ATKT limit — one more fail = Year Drop'; riskColor = 'text-error';
+        } else {
+          riskLevel = 'CRITICAL'; riskNote = 'Exceeds MU limits — Year Drop territory'; riskColor = 'text-error';
+        }
+      } else {
+        riskLevel = '—'; riskNote = 'Select MU Engineering for risk analysis'; riskColor = 'text-mute';
+      }
+
+      // Apply to DOM
+      if (semAppearVal) { semAppearVal.textContent = canAppear ? 'YES' : 'NO'; semAppearVal.className = `text-base font-bold ${canAppear ? 'text-success' : 'text-error'}`; }
+      if (semAppearNote) semAppearNote.textContent = appearNote;
+
+      if (semPromoteVal) { semPromoteVal.textContent = promoteStatus; semPromoteVal.className = `text-base font-bold ${promoteColor}`; }
+      if (semPromoteNote) semPromoteNote.textContent = promoteNote;
+
+      if (semRiskVal) { semRiskVal.textContent = riskLevel; semRiskVal.className = `text-base font-bold ${riskColor}`; }
+      if (semRiskNote) semRiskNote.textContent = riskNote;
+    }
+
+    // Wire Current Semester Status card
+    [currentSemSelect, semFailedEse, semFailedInternal].forEach(el => {
+      if (el) el.addEventListener('input', updateSemesterStatus);
+    });
+    // Also re-run when scheme changes
+    schemeSelect.addEventListener('change', updateSemesterStatus);
+
+    // Initial render
+    updateSemesterStatus();
 
     // Inputs listener
     [

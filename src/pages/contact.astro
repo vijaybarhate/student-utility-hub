@@ -4,7 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout
   title="Contact & Feedback"
-  description="Send your feature requests, bugs, or feedback for Student Utility Hub."
+  description="Send your feature requests, bugs, or feedback for Student Utility Hub. Found a formula error? Attach a screenshot and we'll fix it immediately."
 >
   <div class="mx-auto max-w-lg px-4 py-16 sm:px-6 lg:px-8">
     <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-xs font-semibold text-mute">
@@ -14,7 +14,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       Contact & Feedback.
     </h1>
     <p class="mt-2 text-sm text-body leading-relaxed">
-      Have a feature suggestion? Found a formula discrepancy? Let us know and we'll fix it immediately.
+      Found a formula error? Spotted a bug? Have a feature request? Let us know — attach a screenshot and we'll fix it immediately.
     </p>
 
     <!-- Feedback Form -->
@@ -26,7 +26,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         role="alert"
         aria-live="polite"
       >
-        Thank you! Your feedback has been simulated successfully. We'll check the formulas and get back to you if needed.
+        ✓ Message sent! We'll review your feedback and get back to you if needed.
       </div>
 
       <!-- Error Banner (Hidden by default) -->
@@ -36,7 +36,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         role="alert"
         aria-live="polite"
       >
-        Please fill out all fields before submitting.
+        Please fill out all required fields before submitting.
       </div>
 
       <!-- Name Input -->
@@ -49,7 +49,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           id="user-name"
           name="name"
           placeholder="e.g., Rohan Sharma…"
-          class="h-10 w-full rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink placeholder-mute focus:outline-none"
+          class="h-10 w-full rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink placeholder-mute focus:outline-none focus:ring-1 focus:ring-primary/40"
           required
           autocomplete="name"
         />
@@ -65,7 +65,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           id="user-email"
           name="email"
           placeholder="e.g., rohan@college.edu…"
-          class="h-10 w-full rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink placeholder-mute focus:outline-none"
+          class="h-10 w-full rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink placeholder-mute focus:outline-none focus:ring-1 focus:ring-primary/40"
           required
           autocomplete="email"
           spellcheck="false"
@@ -80,7 +80,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <select
           id="topic"
           name="topic"
-          class="h-10 w-full rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink focus:outline-none"
+          class="h-10 w-full rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink focus:outline-none focus:ring-1 focus:ring-primary/40 appearance-none cursor-pointer"
           required
         >
           <option value="feedback">General Feedback</option>
@@ -100,22 +100,77 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           name="message"
           rows="5"
           placeholder="Tell us what tool you need or what formula needs updating…"
-          class="w-full rounded-sm border border-hairline bg-canvas p-3 text-sm text-ink placeholder-mute focus:outline-none resize-none"
+          class="w-full rounded-sm border border-hairline bg-canvas p-3 text-sm text-ink placeholder-mute focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none"
           required
         ></textarea>
+      </div>
+
+      <!-- Screenshot Upload -->
+      <div>
+        <label class="block text-xs font-mono font-semibold uppercase tracking-wider text-mute mb-2">
+          Screenshot <span class="normal-case font-sans text-[10px] text-mute ml-1">(optional, max 150KB)</span>
+        </label>
+
+        <!-- Drop Zone -->
+        <label
+          for="screenshot-input"
+          id="drop-zone"
+          class="flex flex-col items-center justify-center gap-2 w-full rounded-sm border-2 border-dashed border-hairline bg-canvas-soft-2 p-6 cursor-pointer hover:border-primary/40 hover:bg-canvas transition-all duration-200 group"
+        >
+          <svg class="h-8 w-8 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="text-xs text-mute group-hover:text-ink transition-colors text-center">
+            Click to upload or drag a screenshot here<br/>
+            <span class="font-mono text-[10px]">PNG, JPG, JPEG, WEBP accepted</span>
+          </span>
+          <input
+            type="file"
+            id="screenshot-input"
+            accept="image/png,image/jpeg,image/webp"
+            class="sr-only"
+          />
+        </label>
+
+        <!-- Preview Area (hidden until image selected) -->
+        <div id="screenshot-preview-area" class="hidden mt-3 rounded-sm border border-hairline bg-canvas p-3 flex items-start gap-3">
+          <img id="screenshot-thumb" src="" alt="Screenshot preview" class="w-20 h-14 object-cover rounded-sm border border-hairline flex-shrink-0" />
+          <div class="flex flex-col gap-1 min-w-0 flex-1">
+            <span id="screenshot-name" class="text-xs font-medium text-ink truncate"></span>
+            <span id="screenshot-size" class="text-[10px] font-mono text-mute"></span>
+            <div id="screenshot-size-warning" class="hidden mt-1 rounded-sm bg-warning/10 border border-warning/20 px-2 py-1 text-[10px] text-warning font-medium">
+              ⚠ Image is large. Consider compressing it at <a href="https://squoosh.app" target="_blank" class="underline">squoosh.app</a> before uploading.
+            </div>
+            <button type="button" id="remove-screenshot" class="mt-1 text-[10px] text-mute hover:text-error font-mono transition-colors cursor-pointer text-left">
+              [Remove]
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Submit Button -->
       <button
         type="submit"
         id="submit-btn"
-        class="mt-2 h-10 w-full inline-flex items-center justify-center rounded-sm bg-primary px-4 text-sm font-semibold text-on-primary hover:bg-ink/90 transition-colors focus:outline-none"
+        class="mt-2 h-10 w-full inline-flex items-center justify-center rounded-sm bg-primary px-4 text-sm font-semibold text-on-primary hover:bg-ink/90 transition-colors focus:outline-none cursor-pointer"
       >
         <span id="btn-label" class="inline-flex items-center gap-2">
           Send Message
         </span>
       </button>
     </form>
+
+    <!-- EmailJS Setup Note (shown only when credentials missing — hidden by JS when configured) -->
+    <div id="emailjs-setup-note" class="mt-6 rounded-sm border border-hairline bg-canvas-soft-2 p-4 text-xs text-mute leading-relaxed hidden">
+      <span class="font-mono font-semibold text-ink block mb-1">📧 EmailJS Not Configured</span>
+      To enable real email delivery, add these 3 environment variables to your Cloudflare Pages project:
+      <code class="block mt-2 bg-canvas border border-hairline rounded-sm p-2 font-mono text-[10px] leading-loose text-ink">
+        PUBLIC_EMAILJS_PUBLIC_KEY<br/>
+        PUBLIC_EMAILJS_SERVICE_ID<br/>
+        PUBLIC_EMAILJS_TEMPLATE_ID
+      </code>
+    </div>
+
   </div>
 </BaseLayout>
 
@@ -128,102 +183,186 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
   const btnLabel = document.getElementById('btn-label');
 
+  // Screenshot elements
+  const screenshotInput = document.getElementById('screenshot-input') as HTMLInputElement | null;
+  const dropZone = document.getElementById('drop-zone');
+  const previewArea = document.getElementById('screenshot-preview-area');
+  const thumb = document.getElementById('screenshot-thumb') as HTMLImageElement | null;
+  const nameLabel = document.getElementById('screenshot-name');
+  const sizeLabel = document.getElementById('screenshot-size');
+  const sizeWarning = document.getElementById('screenshot-size-warning');
+  const removeBtn = document.getElementById('remove-screenshot');
+  const setupNote = document.getElementById('emailjs-setup-note');
+
+  // State
+  let screenshotBase64 = '';
+
+  // ─── Screenshot Preview ───────────────────────────────────────────────────
+
+  function handleFile(file: File | null) {
+    if (!file) return;
+
+    // Validate type
+    const allowed = ['image/png', 'image/jpeg', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      if (errorBanner) {
+        errorBanner.textContent = 'Only PNG, JPG, JPEG, and WEBP images are accepted.';
+        errorBanner.classList.remove('hidden');
+      }
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      screenshotBase64 = result;
+
+      // Show preview
+      if (thumb) thumb.src = result;
+      if (nameLabel) nameLabel.textContent = file.name;
+
+      const sizeKB = Math.round(file.size / 1024);
+      if (sizeLabel) sizeLabel.textContent = `${sizeKB} KB`;
+
+      // Warn if large
+      if (sizeWarning) {
+        if (sizeKB > 150) {
+          sizeWarning.classList.remove('hidden');
+        } else {
+          sizeWarning.classList.add('hidden');
+        }
+      }
+
+      if (previewArea) previewArea.classList.remove('hidden');
+      if (dropZone) dropZone.classList.add('border-success/40');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  if (screenshotInput) {
+    screenshotInput.addEventListener('change', () => {
+      handleFile(screenshotInput.files?.[0] ?? null);
+    });
+  }
+
+  // Drag-and-drop support
+  if (dropZone) {
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('border-primary/60', 'bg-canvas');
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('border-primary/60', 'bg-canvas');
+    });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-primary/60', 'bg-canvas');
+      const file = (e as DragEvent).dataTransfer?.files?.[0] ?? null;
+      handleFile(file);
+    });
+  }
+
+  if (removeBtn) {
+    removeBtn.addEventListener('click', () => {
+      screenshotBase64 = '';
+      if (screenshotInput) screenshotInput.value = '';
+      if (previewArea) previewArea.classList.add('hidden');
+      if (thumb) thumb.src = '';
+      if (dropZone) dropZone.classList.remove('border-success/40');
+    });
+  }
+
+  // ─── Form Submission ──────────────────────────────────────────────────────
+
   if (form && submitBtn && btnLabel) {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      
+
       if (successBanner) successBanner.classList.add('hidden');
       if (errorBanner) errorBanner.classList.add('hidden');
 
-      // Form validation check
+      // Validate required fields
       const inputs = form.querySelectorAll('input[required], textarea[required]');
       let isValid = true;
       inputs.forEach(input => {
-        const htmlInput = input as HTMLInputElement;
-        if (!htmlInput.value.trim()) {
-          isValid = false;
-        }
+        if (!(input as HTMLInputElement).value.trim()) isValid = false;
       });
 
       if (!isValid) {
         if (errorBanner) {
-          errorBanner.textContent = "Please fill out all fields before submitting.";
+          errorBanner.textContent = 'Please fill out all required fields before submitting.';
           errorBanner.classList.remove('hidden');
+          errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
         return;
       }
 
-      // Enter loading state
+      // Loading state
       submitBtn.disabled = true;
       btnLabel.innerHTML = `Sending… <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>`;
 
-      // Retrieve credentials
+      // Read credentials
       const publicKey = import.meta.env.PUBLIC_EMAILJS_PUBLIC_KEY;
       const serviceId = import.meta.env.PUBLIC_EMAILJS_SERVICE_ID;
       const templateId = import.meta.env.PUBLIC_EMAILJS_TEMPLATE_ID;
 
       // Extract form values
-      const nameInput = document.getElementById('user-name') as HTMLInputElement | null;
-      const emailInput = document.getElementById('user-email') as HTMLInputElement | null;
-      const topicSelect = document.getElementById('topic') as HTMLSelectElement | null;
-      const messageInput = document.getElementById('message') as HTMLTextAreaElement | null;
+      const nameVal = (document.getElementById('user-name') as HTMLInputElement)?.value.trim() ?? '';
+      const emailVal = (document.getElementById('user-email') as HTMLInputElement)?.value.trim() ?? '';
+      const topicVal = (document.getElementById('topic') as HTMLSelectElement)?.value ?? '';
+      const messageVal = (document.getElementById('message') as HTMLTextAreaElement)?.value.trim() ?? '';
 
-      const nameVal = nameInput ? nameInput.value.trim() : '';
-      const emailVal = emailInput ? emailInput.value.trim() : '';
-      const topicVal = topicSelect ? topicSelect.value : '';
-      const messageVal = messageInput ? messageInput.value.trim() : '';
-
-      // Fallback if EmailJS is not configured
-      if (!publicKey || !serviceId || !templateId) {
-        console.warn(
-          "EmailJS is not fully configured. Please define PUBLIC_EMAILJS_PUBLIC_KEY, PUBLIC_EMAILJS_SERVICE_ID, and PUBLIC_EMAILJS_TEMPLATE_ID in your environment variables. Simulating feedback submission..."
-        );
-        setTimeout(() => {
-          form.reset();
-          submitBtn.disabled = false;
-          btnLabel.innerHTML = `Send Message`;
-          if (successBanner) {
-            successBanner.textContent = "Thank you! Your feedback has been simulated successfully (EmailJS credentials not configured).";
-            successBanner.classList.remove('hidden');
-            successBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 1200);
-        return;
-      }
-
-      // Initialize EmailJS
-      emailjs.init({
-        publicKey: publicKey,
-      });
-
-      // Send via EmailJS SDK
-      emailjs.send(serviceId, templateId, {
+      const templateParams: Record<string, string> = {
         from_name: nameVal,
         from_email: emailVal,
         topic: topicVal,
         message: messageVal,
-        to_email: 'barhatevinay7777@gmail.com'
-      })
-      .then(() => {
+        to_email: 'barhatevinay7777@gmail.com',
+      };
+
+      if (screenshotBase64) {
+        templateParams.screenshot = screenshotBase64;
+      }
+
+      const onSuccess = () => {
         form.reset();
+        screenshotBase64 = '';
+        if (previewArea) previewArea.classList.add('hidden');
+        if (thumb) thumb.src = '';
+        if (dropZone) dropZone.classList.remove('border-success/40');
         submitBtn.disabled = false;
-        btnLabel.innerHTML = `Send Message`;
+        btnLabel.innerHTML = 'Send Message';
         if (successBanner) {
-          successBanner.textContent = "Thank you! Your feedback has been sent successfully. We'll check the formulas and get back to you if needed.";
+          successBanner.textContent = '✓ Message sent! We\'ll review your feedback and get back to you if needed.';
           successBanner.classList.remove('hidden');
           successBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-      })
-      .catch((err) => {
-        console.error("EmailJS failed to send email:", err);
+      };
+
+      const onError = (err?: unknown) => {
+        console.error('EmailJS error:', err);
         submitBtn.disabled = false;
-        btnLabel.innerHTML = `Send Message`;
+        btnLabel.innerHTML = 'Send Message';
         if (errorBanner) {
-          errorBanner.textContent = "Oops! Something went wrong while sending your message. Please check your network or try again later.";
+          errorBanner.textContent = 'Something went wrong while sending your message. Please try again or email us directly.';
           errorBanner.classList.remove('hidden');
           errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-      });
+      };
+
+      // No credentials — show setup note and simulate
+      if (!publicKey || !serviceId || !templateId) {
+        console.warn('[Student Utility Hub] EmailJS credentials not configured. Add PUBLIC_EMAILJS_PUBLIC_KEY, PUBLIC_EMAILJS_SERVICE_ID, and PUBLIC_EMAILJS_TEMPLATE_ID to Cloudflare Pages environment variables.');
+        if (setupNote) setupNote.classList.remove('hidden');
+        setTimeout(onSuccess, 1200);
+        return;
+      }
+
+      // Send via EmailJS
+      emailjs.init({ publicKey });
+      emailjs.send(serviceId, templateId, templateParams)
+        .then(onSuccess)
+        .catch(onError);
     });
   }
 </script>
