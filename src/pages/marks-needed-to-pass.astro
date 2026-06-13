@@ -12,7 +12,7 @@ const faq = [
   },
   {
     question: "How does the calculator determine marks needed to pass?",
-    answer: "The calculator applies two rules: first, it checks the independent minimum passing mark for the theory paper. Second, it calculates the combined passing marks needed to reach the overall percentage (typically 40%). It outputs the higher of these two values: Theory Needed = Math.max(Theory Min Pass, Combined Pass Total - Internals Scored)."
+    answer: "The calculator applies two rules: first, it checks the independent minimum passing mark for the theory paper. Second, it calculates the combined passing marks needed to reach the overall percentage (typically 40%). It outputs the higher of these two values: Theory Needed = Math.max(Theory Min Pass, Combined Pass Total - Internals Marks Obtained)."
   },
   {
     question: "What happens if I score less than 8 out of 20 in internals?",
@@ -359,7 +359,7 @@ const faq = [
             </p>
             
             <div class="my-6 rounded-sm border border-hairline bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm">
-              Theory Marks Needed = Math.max(Theory Min Pass, Combined Pass Total - Internal Scored)
+              Theory Marks Needed = Math.max(Theory Min Pass, Combined Pass Total - Internals Marks Obtained)
             </div>
 
             <p class="mt-4">
@@ -420,7 +420,7 @@ const faq = [
               To calculate what you must score in theory to reach these targets, subtract your internal marks from the target total marks:
             </p>
             <div class="my-4 rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-xs text-ink leading-relaxed pl-6">
-              Theory Score for Target = Combined Target Marks - Internals Scored
+              Theory Score for Target = Combined Target Marks - Internals Marks Obtained
             </div>
             <p class="mt-4">
               Our built-in **Target Grade Simulator** computes this value dynamically. If your internal assessment score is low, you will see a warning indicating if your target requires more marks than the theory paper conducts (e.g., needing 85 marks on an 80-mark paper). This helps you set realistic targets or allocate study time to other subjects where a higher grade is still mathematically achievable.
