@@ -118,6 +118,7 @@ const faq = [
                 <option value="mu-engg">Mumbai University Engineering (C-Scheme / Heads of Passing)</option>
                 <option value="mu-degree">Mumbai University B.Sc / B.Com / B.A (CBCS - 2 per Sem Limit)</option>
                 <option value="mu-nep">Mumbai University NEP-2020 (Credit-Based Progression)</option>
+                <option value="autonomous">Autonomous College (Carry-over & Golden KT Tracker)</option>
                 <option value="custom">Custom Rules (Configure custom limits...)</option>
               </select>
             </div>
@@ -278,6 +279,39 @@ const faq = [
                     <input type="number" id="custom-input-total-credits" value="0" min="0" class="w-20 h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
                   </div>
                 </div>
+            </div>
+
+            <!-- 6. Autonomous College Rules Setup -->
+            <div id="autonomous-panel" class="hidden flex flex-col gap-4 border-t border-hairline pt-4 animate-fade-in">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-mute font-mono mb-2 flex items-center justify-between">
+                <span>Configure Autonomous College Rules</span>
+                <span id="autonomous-sync-note" class="hidden text-[10px] text-link font-sans font-normal normal-case (synced from logger) animate-fade-in">(synced from logger)</span>
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-sm border border-hairline bg-canvas-soft p-4">
+                <label class="flex items-center gap-2 text-xs text-body cursor-pointer sm:col-span-2">
+                  <input type="checkbox" id="autonomous-req-prior" checked class="accent-primary h-4 w-4" />
+                  <span>Enforce Year-Clearance? (Must pass Year N-2 to enter Year N, e.g. FY backlog blocks Sem 5 entry)</span>
+                </label>
+                <div>
+                  <label for="autonomous-max-heads" class="block text-[10px] text-ink mb-1 font-medium">Max Failed Heads Allowed (per year)</label>
+                  <input type="number" id="autonomous-max-heads" value="8" min="0" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2 text-xs focus:outline-none" />
+                </div>
+                <div>
+                  <label for="autonomous-max-ese" class="block text-[10px] text-ink mb-1 font-medium">Max Failed ESE (Theory) Allowed</label>
+                  <input type="number" id="autonomous-max-ese" value="5" min="0" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2 text-xs focus:outline-none" />
+                </div>
+              </div>
+
+              <!-- Manual Backlog Inputs for Autonomous Scheme -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                <div>
+                  <label for="autonomous-input-heads" class="block text-xs text-ink mb-1.5 font-medium">Failed Heads (Current Year)</label>
+                  <input type="number" id="autonomous-input-heads" value="0" min="0" class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+                </div>
+                <div>
+                  <label for="autonomous-input-ese" class="block text-xs text-ink mb-1.5 font-medium">Failed ESE (Theory Exams)</label>
+                  <input type="number" id="autonomous-input-ese" value="0" min="0" class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+                </div>
               </div>
             </div>
 
@@ -378,19 +412,20 @@ const faq = [
           </p>
 
           <div class="overflow-x-auto mb-4 border border-hairline rounded-sm">
-            <table class="w-full text-left border-collapse text-xs min-w-[480px] sm:min-w-0">
+            <table class="w-full text-left border-collapse text-xs min-w-[540px] sm:min-w-0">
               <thead>
                 <tr class="bg-canvas-soft border-b border-hairline text-mute font-mono">
                   <th class="py-2.5 px-3 font-semibold">Subject Name</th>
-                  <th class="py-2.5 px-3 font-semibold w-24">Semester</th>
-                  <th class="py-2.5 px-3 font-semibold w-36">Failed Component</th>
+                  <th class="py-2.5 px-3 font-semibold w-20">Semester</th>
+                  <th class="py-2.5 px-3 font-semibold w-32">Failed Component</th>
+                  <th class="py-2.5 px-3 font-semibold w-24">Status</th>
                   <th class="py-2.5 px-3 font-semibold w-12 text-center">Action</th>
                 </tr>
               </thead>
               <tbody id="logger-rows" class="divide-y divide-hairline">
                 <!-- Subject rows dynamically populated -->
                 <tr id="empty-logger-row">
-                  <td colspan="4" class="py-8 text-center text-mute font-mono text-[11px]">
+                  <td colspan="5" class="py-8 text-center text-mute font-mono text-[11px]">
                     No subjects logged. Use "+ Add Course" to build a backlog list.
                   </td>
                 </tr>
@@ -481,6 +516,44 @@ const faq = [
               </div>
             </div>
 
+          </div>
+        </div>
+
+        <!-- Backlog & Golden KT Dashboard -->
+        <div id="backlog-dashboard-card" class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200 mt-6 animate-fade-in">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-4 flex items-center justify-between">
+            <span>Backlog & Golden KT Tracker</span>
+            <span class="text-[10px] font-mono bg-canvas-soft-2 border border-hairline rounded-full px-2 py-0.5 text-mute">Active Tracking</span>
+          </h2>
+
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Total Active Backlogs -->
+            <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 flex flex-col gap-1">
+              <span class="text-[10px] font-mono font-semibold uppercase tracking-wider text-mute">Active Backlogs</span>
+              <span id="backlog-active-val" class="text-base font-bold text-ink">0</span>
+              <span class="text-[10px] text-mute leading-tight">Pending examinations</span>
+            </div>
+            
+            <!-- Oldest Pending Semester -->
+            <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 flex flex-col gap-1">
+              <span class="text-[10px] font-mono font-semibold uppercase tracking-wider text-mute">Oldest Backlog</span>
+              <span id="backlog-oldest-val" class="text-base font-bold text-ink">None</span>
+              <span class="text-[10px] text-mute leading-tight">Earliest pending KT</span>
+            </div>
+
+            <!-- Golden KT Count -->
+            <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 flex flex-col gap-1">
+              <span class="text-[10px] font-mono font-semibold uppercase tracking-wider text-mute">Golden KTs</span>
+              <span id="backlog-golden-val" class="text-base font-bold text-ink">0</span>
+              <span class="text-[10px] text-mute leading-tight">Older-year backlogs</span>
+            </div>
+
+            <!-- Cleared vs Pending Status -->
+            <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 flex flex-col gap-1">
+              <span class="text-[10px] font-mono font-semibold uppercase tracking-wider text-mute">Cleared vs Total</span>
+              <span id="backlog-ratio-val" class="text-base font-bold text-ink">0 / 0</span>
+              <span class="text-[10px] text-mute leading-tight">Cleared ratio</span>
+            </div>
           </div>
         </div>
 
@@ -629,6 +702,14 @@ const faq = [
     const customInputCredits = document.getElementById('custom-input-credits');
     const customInputTotalCredits = document.getElementById('custom-input-total-credits');
 
+    const autonomousPanel = document.getElementById('autonomous-panel');
+    const autonomousReqPrior = document.getElementById('autonomous-req-prior');
+    const autonomousMaxHeads = document.getElementById('autonomous-max-heads');
+    const autonomousMaxEse = document.getElementById('autonomous-max-ese');
+    const autonomousInputHeads = document.getElementById('autonomous-input-heads');
+    const autonomousInputEse = document.getElementById('autonomous-input-ese');
+    const autonomousSyncNote = document.getElementById('autonomous-sync-note');
+
     // Status Board Elements
     const statusCard = document.getElementById('status-card');
     const statusLed = document.getElementById('status-led');
@@ -641,6 +722,12 @@ const faq = [
     const adviceDesc = document.getElementById('advice-desc');
     const shareBtn = document.getElementById('share-btn');
     const shareToast = document.getElementById('share-toast');
+
+    // Backlog Dashboard Elements
+    const backlogActiveVal = document.getElementById('backlog-active-val');
+    const backlogOldestVal = document.getElementById('backlog-oldest-val');
+    const backlogGoldenVal = document.getElementById('backlog-golden-val');
+    const backlogRatioVal = document.getElementById('backlog-ratio-val');
 
     // Logger Elements
     const addCourseBtn = document.getElementById('add-course-btn');
@@ -683,6 +770,7 @@ const faq = [
       muDegreePanel.classList.add('hidden');
       muNepPanel.classList.add('hidden');
       customPanel.classList.add('hidden');
+      if (autonomousPanel) autonomousPanel.classList.add('hidden');
 
       // Show the selected one
       if (scheme === 'mu-engg') {
@@ -695,12 +783,23 @@ const faq = [
         updateNepSliderSettings();
       } else if (scheme === 'custom') {
         customPanel.classList.remove('hidden');
+      } else if (scheme === 'autonomous') {
+        if (autonomousPanel) autonomousPanel.classList.remove('hidden');
       }
 
       // Prior clearance panel is shown for Y2-Y3 (Sem 5) and Y3-Y4 (Sem 7) targets for non-NEP systems
-      if (target === 'y1-y2' || scheme === 'mu-nep') {
-        priorClearancePanel.classList.add('hidden');
-      } else {
+      let showPrior = false;
+      if (target !== 'y1-y2') {
+        if (scheme === 'mu-engg' || scheme === 'mu-degree') {
+          showPrior = true;
+        } else if (scheme === 'custom') {
+          showPrior = customReqPrior ? customReqPrior.checked : true;
+        } else if (scheme === 'autonomous') {
+          showPrior = autonomousReqPrior ? autonomousReqPrior.checked : true;
+        }
+      }
+
+      if (showPrior) {
         priorClearancePanel.classList.remove('hidden');
         // Update label text
         if (target === 'y2-y3') {
@@ -708,6 +807,8 @@ const faq = [
         } else if (target === 'y3-y4') {
           priorClearanceLabel.textContent = "Have you completely cleared all First & Second Year (Sem 1 to 4) subjects?";
         }
+      } else {
+        priorClearancePanel.classList.add('hidden');
       }
     }
 
@@ -900,7 +1001,9 @@ const faq = [
       failedOddInput, failedEvenInput,
       priorClearYes, priorClearNo,
       customReqPrior, customMaxHeads, customMaxEse, customMinCredits,
-      customInputHeads, customInputEse, customInputCredits, customInputTotalCredits
+      customInputHeads, customInputEse, customInputCredits, customInputTotalCredits,
+      autonomousReqPrior, autonomousMaxHeads, autonomousMaxEse,
+      autonomousInputHeads, autonomousInputEse
     ].forEach(el => {
       if (el) el.addEventListener('input', () => {
         // If they manually edit counters, they are breaking the direct sync with logger list
@@ -908,7 +1011,12 @@ const faq = [
         calculateStanding();
       });
       if (el && (el.type === 'radio' || el.type === 'checkbox')) {
-        el.addEventListener('change', calculateStanding);
+        el.addEventListener('change', () => {
+          if (el === autonomousReqPrior || el === customReqPrior) {
+            updateSchemePanels();
+          }
+          calculateStanding();
+        });
       }
     });
 
@@ -924,7 +1032,8 @@ const faq = [
         id: 'c_' + Date.now() + Math.random().toString(36).slice(2, 6),
         name: `Backlog Subject ${loggedCourses.length + 1}`,
         sem: defaultSem,
-        type: 'theory' // theory, internal, both
+        type: 'theory', // theory, internal, both
+        status: 'pending'
       };
 
       loggedCourses.push(newCourse);
@@ -962,9 +1071,14 @@ const faq = [
 
         // Set dynamic options based on target
         const target = targetSelect.value;
+        const scheme = schemeSelect.value;
         let sems = ['1', '2'];
-        if (target === 'y2-y3') sems = ['3', '4'];
-        if (target === 'y3-y4') sems = ['5', '6'];
+        if (scheme === 'autonomous' || scheme === 'custom') {
+          sems = ['1', '2', '3', '4', '5', '6', '7', '8'];
+        } else {
+          if (target === 'y2-y3') sems = ['3', '4'];
+          if (target === 'y3-y4') sems = ['5', '6'];
+        }
 
         // If it's B.Sc degree, type is just "whole subject" but we can map "both" as subject
         const isDegree = schemeSelect.value === 'mu-degree';
@@ -990,6 +1104,12 @@ const faq = [
                 <option value="internal" ${course.type === 'internal' ? 'selected' : ''}>Internal Only</option>
                 <option value="both" ${course.type === 'both' ? 'selected' : ''}>Both (Theory + Internal)</option>
               ` : ''}
+            </select>
+          </td>
+          <td class="py-2 px-3">
+            <select class="w-full bg-transparent border-none text-xs text-ink focus:outline-none p-0 cursor-pointer" data-field="status">
+              <option value="pending" ${course.status === 'pending' ? 'selected' : ''}>Pending</option>
+              <option value="cleared" ${course.status === 'cleared' ? 'selected' : ''}>Cleared</option>
             </select>
           </td>
           <td class="py-2 px-3 text-center">
@@ -1021,6 +1141,13 @@ const faq = [
           calculateStanding();
         });
 
+        const statusSelect = tr.querySelector('[data-field="status"]');
+        statusSelect.addEventListener('change', (e) => {
+          course.status = e.target.value;
+          syncLoggerToCounters();
+          calculateStanding();
+        });
+
         const deleteBtn = tr.querySelector('[data-action="delete"]');
         deleteBtn.addEventListener('click', () => {
           loggedCourses = loggedCourses.filter(c => c.id !== course.id);
@@ -1042,13 +1169,16 @@ const faq = [
         failedOddInput,
         failedEvenInput,
         customInputHeads,
-        customInputEse
+        customInputEse,
+        autonomousInputHeads,
+        autonomousInputEse
       ];
 
       // Hide all sync notes by default
       if (enggSyncNote) enggSyncNote.classList.add('hidden');
       if (degreeSyncNote) degreeSyncNote.classList.add('hidden');
       if (customSyncNote) customSyncNote.classList.add('hidden');
+      if (autonomousSyncNote) autonomousSyncNote.classList.add('hidden');
 
       if (loggedCourses.length === 0) {
         // Unlock inputs and reset to 0
@@ -1095,6 +1225,8 @@ const faq = [
         degreeSyncNote.classList.remove('hidden');
       } else if (scheme === 'custom' && customSyncNote) {
         customSyncNote.classList.remove('hidden');
+      } else if (scheme === 'autonomous' && autonomousSyncNote) {
+        autonomousSyncNote.classList.remove('hidden');
       }
 
       let eseCount = 0;
@@ -1103,6 +1235,9 @@ const faq = [
       let evenCount = 0;
 
       loggedCourses.forEach(c => {
+        // Only count pending backlogs towards active failures
+        if (c.status === 'cleared') return;
+
         const semNum = parseInt(c.sem);
         if (semNum % 2 !== 0) {
           oddCount += 1;
@@ -1126,6 +1261,8 @@ const faq = [
       if (failedEvenInput) failedEvenInput.value = evenCount.toString();
       if (customInputHeads) customInputHeads.value = (eseCount + internalCount).toString();
       if (customInputEse) customInputEse.value = eseCount.toString();
+      if (autonomousInputHeads) autonomousInputHeads.value = (eseCount + internalCount).toString();
+      if (autonomousInputEse) autonomousInputEse.value = eseCount.toString();
 
       // Count fails for selected semester
       if (currentSemSelect && semFailedEse && semFailedInternal) {
@@ -1133,6 +1270,8 @@ const faq = [
         let semEse = 0;
         let semInt = 0;
         loggedCourses.forEach(c => {
+          // Only count pending backlogs
+          if (c.status === 'cleared') return;
           if (c.sem === selectedSem) {
             if (c.type === 'theory' || c.type === 'both') semEse++;
             if (c.type === 'internal' || c.type === 'both') semInt++;
@@ -1140,6 +1279,37 @@ const faq = [
         });
         semFailedEse.value = semEse.toString();
         semFailedInternal.value = semInt.toString();
+      }
+
+      // Programmatically calculate if prior years are clear from logged courses
+      const target = targetSelect.value;
+      if (loggedCourses.length > 0) {
+        let hasPriorKT = false;
+        loggedCourses.forEach(c => {
+          if (c.status === 'cleared') return;
+          const semNum = parseInt(c.sem);
+          if (target === 'y2-y3' && semNum <= 2) {
+            hasPriorKT = true;
+          } else if (target === 'y3-y4' && semNum <= 4) {
+            hasPriorKT = true;
+          }
+        });
+
+        if (hasPriorKT) {
+          if (priorClearNo) priorClearNo.checked = true;
+          if (priorClearYes) priorClearYes.checked = false;
+        } else {
+          if (priorClearYes) priorClearYes.checked = true;
+          if (priorClearNo) priorClearNo.checked = false;
+        }
+
+        // Disable prior clearance radio options to prevent manual overrides that conflict with logger
+        if (priorClearYes) priorClearYes.disabled = true;
+        if (priorClearNo) priorClearNo.disabled = true;
+      } else {
+        // Enable them if no courses are logged
+        if (priorClearYes) priorClearYes.disabled = false;
+        if (priorClearNo) priorClearNo.disabled = false;
       }
     }
 
@@ -1411,6 +1581,73 @@ const faq = [
           statusSubtitleText = 'CUSTOM CRITERIA FAILED';
           adviceText = 'You are not eligible for promotion based on your custom-defined criteria. Check your inputs and backlog counters.';
         }
+      } else if (scheme === 'autonomous') {
+        const reqPrior = autonomousReqPrior ? autonomousReqPrior.checked : true;
+        const maxHeads = autonomousMaxHeads ? (parseInt(autonomousMaxHeads.value) || 0) : 8;
+        const maxEse = autonomousMaxEse ? (parseInt(autonomousMaxEse.value) || 0) : 5;
+
+        const inputHeads = autonomousInputHeads ? (parseInt(autonomousInputHeads.value) || 0) : 0;
+        const inputEse = autonomousInputEse ? (parseInt(autonomousInputEse.value) || 0) : 0;
+
+        if (reqPrior && target !== 'y1-y2') {
+          const priorYearLabel = target === 'y2-y3' ? 'First Year (Sem 1 & 2) Cleared' : 'First & Second Year (Sem 1-4) Cleared';
+          if (isPriorClear) {
+            checks.push({ label: priorYearLabel, passed: true, detail: '0 prior backlogs remaining' });
+          } else {
+            checks.push({ label: priorYearLabel, passed: false, detail: 'Must clear prior year to enter next year' });
+            isEligible = false;
+            statusType = 'drop';
+          }
+        }
+
+        if (maxHeads > 0) {
+          const headsOk = inputHeads <= maxHeads;
+          checks.push({
+            label: `Total Failed Heads (≤ ${maxHeads})`,
+            passed: headsOk,
+            detail: `${inputHeads} / ${maxHeads} failed`
+          });
+          if (!headsOk) {
+            isEligible = false;
+            statusType = 'drop';
+          }
+        }
+
+        if (maxEse > 0) {
+          const eseOk = inputEse <= maxEse;
+          checks.push({
+            label: `Theory/ESE Failed (≤ ${maxEse})`,
+            passed: eseOk,
+            detail: `${inputEse} / ${maxEse} failed`
+          });
+          if (!eseOk) {
+            isEligible = false;
+            statusType = 'drop';
+          }
+        }
+
+        // Autonomous gauge (heads)
+        const autoLimit = maxHeads || 8;
+        updateGauge('Autonomous Backlogs', inputHeads, autoLimit, isEligible);
+
+        // State evaluation
+        if (isEligible) {
+          if (inputHeads > 0) {
+            statusType = 'warning';
+            statusMsg = 'ELIGIBLE (WITH BACKLOGS)';
+            statusSubtitleText = 'LIMITS SATISFIED';
+            adviceText = `You are eligible to progress under your autonomous college ATKT guidelines, but you are carrying ${inputHeads} active backlog heads. Make sure to clear them.`;
+          } else {
+            statusType = 'eligible';
+            statusMsg = 'ELIGIBLE (ALL CLEAR)';
+            statusSubtitleText = 'REGULAR PROMOTION';
+            adviceText = 'Excellent! You have passed all components and are fully eligible to proceed to the next year.';
+          }
+        } else {
+          statusMsg = 'DETENTION / YEAR DROP';
+          statusSubtitleText = 'ATKT LIMITS EXCEEDED';
+          adviceText = `You have exceeded the autonomous progression limits. Focus on clearing these backlog courses in the upcoming supplementary exams.`;
+        }
       }
 
       // RENDER STANDING CARD COLORS & LED
@@ -1468,6 +1705,51 @@ const faq = [
 
       // Update Copy Report card template
       updateShareTemplate(statusMsg, statusSubtitleText, checks, adviceText);
+      updateBacklogDashboard();
+    }
+
+    function updateBacklogDashboard() {
+      if (!backlogActiveVal || !backlogOldestVal || !backlogGoldenVal || !backlogRatioVal) return;
+
+      let activeCount = 0;
+      let clearedCount = 0;
+      let oldestSem = Infinity;
+      let goldenCount = 0;
+
+      const target = targetSelect.value;
+
+      loggedCourses.forEach(c => {
+        if (c.status === 'cleared') {
+          clearedCount++;
+        } else {
+          activeCount++;
+          const semNum = parseInt(c.sem);
+          if (semNum < oldestSem) {
+            oldestSem = semNum;
+          }
+
+          // Golden KT check: backlog in previous year(s)
+          // y2-y3 target (TY entry, Sem 5/6) -> Golden KT if Sem 1 or 2
+          // y3-y4 target (LY entry, Sem 7/8) -> Golden KT if Sem 1, 2, 3, or 4
+          if (target === 'y2-y3' && semNum <= 2) {
+            goldenCount++;
+          } else if (target === 'y3-y4' && semNum <= 4) {
+            goldenCount++;
+          }
+        }
+      });
+
+      backlogActiveVal.textContent = activeCount.toString();
+      backlogActiveVal.className = `text-base font-bold ${activeCount > 0 ? 'text-error' : 'text-success'}`;
+
+      backlogOldestVal.textContent = oldestSem === Infinity ? 'None' : `Sem ${oldestSem}`;
+      backlogOldestVal.className = `text-base font-bold ${oldestSem === Infinity ? 'text-success' : 'text-ink'}`;
+
+      backlogGoldenVal.textContent = goldenCount.toString();
+      backlogGoldenVal.className = `text-base font-bold ${goldenCount > 0 ? 'text-error' : 'text-success'}`;
+
+      const totalCount = activeCount + clearedCount;
+      backlogRatioVal.textContent = `${clearedCount} / ${totalCount}`;
     }
 
     // Update the progress bar status
