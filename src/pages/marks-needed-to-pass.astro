@@ -969,7 +969,51 @@ const faq = [
         theoryAdvice.innerHTML = `<span class="text-error font-semibold font-sans">Mathematically Impossible to Pass.</span> Even a perfect score of ${targetComp.max}/${targetComp.max} in ${targetComp.name} won't reach the overall pass mark (${overallPassTotal}/${totalMax} total).`;
       } else {
         const needed = Math.max(0, targetPassNeeded);
-        theoryAdvice.innerHTML = `You must score at least <span class="font-bold">${needed} marks</span> out of ${targetComp.max} in ${targetComp.name} to pass the course.`;
+        const currentScore = targetComp.scored;
+        const diff = currentScore - needed;
+        
+        let diffClass = '';
+        let diffText = '';
+        let statusClass = '';
+        let statusText = '';
+        
+        if (diff > 0) {
+          diffText = `+${diff} marks above passing`;
+          diffClass = 'text-success';
+          statusText = 'PASS';
+          statusClass = 'bg-success/10 text-success border border-success/20';
+        } else if (diff === 0) {
+          diffText = 'On passing threshold';
+          diffClass = 'text-ink';
+          statusText = 'PASS';
+          statusClass = 'bg-success/10 text-success border border-success/20';
+        } else {
+          diffText = `${Math.abs(diff)} marks short`;
+          diffClass = 'text-error';
+          statusText = 'FAIL';
+          statusClass = 'bg-error/10 text-error border border-error/20';
+        }
+
+        theoryAdvice.innerHTML = `
+          <div class="w-full mt-4 border border-hairline rounded-sm p-3.5 bg-canvas-soft-2 text-left font-mono text-xs text-body flex flex-col gap-2 shadow-sm animate-fade-in">
+            <div class="flex justify-between items-center">
+              <span class="text-mute font-sans">Minimum Required:</span>
+              <span class="font-bold text-ink">${needed} / ${targetComp.max}</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-hairline pt-2">
+              <span class="text-mute font-sans">Current ${targetComp.name}:</span>
+              <span class="font-bold text-ink">${currentScore} / ${targetComp.max}</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-hairline pt-2">
+              <span class="text-mute font-sans">Difference:</span>
+              <span class="font-bold ${diffClass}">${diffText}</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-hairline pt-2">
+              <span class="text-mute font-sans font-semibold">Status:</span>
+              <span class="font-bold px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider ${statusClass}">${statusText}</span>
+            </div>
+          </div>
+        `;
       }
     }
 

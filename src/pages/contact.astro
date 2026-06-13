@@ -120,6 +120,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <script>
+  import emailjs from '@emailjs/browser';
+
   const form = document.getElementById('contact-form') as HTMLFormElement | null;
   const successBanner = document.getElementById('success-banner');
   const errorBanner = document.getElementById('error-banner');
@@ -144,7 +146,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       });
 
       if (!isValid) {
-        if (errorBanner) errorBanner.classList.remove('hidden');
+        if (errorBanner) {
+          errorBanner.textContent = "Please fill out all fields before submitting.";
+          errorBanner.classList.remove('hidden');
+        }
         return;
       }
 
@@ -152,21 +157,73 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       submitBtn.disabled = true;
       btnLabel.innerHTML = `Sending… <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>`;
 
-      // Simulate API submit delay
-      setTimeout(() => {
-        // Clear inputs
-        form.reset();
+      // Retrieve credentials
+      const publicKey = import.meta.env.PUBLIC_EMAILJS_PUBLIC_KEY;
+      const serviceId = import.meta.env.PUBLIC_EMAILJS_SERVICE_ID;
+      const templateId = import.meta.env.PUBLIC_EMAILJS_TEMPLATE_ID;
 
-        // Exit loading state
+      // Extract form values
+      const nameInput = document.getElementById('user-name') as HTMLInputElement | null;
+      const emailInput = document.getElementById('user-email') as HTMLInputElement | null;
+      const topicSelect = document.getElementById('topic') as HTMLSelectElement | null;
+      const messageInput = document.getElementById('message') as HTMLTextAreaElement | null;
+
+      const nameVal = nameInput ? nameInput.value.trim() : '';
+      const emailVal = emailInput ? emailInput.value.trim() : '';
+      const topicVal = topicSelect ? topicSelect.value : '';
+      const messageVal = messageInput ? messageInput.value.trim() : '';
+
+      // Fallback if EmailJS is not configured
+      if (!publicKey || !serviceId || !templateId) {
+        console.warn(
+          "EmailJS is not fully configured. Please define PUBLIC_EMAILJS_PUBLIC_KEY, PUBLIC_EMAILJS_SERVICE_ID, and PUBLIC_EMAILJS_TEMPLATE_ID in your environment variables. Simulating feedback submission..."
+        );
+        setTimeout(() => {
+          form.reset();
+          submitBtn.disabled = false;
+          btnLabel.innerHTML = `Send Message`;
+          if (successBanner) {
+            successBanner.textContent = "Thank you! Your feedback has been simulated successfully (EmailJS credentials not configured).";
+            successBanner.classList.remove('hidden');
+            successBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 1200);
+        return;
+      }
+
+      // Initialize EmailJS
+      emailjs.init({
+        publicKey: publicKey,
+      });
+
+      // Send via EmailJS SDK
+      emailjs.send(serviceId, templateId, {
+        from_name: nameVal,
+        from_email: emailVal,
+        topic: topicVal,
+        message: messageVal,
+        to_email: 'barhatevinay7777@gmail.com'
+      })
+      .then(() => {
+        form.reset();
         submitBtn.disabled = false;
         btnLabel.innerHTML = `Send Message`;
-
-        // Show success
         if (successBanner) {
+          successBanner.textContent = "Thank you! Your feedback has been sent successfully. We'll check the formulas and get back to you if needed.";
           successBanner.classList.remove('hidden');
           successBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-      }, 1500);
+      })
+      .catch((err) => {
+        console.error("EmailJS failed to send email:", err);
+        submitBtn.disabled = false;
+        btnLabel.innerHTML = `Send Message`;
+        if (errorBanner) {
+          errorBanner.textContent = "Oops! Something went wrong while sending your message. Please check your network or try again later.";
+          errorBanner.classList.remove('hidden');
+          errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
     });
   }
 </script>

@@ -26,6 +26,34 @@ const faq = [
   {
     question: "Can I enter the final year if I have a second-year backlog?",
     answer: "No. Under the year-clearance ordinance, you must completely pass all subjects from both the First Year (Sem 1 & 2) and Second Year (Sem 3 & 4) before you are allowed to enter the Fourth Year (Sem 7). A single outstanding backlog from these years will result in a Year Drop, even if your Third-Year marks are clear."
+  },
+  {
+    question: "Can I take admission to next year with KT?",
+    answer: "Yes. Under ATKT (Allowed to Keep Terms) rules, you can secure provisional admission to the next academic year even if you have active backlogs (KTs), provided the total number of KTs is within the permitted limits (e.g., ≤ 8 failed heads for Mumbai University Engineering, or ≤ 2 failed subjects per semester for B.Sc/B.Com/B.A)."
+  },
+  {
+    question: "How many KTs are allowed in Mumbai University?",
+    answer: "In MU Engineering (C-Scheme), you are allowed up to 8 failed heads of passing per academic year, with a maximum of 5 being end-semester theory papers (ESE). In MU General Degree courses (B.Sc/B.Com/B.A), you are allowed a maximum of 2 failed subjects per semester. In NEP 2020 programs, ATKT is credit-based: you must secure at least 32/44 credits in Year 1 to enter Year 2, and 76/88 credits overall to enter Year 3."
+  },
+  {
+    question: "What is the difference between ATKT and Year Down?",
+    answer: "ATKT is a provisional promotion that lets you attend classes in the next year while carrying backlog subjects. A Year Down (academic detention) means you have exceeded the allowable backlogs or have failed to clear prior year backlogs. During a Year Down, you cannot take admission to the next year and must sit out to clear your pending papers."
+  },
+  {
+    question: "What exactly is a Head of Passing?",
+    answer: "A head of passing is any academic evaluation unit that requires a separate minimum score to pass. For example, in a single subject, the end-semester theory exam (ESE), internal assessment (IA/term work), oral exam/viva, and practical exam are all separate heads of passing. Failing in any one of these means you have a KT in that specific head."
+  },
+  {
+    question: "Can a practical KT cause a Year Down?",
+    answer: "Yes. Because practicals and term work (TW) are separate heads of passing, failing them counts as a backlog/KT. If your cumulative failed heads (theory + practicals + internals) exceed 8, or if you fail to clear a prior-year practical head before entering the 3rd or 4th year, it will trigger a Year Down."
+  },
+  {
+    question: "Can grace marks save me from a Year Down?",
+    answer: "Yes, Mumbai University has specific ordinances (O.5042 and O.5045) that allow examiners to award grace marks (usually up to 1% of total year marks or 10 marks distributed across subjects) if they enable you to pass a subject and avoid academic detention (Year Down)."
+  },
+  {
+    question: "Can I sit for placements with an active KT?",
+    answer: "Most top-tier companies visiting campuses for placements require students to have 'Zero Active Backlogs' (0 active KTs) at the time of recruitment. Some companies may also enforce a 'No History of Backlogs' policy. It is highly recommended to clear all ATKTs in the regular and supplementary exam cycles before your final year placement season begins."
   }
 ];
 ---
@@ -97,15 +125,15 @@ const faq = [
             <!-- Target Year Selector -->
             <div>
               <label for="target-selector" class="block text-sm font-medium text-ink mb-2">
-                Target Promotion / Year
+                Promotion Check
               </label>
               <select
                 id="target-selector"
                 class="w-full h-10 rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
               >
-                <option value="y1-y2">First Year to Second Year (Sem 1 & 2 ➔ Sem 3)</option>
-                <option value="y2-y3">Second Year to Third Year (Sem 3 & 4 ➔ Sem 5)</option>
-                <option value="y3-y4">Third Year to Fourth Year (Sem 5 & 6 ➔ Sem 7)</option>
+                <option value="y1-y2">Sem 2 ➔ Sem 3 (Admission to Second Year)</option>
+                <option value="y2-y3">Sem 4 ➔ Sem 5 (Admission to Third Year)</option>
+                <option value="y3-y4">Sem 6 ➔ Sem 7 (Admission to Fourth Year)</option>
               </select>
             </div>
 
@@ -135,8 +163,9 @@ const faq = [
 
             <!-- 2. MU Engineering Heads of Passing Counters -->
             <div id="mu-engg-panel" class="flex flex-col gap-4 border-t border-hairline pt-4">
-              <label class="block text-xs font-semibold uppercase tracking-wider text-mute font-mono mb-1">
-                Current Year Outstanding Failed Heads
+              <label class="block text-xs font-semibold uppercase tracking-wider text-mute font-mono mb-1 flex items-center justify-between">
+                <span>Current Year Outstanding Failed Heads</span>
+                <span id="engg-sync-note" class="hidden text-[10px] text-link font-sans font-normal normal-case animate-fade-in">(synced from logger)</span>
               </label>
               <p class="text-xs text-mute leading-normal mb-2">
                 Select the number of failed components/heads of passing in the current year. (Theory papers and internals count separately).
@@ -155,8 +184,9 @@ const faq = [
 
             <!-- 3. MU General Degree Subject Counters -->
             <div id="mu-degree-panel" class="hidden flex flex-col gap-4 border-t border-hairline pt-4">
-              <label class="block text-xs font-semibold uppercase tracking-wider text-mute font-mono mb-1">
-                Current Year Failed Subjects
+              <label class="block text-xs font-semibold uppercase tracking-wider text-mute font-mono mb-1 flex items-center justify-between">
+                <span>Current Year Failed Subjects</span>
+                <span id="degree-sync-note" class="hidden text-[10px] text-link font-sans font-normal normal-case animate-fade-in">(synced from logger)</span>
               </label>
               <p class="text-xs text-mute leading-normal mb-2">
                 Enter the number of failed subjects in each semester of the current year (limit is 2 subjects per semester).
@@ -207,8 +237,9 @@ const faq = [
 
             <!-- 5. Custom Rules Setup -->
             <div id="custom-panel" class="hidden flex flex-col gap-4 border-t border-hairline pt-4">
-              <label class="block text-xs font-semibold uppercase tracking-wider text-mute font-mono mb-2">
-                Configure Custom ATKT Rules
+              <label class="block text-xs font-semibold uppercase tracking-wider text-mute font-mono mb-2 flex items-center justify-between">
+                <span>Configure Custom ATKT Rules</span>
+                <span id="custom-sync-note" class="hidden text-[10px] text-link font-sans font-normal normal-case animate-fade-in">(synced from logger)</span>
               </label>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-sm border border-hairline bg-canvas-soft p-4">
                 <label class="flex items-center gap-2 text-xs text-body cursor-pointer">
@@ -530,6 +561,11 @@ const faq = [
     const emptyLoggerRow = document.getElementById('empty-logger-row');
     const clearLoggerBtn = document.getElementById('clear-logger-btn');
 
+    // Sync Notes
+    const enggSyncNote = document.getElementById('engg-sync-note');
+    const degreeSyncNote = document.getElementById('degree-sync-note');
+    const customSyncNote = document.getElementById('custom-sync-note');
+
     // State Variables
     let loggedCourses = [];
 
@@ -791,45 +827,79 @@ const faq = [
 
     // Sync values from subject logger to the active counters
     function syncLoggerToCounters() {
-      if (loggedCourses.length === 0) return;
-
       const scheme = schemeSelect.value;
+      const inputs = [
+        failedEseInput,
+        failedInternalInput,
+        failedOddInput,
+        failedEvenInput,
+        customInputHeads,
+        customInputEse
+      ];
 
-      if (scheme === 'mu-engg') {
-        let eseCount = 0;
-        let internalCount = 0;
+      // Hide all sync notes by default
+      if (enggSyncNote) enggSyncNote.classList.add('hidden');
+      if (degreeSyncNote) degreeSyncNote.classList.add('hidden');
+      if (customSyncNote) customSyncNote.classList.add('hidden');
 
-        loggedCourses.forEach(c => {
-          if (c.type === 'theory') {
-            eseCount += 1;
-          } else if (c.type === 'internal') {
-            internalCount += 1;
-          } else if (c.type === 'both') {
-            eseCount += 1;
-            internalCount += 1;
+      if (loggedCourses.length === 0) {
+        // Unlock inputs and reset to 0
+        inputs.forEach(input => {
+          if (input) {
+            input.value = '0';
+            input.removeAttribute('readonly');
+            input.classList.remove('bg-canvas-soft-2', 'text-mute');
           }
         });
-
-        failedEseInput.value = eseCount;
-        failedInternalInput.value = internalCount;
-
-      } else if (scheme === 'mu-degree') {
-        let oddCount = 0;
-        let evenCount = 0;
-
-        // Semesters map: Odd (1, 3, 5), Even (2, 4, 6)
-        loggedCourses.forEach(c => {
-          const semNum = parseInt(c.sem);
-          if (semNum % 2 !== 0) {
-            oddCount += 1;
-          } else {
-            evenCount += 1;
-          }
-        });
-
-        failedOddInput.value = oddCount;
-        failedEvenInput.value = evenCount;
+        return;
       }
+
+      // Lock inputs and style them as synced/readonly
+      inputs.forEach(input => {
+        if (input) {
+          input.setAttribute('readonly', 'true');
+          input.classList.add('bg-canvas-soft-2', 'text-mute');
+        }
+      });
+
+      // Show active sync note
+      if (scheme === 'mu-engg' && enggSyncNote) {
+        enggSyncNote.classList.remove('hidden');
+      } else if (scheme === 'mu-degree' && degreeSyncNote) {
+        degreeSyncNote.classList.remove('hidden');
+      } else if (scheme === 'custom' && customSyncNote) {
+        customSyncNote.classList.remove('hidden');
+      }
+
+      let eseCount = 0;
+      let internalCount = 0;
+      let oddCount = 0;
+      let evenCount = 0;
+
+      loggedCourses.forEach(c => {
+        const semNum = parseInt(c.sem);
+        if (semNum % 2 !== 0) {
+          oddCount += 1;
+        } else {
+          evenCount += 1;
+        }
+
+        if (c.type === 'theory') {
+          eseCount += 1;
+        } else if (c.type === 'internal') {
+          internalCount += 1;
+        } else if (c.type === 'both') {
+          eseCount += 1;
+          internalCount += 1;
+        }
+      });
+
+      if (failedEseInput) failedEseInput.value = eseCount.toString();
+      if (failedInternalInput) failedInternalInput.value = internalCount.toString();
+      if (failedOddInput) failedOddInput.value = oddCount.toString();
+      if (failedEvenInput) failedEvenInput.value = evenCount.toString();
+      if (customInputHeads) customInputHeads.value = (eseCount + internalCount).toString();
+      if (customInputEse) customInputEse.value = eseCount.toString();
     }
 
     // MAIN RULES CALCULATOR & STATE BINDER
