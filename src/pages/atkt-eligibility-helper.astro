@@ -1,0 +1,1237 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE_URL } from '../config';
+
+const faq = [
+  {
+    question: "What is Allowed to Keep Terms (ATKT)?",
+    answer: "Allowed to Keep Terms (ATKT) is an academic progression system in Indian universities, including Mumbai University. It allows students who have failed in a limited number of subjects (or heads of passing) to proceed to the next semester or academic year, on the condition that they clear those backlog exams in subsequent semesters."
+  },
+  {
+    question: "What is the Year Drop (academic detention) rule at Mumbai University?",
+    answer: "A Year Drop (or Year Down) is a forced academic detention where a student is not allowed to register for the next academic year. Under MU regulations, this happens if a student fails to clear all backlog subjects from the previous-to-previous academic year (e.g., you cannot enter the 3rd Year if you still have even 1 backlog left from the 1st Year) or if they exceed the maximum allowed current-year backlogs (e.g., more than 8 heads of passing in MU Engineering)."
+  },
+  {
+    question: "How do credit requirements work under the NEP 2020 rules for Mumbai University?",
+    answer: "Under the National Education Policy (NEP 2020) rules introduced for Mumbai University, promotion is credit-based. Instead of counting failed heads of passing, students must earn a minimum cumulative credit threshold. For example, to progress from First Year to Second Year, a student must secure at least 32 cumulative credits out of 40 or 44 total year credits."
+  },
+  {
+    question: "Do internal assessments and theory papers count as separate ATKT backlogs?",
+    answer: "Yes. In professional courses like Mumbai University Engineering (C-Scheme / R-2019), internal assessments (IA/unit tests, practicals, oral/viva, and term work) and end-semester theory examinations (ESE) are treated as separate 'heads of passing'. Failing in either component counts as one failed head, even if they belong to the same subject."
+  },
+  {
+    question: "What are Ordinances 5042 and 5045 for grace marks?",
+    answer: "Ordinance 5042 provides grace marks for passing a head of passing (up to 1% of total aggregate marks, or a maximum of 5–10 marks depending on the syllabus). Ordinance 5045 is for condonation of deficiencies, allowing up to 10 marks to be distributed across a maximum of two passing heads if a student is failing in those subjects."
+  },
+  {
+    question: "Can I enter the final year if I have a second-year backlog?",
+    answer: "No. Under the year-clearance ordinance, you must completely pass all subjects from both the First Year (Sem 1 & 2) and Second Year (Sem 3 & 4) before you are allowed to enter the Fourth Year (Sem 7). A single outstanding backlog from these years will result in a Year Drop, even if your Third-Year marks are clear."
+  }
+];
+---
+
+<BaseLayout
+  title="ATKT & Backlog Eligibility Helper"
+  description="Check your ATKT status and backlog promotion eligibility. Calculate whether you face a Year Drop under Mumbai University Engineering, B.Sc, B.Com, and NEP 2020 rules."
+  {faq}
+>
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Breadcrumb & Header -->
+    <nav class="flex mb-4" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center gap-1.5 font-mono text-[11px] text-mute">
+        <li>
+          <a href="/" class="hover:text-ink transition-colors">Home</a>
+        </li>
+        <li class="flex items-center gap-1.5 select-none">
+          <span>/</span>
+          <span class="text-body font-semibold">ATKT Eligibility Helper</span>
+        </li>
+      </ol>
+    </nav>
+
+    <div class="mb-8">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-[11px] font-semibold text-mute">
+          Tool 05
+        </span>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-mute">
+          Academic Standings Planner
+        </span>
+      </div>
+      <h1 class="mt-4 font-sans text-3xl font-semibold tracking-[-0.96px] text-ink sm:text-4xl">
+        ATKT & Backlog Eligibility Helper
+      </h1>
+      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-body">
+        Check your academic progression standing in seconds. Analyze whether you are eligible to keep terms (ATKT) or face a Year Drop under Mumbai University C-Scheme, General Degree CBCS, and NEP 2020 credit regulations.
+      </p>
+    </div>
+
+    <!-- Main Tool Workspace -->
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <!-- Calculator Inputs -->
+      <div class="flex flex-col gap-6 lg:col-span-7">
+        
+        <!-- Setup Card -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-6">
+            Academic Standings Setup
+          </h2>
+
+          <div class="flex flex-col gap-6">
+            <!-- Program / University Preset Selector -->
+            <div>
+              <label for="scheme-selector" class="block text-sm font-medium text-ink mb-2">
+                University Regulations / Scheme
+              </label>
+              <select
+                id="scheme-selector"
+                class="w-full h-10 rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
+              >
+                <option value="mu-engg">Mumbai University Engineering (C-Scheme / Heads of Passing)</option>
+                <option value="mu-degree">Mumbai University B.Sc / B.Com / B.A (CBCS - 2 per Sem Limit)</option>
+                <option value="mu-nep">Mumbai University NEP-2020 (Credit-Based Progression)</option>
+                <option value="custom">Custom Rules (Configure custom limits...)</option>
+              </select>
+            </div>
+
+            <!-- Target Year Selector -->
+            <div>
+              <label for="target-selector" class="block text-sm font-medium text-ink mb-2">
+                Target Promotion / Year
+              </label>
+              <select
+                id="target-selector"
+                class="w-full h-10 rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
+              >
+                <option value="y1-y2">First Year to Second Year (Sem 1 & 2 ➔ Sem 3)</option>
+                <option value="y2-y3">Second Year to Third Year (Sem 3 & 4 ➔ Sem 5)</option>
+                <option value="y3-y4">Third Year to Fourth Year (Sem 5 & 6 ➔ Sem 7)</option>
+              </select>
+            </div>
+
+            <!-- Dynamic Input Panels based on scheme -->
+            
+            <!-- 1. Prior Year Clearance (Shown for Y2-Y3 and Y3-Y4 targets) -->
+            <div id="prior-clearance-panel" class="hidden border-t border-hairline pt-4">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-mute font-mono mb-2">
+                Prior Academic History
+              </label>
+              <div class="rounded-sm border border-hairline bg-canvas-soft p-4">
+                <span class="block text-sm font-medium text-ink mb-2" id="prior-clearance-label">
+                  Have you completely cleared all subjects from previous years?
+                </span>
+                <div class="flex gap-4">
+                  <label class="flex items-center gap-2 text-sm text-body cursor-pointer">
+                    <input type="radio" name="prior-clear" id="prior-clear-yes" value="yes" checked class="accent-primary h-4 w-4" />
+                    <span>Yes, 100% Cleared (0 outstanding KTs)</span>
+                  </label>
+                  <label class="flex items-center gap-2 text-sm text-body cursor-pointer">
+                    <input type="radio" name="prior-clear" id="prior-clear-no" value="no" class="accent-primary h-4 w-4" />
+                    <span>No, I have active KTs</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. MU Engineering Heads of Passing Counters -->
+            <div id="mu-engg-panel" class="flex flex-col gap-4 border-t border-hairline pt-4">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-mute font-mono mb-1">
+                Current Year Outstanding Failed Heads
+              </label>
+              <p class="text-xs text-mute leading-normal mb-2">
+                Select the number of failed components/heads of passing in the current year. (Theory papers and internals count separately).
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="failed-ese" class="block text-xs text-ink mb-1.5 font-medium">Failed End-Sem Theory (ESE) Exams</label>
+                  <input type="number" id="failed-ese" value="0" min="0" max="20" class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+                </div>
+                <div>
+                  <label for="failed-internal" class="block text-xs text-ink mb-1.5 font-medium">Failed Internals / Practicals / TW / Viva</label>
+                  <input type="number" id="failed-internal" value="0" min="0" max="25" class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. MU General Degree Subject Counters -->
+            <div id="mu-degree-panel" class="hidden flex flex-col gap-4 border-t border-hairline pt-4">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-mute font-mono mb-1">
+                Current Year Failed Subjects
+              </label>
+              <p class="text-xs text-mute leading-normal mb-2">
+                Enter the number of failed subjects in each semester of the current year (limit is 2 subjects per semester).
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="failed-odd-sem" class="block text-xs text-ink mb-1.5 font-medium" id="label-odd-sem">Failed Subjects in Odd Sem</label>
+                  <input type="number" id="failed-odd-sem" value="0" min="0" max="10" class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+                </div>
+                <div>
+                  <label for="failed-even-sem" class="block text-xs text-ink mb-1.5 font-medium" id="label-even-sem">Failed Subjects in Even Sem</label>
+                  <input type="number" id="failed-even-sem" value="0" min="0" max="10" class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. MU NEP 2020 Credit Progression -->
+            <div id="mu-nep-panel" class="hidden flex flex-col gap-4 border-t border-hairline pt-4">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-mute font-mono mb-1">
+                NEP Credit Progression
+              </label>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-medium text-ink" id="credits-label">Cumulative Earned Credits</span>
+                <span id="credits-required-badge" class="font-mono text-[10px] font-bold text-success bg-success/10 px-2 py-0.5 rounded-full">Requires Min 32/44</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <input
+                  type="range"
+                  id="credits-range"
+                  min="0"
+                  max="44"
+                  value="32"
+                  step="1"
+                  class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary"
+                  aria-label="Earned credits slider"
+                />
+                <input
+                  type="number"
+                  id="credits-num"
+                  value="32"
+                  min="0"
+                  max="44"
+                  class="h-8 w-14 rounded-sm border border-hairline bg-canvas text-center text-xs font-semibold text-ink focus:outline-none"
+                />
+                <span class="font-mono text-xs text-mute font-semibold" id="credits-max-val">/ 44</span>
+              </div>
+            </div>
+
+            <!-- 5. Custom Rules Setup -->
+            <div id="custom-panel" class="hidden flex flex-col gap-4 border-t border-hairline pt-4">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-mute font-mono mb-2">
+                Configure Custom ATKT Rules
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-sm border border-hairline bg-canvas-soft p-4">
+                <label class="flex items-center gap-2 text-xs text-body cursor-pointer">
+                  <input type="checkbox" id="custom-req-prior" checked class="accent-primary h-4 w-4" />
+                  <span>Require Prior Years Clear?</span>
+                </label>
+                <div>
+                  <label for="custom-max-heads" class="block text-[10px] text-ink mb-1 font-medium">Max Failed Heads Allowed</label>
+                  <input type="number" id="custom-max-heads" value="8" min="0" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2 text-xs focus:outline-none" />
+                </div>
+                <div>
+                  <label for="custom-max-ese" class="block text-[10px] text-ink mb-1 font-medium">Max Failed ESE (Theory) Allowed</label>
+                  <input type="number" id="custom-max-ese" value="5" min="0" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2 text-xs focus:outline-none" />
+                </div>
+                <div>
+                  <label for="custom-min-credits" class="block text-[10px] text-ink mb-1 font-medium">Min Credits Required (0 to ignore)</label>
+                  <input type="number" id="custom-min-credits" value="0" min="0" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2 text-xs focus:outline-none" />
+                </div>
+              </div>
+
+              <!-- Custom Inputs -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                <div>
+                  <label for="custom-input-heads" class="block text-xs text-ink mb-1.5 font-medium">Failed Heads (Current Year)</label>
+                  <input type="number" id="custom-input-heads" value="0" min="0" class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+                </div>
+                <div>
+                  <label for="custom-input-ese" class="block text-xs text-ink mb-1.5 font-medium">Failed ESE (Current Year)</label>
+                  <input type="number" id="custom-input-ese" value="0" min="0" class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+                </div>
+                <div class="sm:col-span-2">
+                  <label for="custom-input-credits" class="block text-xs text-ink mb-1.5 font-medium">Earned Credits / Total Credits</label>
+                  <div class="flex items-center gap-2">
+                    <input type="number" id="custom-input-credits" value="0" min="0" class="w-20 h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+                    <span class="text-xs text-mute">out of</span>
+                    <input type="number" id="custom-input-total-credits" value="0" min="0" class="w-20 h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Subject Logger Card -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono">
+              Backlog Subject Logger (Optional)
+            </h2>
+            <button
+              id="clear-logger-btn"
+              class="text-xs text-mute hover:text-ink font-mono font-medium transition-colors hidden cursor-pointer"
+            >
+              [Clear All]
+            </button>
+          </div>
+          <p class="text-xs text-mute mb-4 leading-normal">
+            Add your specific failed courses here to automatically update the counters above and classify them.
+          </p>
+
+          <div class="overflow-x-auto mb-4 border border-hairline rounded-sm">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-canvas-soft border-b border-hairline text-mute font-mono">
+                  <th class="py-2.5 px-3 font-semibold">Subject Name</th>
+                  <th class="py-2.5 px-3 font-semibold w-24">Semester</th>
+                  <th class="py-2.5 px-3 font-semibold w-36">Failed Component</th>
+                  <th class="py-2.5 px-3 font-semibold w-12 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="logger-rows" class="divide-y divide-hairline">
+                <!-- Subject rows dynamically populated -->
+                <tr id="empty-logger-row">
+                  <td colspan="4" class="py-8 text-center text-mute font-mono text-[11px]">
+                    No subjects logged. Use "+ Add Course" to build a backlog list.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <button
+            id="add-course-btn"
+            class="h-9 w-full inline-flex items-center justify-center gap-2 rounded-sm border border-hairline bg-canvas text-xs font-semibold text-ink hover:bg-canvas-soft-2 transition-colors cursor-pointer"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Add Backlog Course
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Live Standing Dashboard -->
+      <div class="flex flex-col gap-6 lg:col-span-5">
+        
+        <!-- Eligibility Card -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-6">
+            Academic standing
+          </h2>
+
+          <div class="flex flex-col items-center justify-center py-4 text-center">
+            <!-- Big Indicator Badge -->
+            <div id="status-card" class="relative flex min-h-24 w-full flex-col items-center justify-center rounded-sm border p-6 transition-all duration-300 bg-success/5 border-success/20">
+              <span id="status-led" class="absolute top-3 right-3 h-3.5 w-3.5 rounded-full border-2 border-canvas shadow-sm bg-success transition-all duration-300"></span>
+              <span id="status-text" class="font-sans text-xl font-bold tracking-tight text-success uppercase">
+                ELIGIBLE FOR PROMOTION
+              </span>
+              <span id="status-subtitle" class="text-xs font-mono font-medium text-mute mt-1.5 uppercase">ATKT CRITERIA MET</span>
+            </div>
+
+            <!-- Limit Gauge -->
+            <div class="mt-6 w-full text-left">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="font-medium text-ink" id="gauge-label">Failed Backlog Heads Limit</span>
+                <span class="font-mono text-mute" id="gauge-numbers">0 / 8 max</span>
+              </div>
+              <div class="h-2 w-full rounded-full bg-canvas-soft-2 overflow-hidden border border-hairline">
+                <div id="gauge-bar" class="h-full bg-success transition-all duration-500" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <!-- Rules Checkbox Grid -->
+            <div class="mt-6 w-full border-t border-hairline pt-4 text-left">
+              <h4 class="text-[10px] font-semibold uppercase tracking-wider text-mute font-mono mb-3">
+                Progression Checks
+              </h4>
+              <ul class="flex flex-col gap-2.5" id="checks-list">
+                <!-- Check marks inserted dynamically -->
+              </ul>
+            </div>
+
+            <!-- Actionable Advice Card -->
+            <div id="advice-card" class="mt-6 w-full rounded-sm border p-4 text-left transition-all duration-300 bg-canvas-soft border-hairline">
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-ink font-mono mb-1.5 flex items-center gap-1.5">
+                <svg class="h-4 w-4 text-link" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Next Steps & Advice
+              </h4>
+              <p id="advice-desc" class="text-xs text-body leading-relaxed">
+                You are in good standing! Just ensure you clear the outstanding papers during regular supplementary examinations.
+              </p>
+            </div>
+
+            <!-- Share Report Action -->
+            <div class="mt-6 w-full">
+              <button
+                id="share-btn"
+                class="w-full h-10 inline-flex items-center justify-center gap-2 rounded-pill bg-primary text-on-primary text-sm font-semibold hover:bg-opacity-90 transition-all cursor-pointer"
+              >
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M8.684 10.742 12.02 12.2l3.336-1.458m0 0a3 3 0 1 0-4.137-3.69L7.88 8.58a3 3 0 1 0 .805 2.162M16 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Copy Academic Report
+              </button>
+              <div id="share-toast" class="mt-2 text-center text-xs text-success font-mono font-semibold opacity-0 transition-opacity duration-300">
+                Copied Report card to clipboard!
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Academic Guide Content -->
+    <article class="prose dark:prose-invert max-w-none mt-16 pt-12 border-t border-hairline">
+      <h2 class="font-sans text-2xl font-bold tracking-tight text-ink mb-6">
+        Allowed to Keep Terms (ATKT) & Academic Progression Guide
+      </h2>
+      
+      <p class="text-sm text-body leading-relaxed mb-6">
+        In the Indian higher education system—particularly within universities in Maharashtra, Gujarat, and Karnataka—the term <strong>ATKT (Allowed to Keep Terms)</strong> is one of the most significant academic concepts students encounter. It is a progression mechanism designed to prevent minor academic setbacks from halting a student’s education. Instead of forcing a student to repeat an entire year due to failing one or two subjects, the ATKT system allows them to proceed to the next semester or year, provided they fulfill specific eligibility thresholds.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+        <div class="rounded-sm border border-hairline p-5 bg-canvas-soft">
+          <h3 class="font-sans text-base font-semibold text-ink mb-2">What is a Head of Passing?</h3>
+          <p class="text-xs text-body leading-relaxed">
+            A "head of passing" is any individual assessment component that you must pass independently. For example, in many technical courses, the <strong>Theory Exam (ESE)</strong> and the <strong>Internal Assessment (IA)</strong> are separate heads. Failing either one will mark you as failed in that head, even if your combined score is high.
+          </p>
+        </div>
+        <div class="rounded-sm border border-hairline p-5 bg-canvas-soft">
+          <h3 class="font-sans text-base font-semibold text-ink mb-2">What is a Year Drop (Detention)?</h3>
+          <p class="text-xs text-body leading-relaxed">
+            A Year Drop (also known as a Year Down or Detention) occurs when you do not meet the minimum credit or subject requirements to enter the next academic year. During a drop year, you are not allowed to attend classes or appear for the higher semester exams; you must focus solely on clearing your pending backlogs.
+          </p>
+        </div>
+      </div>
+
+      <h3 class="font-sans text-lg font-bold text-ink mt-8 mb-4">Mumbai University Engineering ATKT Rules (C-Scheme)</h3>
+      <p class="text-sm text-body leading-relaxed mb-4">
+        Engineering degrees under Mumbai University (specifically under the C-Scheme syllabus regulation) follow a strict <strong>Heads of Passing</strong> counting system. Unlike general degrees where subjects are evaluated as a whole, engineering partitions every subject into multiple heads, such as Theory (End Sem), Term Work, Practicals, and Oral/Viva.
+      </p>
+      <p class="text-sm text-body leading-relaxed mb-4">
+        To understand whether you qualify for promotion under Mumbai University Engineering, the following rules apply:
+      </p>
+      <ul class="list-disc pl-5 text-sm text-body leading-relaxed mb-6 space-y-2">
+        <li><strong>First Year to Second Year (Sem 3 entry):</strong> You can have a maximum of <strong>8 outstanding failed heads of passing</strong> from Semesters 1 and 2 combined. Crucially, out of these 8 backlogs, no more than <strong>5 failed heads</strong> can be in the End Semester Examinations (Theory Papers).</li>
+        <li><strong>Second Year to Third Year (Sem 5 entry):</strong> You must have <strong>completely cleared all subjects</strong> from the First Year (Semesters 1 and 2). This means you cannot enter the Third Year carrying even a single First-Year backlog. Additionally, you must not carry more than 8 failed heads from Semesters 3 and 4 combined (with a maximum of 5 in ESE).</li>
+        <li><strong>Third Year to Fourth Year (Sem 7 entry):</strong> You must have <strong>completely cleared all subjects</strong> from both the First Year and the Second Year (Semesters 1, 2, 3, and 4). Furthermore, you cannot carry more than 8 failed heads from Semesters 5 and 6 combined (max 5 in ESE).</li>
+      </ul>
+
+      <div class="my-6 rounded-sm border border-warning/30 bg-warning-soft/10 p-4 text-xs text-warning-deep leading-relaxed">
+        <strong>Warning:</strong> Outstanding backlogs from earlier years trigger an automatic Year Drop under the Year-Clearance rules. For example, if you enter Semester 5 with a single backlog remaining from Semester 1, you will face an immediate Year Down, even if your Semester 3 and 4 results are 100% clear.
+      </div>
+
+      <h3 class="font-sans text-lg font-bold text-ink mt-8 mb-4">Mumbai University B.Sc, B.Com, & B.A Rules (General CBCS)</h3>
+      <p class="text-sm text-body leading-relaxed mb-4">
+        For general undergraduate degree programs (B.Sc., B.Com., and B.A.) following the Choice Based Credit System (CBCS), the promotion rules are subject-oriented rather than head-oriented. The limits are calculated semester-wise to ensure students stay on track.
+      </p>
+      <p class="text-sm text-body leading-relaxed mb-4">
+        The progression structure for general degrees includes:
+      </p>
+      <ul class="list-disc pl-5 text-sm text-body leading-relaxed mb-6 space-y-2">
+        <li><strong>Moving to Year 2:</strong> A student is eligible for Semester 3 admission if he/she passes Semester 1 and Semester 2 completely, OR fails in <strong>no more than 2 subjects</strong> in Semester 1 AND <strong>no more than 2 subjects</strong> in Semester 2. Failing 3 subjects in a single semester will result in detention, even if the other semester is fully cleared.</li>
+        <li><strong>Moving to Year 3:</strong> The student must have <strong>passed Semester 1 and Semester 2 completely</strong>. In addition, the student must pass Semester 3 and Semester 4 completely, OR fail in <strong>no more than 2 subjects</strong> in Semester 3 AND <strong>no more than 2 subjects</strong> in Semester 4.</li>
+      </ul>
+
+      <h3 class="font-sans text-lg font-bold text-ink mt-8 mb-4">NEP 2020 Credit-Based Promotion System</h3>
+      <p class="text-sm text-body leading-relaxed mb-4">
+        With the implementation of the National Education Policy (NEP 2020), universities are transitioning toward a credit-accumulation system. Under this system, eligibility is no longer determined by counting failed subjects. Instead, promotion is based on earning a minimum number of cumulative credits.
+      </p>
+      <p class="text-sm text-body leading-relaxed mb-4">
+        This is a much more flexible approach. For a standard 4-year engineering degree totaling 170–180 credits (averaging 44 credits per year):
+      </p>
+      <ul class="list-disc pl-5 text-sm text-body leading-relaxed mb-6 space-y-2">
+        <li><strong>To Enter Second Year (Sem 3):</strong> A student must earn at least <strong>32 cumulative credits</strong> (out of 44).</li>
+        <li><strong>To Enter Third Year (Sem 5):</strong> A student must accumulate at least <strong>76 cumulative credits</strong> (out of 88) across all prior semesters.</li>
+        <li><strong>To Enter Fourth Year (Sem 7):</strong> A student must accumulate at least <strong>120 cumulative credits</strong> (out of 132) across all prior semesters.</li>
+      </ul>
+      <p class="text-sm text-body leading-relaxed mb-6">
+        This credit-accumulation model means a student who fails multiple low-credit labs might still be promoted, whereas failing several high-credit core theory subjects will trigger a credit shortage and result in detention.
+      </p>
+
+      <h3 class="font-sans text-lg font-bold text-ink mt-8 mb-4">Condonation & Grace Marks Ordinances</h3>
+      <p class="text-sm text-body leading-relaxed mb-4">
+        To prevent students from losing a year over 1 or 2 marks, Mumbai University incorporates specific condonation and grace marks ordinances. These are applied automatically during the result processing:
+      </p>
+      <ul class="list-style-none pl-0 text-sm text-body leading-relaxed mb-6 space-y-3">
+        <li><strong>Ordinance 5042 (Passing Grace Marks):</strong> Allows up to 1% of the total aggregate marks (max 10 marks) to be added to a subject if the student is failing. For example, if you score 30/80 in engineering theory where passing is 32, the university can award 2 grace marks to help you clear.</li>
+        <li><strong>Ordinance 5045 (Condonation):</strong> Deficiencies in passing heads can be condoned up to a total of 10 marks, which can be divided across a maximum of two subjects.</li>
+        <li><strong>Ordinance 5046 (Extra-Curricular Marks):</strong> If you participate in NSS, NCC, Sports, or Cultural activities at the university level, you can receive 10 grace marks added to your grand total. These marks can also be used to pass a subject in case you are failing.</li>
+      </ul>
+
+      <h3 class="font-sans text-lg font-bold text-ink mt-8 mb-4">Action Plan: What to Do If You Face a Year Drop</h3>
+      <p class="text-sm text-body leading-relaxed mb-4">
+        Getting detained or receiving a Year Down is emotionally challenging, but it is not the end of your academic journey. Use the drop year constructively with this action plan:
+      </p>
+      <ol class="list-decimal pl-5 text-sm text-body leading-relaxed mb-6 space-y-2">
+        <li><strong>Apply for Revaluation Immediately:</strong> If you failed a theory exam by 1 to 5 marks, apply for photocopy and revaluation. Scores frequently change during revaluation, and passing even one subject can pull you out of a Year Drop.</li>
+        <li><strong>Identify the Bottlenecks:</strong> Analyze which subjects caused the failure. Is it a core mathematical paper like Applied Mathematics, or a practical head? Create a structured study schedule.</li>
+        <li><strong>Attempt Golden KT/Supplementary Exams:</strong> Mumbai University conducts ATKT exams twice a year. Use the Winter and Summer cycles strategically. Do not attempt all 5 or 6 backlog papers at once if you are underprepared; focus on clearing the papers from the earliest semesters first to satisfy the Year-Clearance rule.</li>
+        <li><strong>Utilize the Time Productively:</strong> Gain a skill, work on open-source projects, learn web development, or take up a remote internship. Having a productive gap year will make a great talking point during final placements.</li>
+      </ol>
+    </article>
+  </div>
+</BaseLayout>
+
+<script is:inline define:vars={{ SITE_URL }}>
+  // Wait for the DOM to load
+  document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements
+    const schemeSelect = document.getElementById('scheme-selector');
+    const targetSelect = document.getElementById('target-selector');
+    
+    const priorClearancePanel = document.getElementById('prior-clearance-panel');
+    const priorClearanceLabel = document.getElementById('prior-clearance-label');
+    const priorClearYes = document.getElementById('prior-clear-yes');
+    const priorClearNo = document.getElementById('prior-clear-no');
+
+    const muEnggPanel = document.getElementById('mu-engg-panel');
+    const failedEseInput = document.getElementById('failed-ese');
+    const failedInternalInput = document.getElementById('failed-internal');
+
+    const muDegreePanel = document.getElementById('mu-degree-panel');
+    const failedOddInput = document.getElementById('failed-odd-sem');
+    const failedEvenInput = document.getElementById('failed-even-sem');
+    const labelOddSem = document.getElementById('label-odd-sem');
+    const labelEvenSem = document.getElementById('label-even-sem');
+
+    const muNepPanel = document.getElementById('mu-nep-panel');
+    const creditsRange = document.getElementById('credits-range');
+    const creditsNum = document.getElementById('credits-num');
+    const creditsRequiredBadge = document.getElementById('credits-required-badge');
+    const creditsMaxVal = document.getElementById('credits-max-val');
+
+    const customPanel = document.getElementById('custom-panel');
+    const customReqPrior = document.getElementById('custom-req-prior');
+    const customMaxHeads = document.getElementById('custom-max-heads');
+    const customMaxEse = document.getElementById('custom-max-ese');
+    const customMinCredits = document.getElementById('custom-min-credits');
+    const customInputHeads = document.getElementById('custom-input-heads');
+    const customInputEse = document.getElementById('custom-input-ese');
+    const customInputCredits = document.getElementById('custom-input-credits');
+    const customInputTotalCredits = document.getElementById('custom-input-total-credits');
+
+    // Status Board Elements
+    const statusCard = document.getElementById('status-card');
+    const statusLed = document.getElementById('status-led');
+    const statusText = document.getElementById('status-text');
+    const statusSubtitle = document.getElementById('status-subtitle');
+    const gaugeLabel = document.getElementById('gauge-label');
+    const gaugeNumbers = document.getElementById('gauge-numbers');
+    const gaugeBar = document.getElementById('gauge-bar');
+    const checksList = document.getElementById('checks-list');
+    const adviceDesc = document.getElementById('advice-desc');
+    const shareBtn = document.getElementById('share-btn');
+    const shareToast = document.getElementById('share-toast');
+
+    // Logger Elements
+    const addCourseBtn = document.getElementById('add-course-btn');
+    const loggerRows = document.getElementById('logger-rows');
+    const emptyLoggerRow = document.getElementById('empty-logger-row');
+    const clearLoggerBtn = document.getElementById('clear-logger-btn');
+
+    // State Variables
+    let loggedCourses = [];
+
+    // Credit Mapping for NEP-2020 Scheme based on Year Target
+    const nepCreditsMapping = {
+      'y1-y2': { required: 32, max: 44 },
+      'y2-y3': { required: 76, max: 88 },
+      'y3-y4': { required: 120, max: 132 }
+    };
+
+    // Initialize Page State
+    function init() {
+      // Set initial visible panel based on default scheme
+      updateSchemePanels();
+      // Set initial credit slider settings
+      updateNepSliderSettings();
+      // Run initial calculations
+      calculateStanding();
+    }
+
+    // Toggle panels depending on selected scheme
+    function updateSchemePanels() {
+      const scheme = schemeSelect.value;
+      const target = targetSelect.value;
+
+      // Hide all panels
+      muEnggPanel.classList.add('hidden');
+      muDegreePanel.classList.add('hidden');
+      muNepPanel.classList.add('hidden');
+      customPanel.classList.add('hidden');
+
+      // Show the selected one
+      if (scheme === 'mu-engg') {
+        muEnggPanel.classList.remove('hidden');
+      } else if (scheme === 'mu-degree') {
+        muDegreePanel.classList.remove('hidden');
+        updateDegreeLabels(target);
+      } else if (scheme === 'mu-nep') {
+        muNepPanel.classList.remove('hidden');
+        updateNepSliderSettings();
+      } else if (scheme === 'custom') {
+        customPanel.classList.remove('hidden');
+      }
+
+      // Prior clearance panel is shown for Y2-Y3 (Sem 5) and Y3-Y4 (Sem 7) targets for non-NEP systems
+      if (target === 'y1-y2' || scheme === 'mu-nep') {
+        priorClearancePanel.classList.add('hidden');
+      } else {
+        priorClearancePanel.classList.remove('hidden');
+        // Update label text
+        if (target === 'y2-y3') {
+          priorClearanceLabel.textContent = "Have you completely cleared all First-Year (Sem 1 & 2) subjects?";
+        } else if (target === 'y3-y4') {
+          priorClearanceLabel.textContent = "Have you completely cleared all First & Second Year (Sem 1 to 4) subjects?";
+        }
+      }
+    }
+
+    // Update degree labels based on semester targets
+    function updateDegreeLabels(target) {
+      if (target === 'y1-y2') {
+        labelOddSem.textContent = "Failed Subjects in Semester 1";
+        labelEvenSem.textContent = "Failed Subjects in Semester 2";
+      } else if (target === 'y2-y3') {
+        labelOddSem.textContent = "Failed Subjects in Semester 3";
+        labelEvenSem.textContent = "Failed Subjects in Semester 4";
+      } else if (target === 'y3-y4') {
+        labelOddSem.textContent = "Failed Subjects in Semester 5";
+        labelEvenSem.textContent = "Failed Subjects in Semester 6";
+      }
+    }
+
+    // Set credits slider boundaries dynamically based on target year
+    function updateNepSliderSettings() {
+      const target = targetSelect.value;
+      const settings = nepCreditsMapping[target] || { required: 32, max: 44 };
+
+      creditsRange.max = settings.max;
+      creditsNum.max = settings.max;
+      creditsMaxVal.textContent = `/ ${settings.max}`;
+      creditsRequiredBadge.textContent = `Requires Min ${settings.required}/${settings.max}`;
+
+      // Reset value if it exceeds max
+      if (parseInt(creditsRange.value) > settings.max || creditsRange.value === "32") {
+        creditsRange.value = settings.required;
+        creditsNum.value = settings.required;
+      }
+    }
+
+    // Synchronize Credits Range Slider & Number Input
+    creditsRange.addEventListener('input', () => {
+      creditsNum.value = creditsRange.value;
+      calculateStanding();
+    });
+
+    creditsNum.addEventListener('input', () => {
+      let val = parseInt(creditsNum.value) || 0;
+      const max = parseInt(creditsRange.max);
+      if (val < 0) val = 0;
+      if (val > max) val = max;
+      creditsNum.value = val;
+      creditsRange.value = val;
+      calculateStanding();
+    });
+
+    // Scheme or Target changed
+    schemeSelect.addEventListener('change', () => {
+      updateSchemePanels();
+      syncLoggerToCounters();
+      calculateStanding();
+    });
+
+    targetSelect.addEventListener('change', () => {
+      updateSchemePanels();
+      updateDegreeLabels(targetSelect.value);
+      updateNepSliderSettings();
+      syncLoggerToCounters();
+      calculateStanding();
+    });
+
+    // Inputs listener
+    [
+      failedEseInput, failedInternalInput,
+      failedOddInput, failedEvenInput,
+      priorClearYes, priorClearNo,
+      customReqPrior, customMaxHeads, customMaxEse, customMinCredits,
+      customInputHeads, customInputEse, customInputCredits, customInputTotalCredits
+    ].forEach(el => {
+      if (el) el.addEventListener('input', () => {
+        // If they manually edit counters, they are breaking the direct sync with logger list
+        // but let's allow it, just recalculate standing
+        calculateStanding();
+      });
+      if (el && (el.type === 'radio' || el.type === 'checkbox')) {
+        el.addEventListener('change', calculateStanding);
+      }
+    });
+
+    // Logger implementation
+    addCourseBtn.addEventListener('click', () => {
+      // Add row object to list
+      const target = targetSelect.value;
+      let defaultSem = '1';
+      if (target === 'y2-y3') defaultSem = '3';
+      if (target === 'y3-y4') defaultSem = '5';
+
+      const newCourse = {
+        id: 'c_' + Date.now() + Math.random().toString(36).slice(2, 6),
+        name: `Backlog Subject ${loggedCourses.length + 1}`,
+        sem: defaultSem,
+        type: 'theory' // theory, internal, both
+      };
+
+      loggedCourses.push(newCourse);
+      renderLogger();
+      syncLoggerToCounters();
+      calculateStanding();
+    });
+
+    clearLoggerBtn.addEventListener('click', () => {
+      loggedCourses = [];
+      renderLogger();
+      syncLoggerToCounters();
+      calculateStanding();
+    });
+
+    function renderLogger() {
+      // Toggle empty state
+      if (loggedCourses.length === 0) {
+        emptyLoggerRow.style.display = 'table-row';
+        clearLoggerBtn.classList.add('hidden');
+      } else {
+        emptyLoggerRow.style.display = 'none';
+        clearLoggerBtn.classList.remove('hidden');
+      }
+
+      // Remove previously appended course rows
+      const rows = loggerRows.querySelectorAll('tr:not(#empty-logger-row)');
+      rows.forEach(r => r.remove());
+
+      // Render rows
+      loggedCourses.forEach((course) => {
+        const tr = document.createElement('tr');
+        tr.id = course.id;
+        tr.className = 'hover:bg-canvas-soft-2 transition-colors';
+
+        // Set dynamic options based on target
+        const target = targetSelect.value;
+        let sems = ['1', '2'];
+        if (target === 'y2-y3') sems = ['3', '4'];
+        if (target === 'y3-y4') sems = ['5', '6'];
+
+        // If it's B.Sc degree, type is just "whole subject" but we can map "both" as subject
+        const isDegree = schemeSelect.value === 'mu-degree';
+
+        tr.innerHTML = `
+          <td class="py-2 px-3">
+            <input
+              type="text"
+              value="${course.name}"
+              class="w-full bg-transparent border-none text-xs text-ink focus:outline-none font-medium focus:ring-0 p-0"
+              data-field="name"
+            />
+          </td>
+          <td class="py-2 px-3">
+            <select class="w-full bg-transparent border-none text-xs text-ink focus:outline-none p-0 cursor-pointer" data-field="sem">
+              ${sems.map(s => `<option value="${s}" ${course.sem === s ? 'selected' : ''}>Sem ${s}</option>`).join('')}
+            </select>
+          </td>
+          <td class="py-2 px-3">
+            <select class="w-full bg-transparent border-none text-xs text-ink focus:outline-none p-0 cursor-pointer" data-field="type">
+              <option value="theory" ${course.type === 'theory' ? 'selected' : ''}>${isDegree ? 'Whole Subject' : 'Theory (ESE) Only'}</option>
+              ${!isDegree ? `
+                <option value="internal" ${course.type === 'internal' ? 'selected' : ''}>Internal Only</option>
+                <option value="both" ${course.type === 'both' ? 'selected' : ''}>Both (Theory + Internal)</option>
+              ` : ''}
+            </select>
+          </td>
+          <td class="py-2 px-3 text-center">
+            <button class="text-error hover:text-error-deep cursor-pointer p-1" data-action="delete" title="Remove Course">
+              <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </td>
+        `;
+
+        // Event Listeners for inline fields
+        const nameInput = tr.querySelector('[data-field="name"]');
+        nameInput.addEventListener('change', (e) => {
+          course.name = e.target.value;
+        });
+
+        const semSelect = tr.querySelector('[data-field="sem"]');
+        semSelect.addEventListener('change', (e) => {
+          course.sem = e.target.value;
+          syncLoggerToCounters();
+          calculateStanding();
+        });
+
+        const typeSelect = tr.querySelector('[data-field="type"]');
+        typeSelect.addEventListener('change', (e) => {
+          course.type = e.target.value;
+          syncLoggerToCounters();
+          calculateStanding();
+        });
+
+        const deleteBtn = tr.querySelector('[data-action="delete"]');
+        deleteBtn.addEventListener('click', () => {
+          loggedCourses = loggedCourses.filter(c => c.id !== course.id);
+          renderLogger();
+          syncLoggerToCounters();
+          calculateStanding();
+        });
+
+        loggerRows.appendChild(tr);
+      });
+    }
+
+    // Sync values from subject logger to the active counters
+    function syncLoggerToCounters() {
+      if (loggedCourses.length === 0) return;
+
+      const scheme = schemeSelect.value;
+
+      if (scheme === 'mu-engg') {
+        let eseCount = 0;
+        let internalCount = 0;
+
+        loggedCourses.forEach(c => {
+          if (c.type === 'theory') {
+            eseCount += 1;
+          } else if (c.type === 'internal') {
+            internalCount += 1;
+          } else if (c.type === 'both') {
+            eseCount += 1;
+            internalCount += 1;
+          }
+        });
+
+        failedEseInput.value = eseCount;
+        failedInternalInput.value = internalCount;
+
+      } else if (scheme === 'mu-degree') {
+        let oddCount = 0;
+        let evenCount = 0;
+
+        // Semesters map: Odd (1, 3, 5), Even (2, 4, 6)
+        loggedCourses.forEach(c => {
+          const semNum = parseInt(c.sem);
+          if (semNum % 2 !== 0) {
+            oddCount += 1;
+          } else {
+            evenCount += 1;
+          }
+        });
+
+        failedOddInput.value = oddCount;
+        failedEvenInput.value = evenCount;
+      }
+    }
+
+    // MAIN RULES CALCULATOR & STATE BINDER
+    function calculateStanding() {
+      const scheme = schemeSelect.value;
+      const target = targetSelect.value;
+      const isPriorClear = priorClearYes.checked; // only relevant if priorClearancePanel is visible
+
+      let isEligible = true;
+      let statusType = 'eligible'; // eligible, warning, drop
+      let statusMsg = 'ELIGIBLE FOR PROMOTION';
+      let statusSubtitleText = 'ATKT CRITERIA MET';
+      let adviceText = '';
+      
+      // Progression Checks list array
+      const checks = [];
+
+      if (scheme === 'mu-engg') {
+        const failedEse = parseInt(failedEseInput.value) || 0;
+        const failedInternal = parseInt(failedInternalInput.value) || 0;
+        const totalHeads = failedEse + failedInternal;
+
+        // Prior Year Clearance Check (Sem 5 and Sem 7 only)
+        if (target !== 'y1-y2') {
+          const priorYearLabel = target === 'y2-y3' ? 'First Year (Sem 1 & 2) Cleared' : 'First & Second Year (Sem 1-4) Cleared';
+          if (isPriorClear) {
+            checks.push({ label: priorYearLabel, passed: true, detail: '0 prior backlogs remaining' });
+          } else {
+            checks.push({ label: priorYearLabel, passed: false, detail: 'Outstanding backlogs in prior years trigger a year drop' });
+            isEligible = false;
+            statusType = 'drop';
+          }
+        }
+
+        // Limit Checks (Max 8 total heads, max 5 theory/ESE heads)
+        const eseOk = failedEse <= 5;
+        const totalOk = totalHeads <= 8;
+
+        checks.push({
+          label: 'Failed Theory (ESE) limit (≤ 5)',
+          passed: eseOk,
+          detail: `${failedEse} / 5 failed papers`
+        });
+
+        checks.push({
+          label: 'Total Failed Heads limit (≤ 8)',
+          passed: totalOk,
+          detail: `${totalHeads} / 8 total heads of passing`
+        });
+
+        if (!eseOk || !totalOk) {
+          isEligible = false;
+          statusType = 'drop';
+        }
+
+        // Gauge Rendering
+        updateGauge('Failed Heads', totalHeads, 8, isEligible);
+
+        // State evaluation
+        if (isEligible) {
+          if (totalHeads > 0) {
+            statusType = 'warning';
+            statusMsg = 'ELIGIBLE (WITH BACKLOGS)';
+            statusSubtitleText = 'PROVISIONAL ATKT PROMOTION';
+            adviceText = `You are eligible to keep terms, but you are carrying ${totalHeads} backlogs. Plan to attempt and clear these in the next winter/summer KT cycle to prevent credit clog or a Year Drop next year.`;
+          } else {
+            statusType = 'eligible';
+            statusMsg = 'ELIGIBLE (CLEARED ALL)';
+            statusSubtitleText = 'REGULAR YEAR PROMOTION';
+            adviceText = 'Excellent! You have passed all exams and are fully eligible to proceed to the next year without any backlogs.';
+          }
+        } else {
+          statusMsg = 'DETENTION / YEAR DROP';
+          statusSubtitleText = 'ELIGIBILITY CRITERIA FAILED';
+          if (!isPriorClear && target !== 'y1-y2') {
+            adviceText = 'You face a Year Drop due to outstanding backlogs from earlier years. Under MU rules, you must pass all previous-year subjects to enter the next cycle. Focus exclusively on clearing those specific courses in the next exam cycle.';
+          } else {
+            adviceText = `You have exceeded the ATKT backlog limits (${failedEse}/5 ESE papers or ${totalHeads}/8 total heads). You will face a Year Drop. File for revaluation if you are close to passing, or prepare to write ATKT exams.`;
+          }
+        }
+
+      } else if (scheme === 'mu-degree') {
+        const oddFailed = parseInt(failedOddInput.value) || 0;
+        const evenFailed = parseInt(failedEvenInput.value) || 0;
+        const totalDegreeBacklogs = oddFailed + evenFailed;
+
+        // Prior Year Clearance Check (Sem 5 and Sem 7 only)
+        if (target !== 'y1-y2') {
+          const priorYearLabel = target === 'y2-y3' ? 'First Year (Sem 1 & 2) Cleared' : 'First & Second Year (Sem 1-4) Cleared';
+          if (isPriorClear) {
+            checks.push({ label: priorYearLabel, passed: true, detail: '0 prior backlogs remaining' });
+          } else {
+            checks.push({ label: priorYearLabel, passed: false, detail: 'Must clear prior year to enter third/fourth year' });
+            isEligible = false;
+            statusType = 'drop';
+          }
+        }
+
+        // Limit Checks: Max 2 failed subjects in odd sem, max 2 in even sem
+        const oddOk = oddFailed <= 2;
+        const evenOk = evenFailed <= 2;
+
+        const oddSemName = target === 'y1-y2' ? 'Sem 1' : target === 'y2-y3' ? 'Sem 3' : 'Sem 5';
+        const evenSemName = target === 'y1-y2' ? 'Sem 2' : target === 'y2-y3' ? 'Sem 4' : 'Sem 6';
+
+        checks.push({
+          label: `${oddSemName} Backlogs (≤ 2)`,
+          passed: oddOk,
+          detail: `${oddFailed} failed subjects`
+        });
+
+        checks.push({
+          label: `${evenSemName} Backlogs (≤ 2)`,
+          passed: evenOk,
+          detail: `${evenFailed} failed subjects`
+        });
+
+        if (!oddOk || !evenOk) {
+          isEligible = false;
+          statusType = 'drop';
+        }
+
+        // Gauge Rendering
+        updateGauge('Total Backlogs', totalDegreeBacklogs, 4, isEligible);
+
+        // State evaluation
+        if (isEligible) {
+          if (totalDegreeBacklogs > 0) {
+            statusType = 'warning';
+            statusMsg = 'ELIGIBLE (WITH BACKLOGS)';
+            statusSubtitleText = 'PROVISIONAL ATKT PROMOTION';
+            adviceText = `You are eligible for promotion under B.Sc/B.Com CBCS rules. However, you are carrying ${totalDegreeBacklogs} failed subjects. You must pass these in the next examination cycle.`;
+          } else {
+            statusType = 'eligible';
+            statusMsg = 'ELIGIBLE (CLEARED ALL)';
+            statusSubtitleText = 'REGULAR YEAR PROMOTION';
+            adviceText = 'Fantastic! You have passed all subjects in the current year. You are fully eligible to proceed.';
+          }
+        } else {
+          statusMsg = 'DETENTION / YEAR DROP';
+          statusSubtitleText = 'ELIGIBILITY CRITERIA FAILED';
+          if (!isPriorClear && target !== 'y1-y2') {
+            adviceText = 'You face a Year Drop because you have not cleared your previous years completely. Under General Degree CBCS, you cannot enter Third Year (TY) with First Year (FY) KTs remaining.';
+          } else {
+            adviceText = `You have failed in more than 2 subjects in a semester. General degree rules permit a maximum of 2 backlogs per semester. You must clear these in the next supplementary cycle to resume progression.`;
+          }
+        }
+
+      } else if (scheme === 'mu-nep') {
+        const earnedCredits = parseInt(creditsNum.value) || 0;
+        const limits = nepCreditsMapping[target] || { required: 32, max: 44 };
+
+        const creditOk = earnedCredits >= limits.required;
+
+        checks.push({
+          label: `Earned Credit Threshold (≥ ${limits.required})`,
+          passed: creditOk,
+          detail: `${earnedCredits} / ${limits.max} credits accumulated`
+        });
+
+        if (!creditOk) {
+          isEligible = false;
+          statusType = 'drop';
+        }
+
+        // Gauge Rendering (based on credit fraction)
+        updateGauge('Earned Credits', earnedCredits, limits.max, isEligible, true);
+
+        // State evaluation
+        if (isEligible) {
+          if (earnedCredits < limits.max) {
+            statusType = 'warning';
+            statusMsg = 'ELIGIBLE (CREDIT MET)';
+            statusSubtitleText = 'PROMOTED TO NEXT YEAR';
+            adviceText = `You have earned ${earnedCredits} credits, satisfying the minimum ${limits.required} credits needed for promotion under NEP guidelines. Keep in mind that you must clear the remaining failed credits to avoid degree delays.`;
+          } else {
+            statusType = 'eligible';
+            statusMsg = 'ELIGIBLE (CLEARED ALL)';
+            statusSubtitleText = 'REGULAR YEAR PROMOTION';
+            adviceText = 'Perfect score! You have secured 100% of the credits offered this year and are promoted with a clear record.';
+          }
+        } else {
+          statusMsg = 'DETENTION / YEAR DROP';
+          statusSubtitleText = 'CREDIT DEFICIENCY';
+          adviceText = `You have earned ${earnedCredits} credits, which is below the minimum required ${limits.required} credits. You face a Year Drop. Prepare for backlog examinations in the winter/summer cycles to accumulate the missing credits.`;
+        }
+
+      } else if (scheme === 'custom') {
+        const reqPrior = customReqPrior.checked;
+        const maxHeads = parseInt(customMaxHeads.value) || 0;
+        const maxEse = parseInt(customMaxEse.value) || 0;
+        const minCredits = parseInt(customMinCredits.value) || 0;
+
+        const inputHeads = parseInt(customInputHeads.value) || 0;
+        const inputEse = parseInt(customInputEse.value) || 0;
+        const inputCredits = parseInt(customInputCredits.value) || 0;
+        const inputTotalCredits = parseInt(customInputTotalCredits.value) || 0;
+
+        if (reqPrior) {
+          const priorYearLabel = 'Prior Years Cleared';
+          if (isPriorClear) {
+            checks.push({ label: priorYearLabel, passed: true, detail: 'Cleared' });
+          } else {
+            checks.push({ label: priorYearLabel, passed: false, detail: 'outstanding KTs' });
+            isEligible = false;
+            statusType = 'drop';
+          }
+        }
+
+        if (maxHeads > 0) {
+          const headsOk = inputHeads <= maxHeads;
+          checks.push({
+            label: `Total Failed Heads (≤ ${maxHeads})`,
+            passed: headsOk,
+            detail: `${inputHeads} / ${maxHeads} failed`
+          });
+          if (!headsOk) {
+            isEligible = false;
+            statusType = 'drop';
+          }
+        }
+
+        if (maxEse > 0) {
+          const eseOk = inputEse <= maxEse;
+          checks.push({
+            label: `Theory/ESE Failed (≤ ${maxEse})`,
+            passed: eseOk,
+            detail: `${inputEse} / ${maxEse} failed`
+          });
+          if (!eseOk) {
+            isEligible = false;
+            statusType = 'drop';
+          }
+        }
+
+        if (minCredits > 0) {
+          const creditOk = inputCredits >= minCredits;
+          checks.push({
+            label: `Required Credits (≥ ${minCredits})`,
+            passed: creditOk,
+            detail: `${inputCredits} / ${inputTotalCredits || minCredits} earned`
+          });
+          if (!creditOk) {
+            isEligible = false;
+            statusType = 'drop';
+          }
+        }
+
+        // Custom gauge (heads)
+        const customLimit = maxHeads || maxEse || 10;
+        updateGauge('Custom Backlogs', inputHeads, customLimit, isEligible);
+
+        // State evaluation
+        if (isEligible) {
+          if (inputHeads > 0 || inputCredits < inputTotalCredits) {
+            statusType = 'warning';
+            statusMsg = 'ELIGIBLE (CUSTOM)';
+            statusSubtitleText = 'LIMITS SATISFIED';
+            adviceText = 'Your custom parameters show you are eligible to proceed. Make sure to plan your backlog preparation.';
+          } else {
+            statusType = 'eligible';
+            statusMsg = 'ELIGIBLE (ALL CLEAR)';
+            statusSubtitleText = 'REGULAR PROMOTION';
+            adviceText = 'Congratulations! You have satisfied all conditions and are promoted.';
+          }
+        } else {
+          statusMsg = 'DETENTION / YEAR DROP';
+          statusSubtitleText = 'CUSTOM CRITERIA FAILED';
+          adviceText = 'You are not eligible for promotion based on your custom-defined criteria. Check your inputs and backlog counters.';
+        }
+      }
+
+      // RENDER STANDING CARD COLORS & LED
+      // Remove previous color classes
+      statusCard.classList.remove(
+        'bg-success/5', 'border-success/20', 'text-success',
+        'bg-warning/5', 'border-warning/20', 'text-warning-deep',
+        'bg-error/5', 'border-error/20', 'text-error'
+      );
+      statusLed.classList.remove('bg-success', 'bg-warning', 'bg-error');
+      statusText.classList.remove('text-success', 'text-warning-deep', 'text-error');
+
+      if (statusType === 'eligible') {
+        statusCard.classList.add('bg-success/5', 'border-success/20');
+        statusLed.classList.add('bg-success');
+        statusText.classList.add('text-success');
+        statusText.textContent = statusMsg;
+      } else if (statusType === 'warning') {
+        statusCard.classList.add('bg-warning/5', 'border-warning/20');
+        statusLed.classList.add('bg-warning');
+        statusText.classList.add('text-warning-deep');
+        statusText.textContent = statusMsg;
+      } else if (statusType === 'drop') {
+        statusCard.classList.add('bg-error/5', 'border-error/20');
+        statusLed.classList.add('bg-error');
+        statusText.classList.add('text-error');
+        statusText.textContent = statusMsg;
+      }
+
+      statusSubtitle.textContent = statusSubtitleText;
+      adviceDesc.textContent = adviceText;
+
+      // Render Progression Checks List
+      checksList.innerHTML = '';
+      checks.forEach(c => {
+        const li = document.createElement('li');
+        li.className = 'flex items-start gap-2.5 text-xs';
+        
+        const iconColor = c.passed ? 'text-success' : 'text-error';
+        const svgPath = c.passed 
+          ? '<circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" />' 
+          : '<circle cx="12" cy="12" r="10" /><path d="m15 9-6 6M9 9l6 6" />';
+
+        li.innerHTML = `
+          <svg class="h-4.5 w-4.5 ${iconColor} shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            ${svgPath}
+          </svg>
+          <div class="flex-1">
+            <span class="font-medium text-ink">${c.label}</span>
+            <span class="block text-[10px] text-mute font-mono mt-0.5">${c.detail}</span>
+          </div>
+        `;
+        checksList.appendChild(li);
+      });
+
+      // Update Copy Report card template
+      updateShareTemplate(statusMsg, statusSubtitleText, checks, adviceText);
+    }
+
+    // Update the progress bar status
+    function updateGauge(label, value, limit, isEligible, inverse = false) {
+      gaugeLabel.textContent = label;
+      
+      let percent = limit > 0 ? (value / limit) * 100 : 0;
+      if (percent > 100) percent = 100;
+      if (percent < 0) percent = 0;
+
+      gaugeNumbers.textContent = `${value} / ${limit} ${inverse ? 'credits' : 'max'}`;
+      
+      gaugeBar.style.width = `${percent}%`;
+      gaugeBar.classList.remove('bg-success', 'bg-warning', 'bg-error');
+
+      if (inverse) {
+        // Higher is better (NEP credits)
+        if (value >= limit) {
+          gaugeBar.classList.add('bg-success');
+        } else if (isEligible) {
+          gaugeBar.classList.add('bg-warning');
+        } else {
+          gaugeBar.classList.add('bg-error');
+        }
+      } else {
+        // Lower is better (backlogs)
+        if (value === 0) {
+          gaugeBar.classList.add('bg-success');
+        } else if (isEligible) {
+          gaugeBar.classList.add('bg-warning');
+        } else {
+          gaugeBar.classList.add('bg-error');
+        }
+      }
+    }
+
+    // Update Report Card Share Text
+    let shareTextContent = "";
+    function updateShareTemplate(status, subtitle, checks, advice) {
+      const schemeText = schemeSelect.options[schemeSelect.selectedIndex].text;
+      const targetText = targetSelect.options[targetSelect.selectedIndex].text;
+
+      let msg = `🎓 ATKT & BACKLOG STANDINGS REPORT\n`;
+      msg += `------------------------------------\n`;
+      msg += `• Regulations: ${schemeText}\n`;
+      msg += `• Target: ${targetText}\n`;
+      msg += `• Result: ${status} (${subtitle})\n\n`;
+      msg += `Progression Checks:\n`;
+      
+      checks.forEach(c => {
+        const symbol = c.passed ? '✓' : '✗';
+        msg += ` ${symbol} ${c.label} [${c.detail}]\n`;
+      });
+      
+      msg += `\nAdvice:\n${advice}\n\n`;
+      msg += `Analyze your stands at: ${SITE_URL}/atkt-eligibility-helper`;
+      
+      shareTextContent = msg;
+    }
+
+    // Share button listener
+    shareBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(shareTextContent).then(() => {
+        shareToast.classList.remove('opacity-0');
+        shareToast.classList.add('opacity-100');
+        setTimeout(() => {
+          shareToast.classList.remove('opacity-100');
+          shareToast.classList.add('opacity-0');
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy text: ', err);
+      });
+    });
+
+    // Run Initialization
+    init();
+  });
+</script>
