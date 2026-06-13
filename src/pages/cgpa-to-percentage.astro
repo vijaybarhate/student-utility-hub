@@ -588,6 +588,8 @@ const faq = [
 </BaseLayout>
 
 <script>
+  import { SITE_URL } from '../config';
+
   // DOM element bindings
   const schemeSelector = document.getElementById('scheme-selector') as HTMLSelectElement | null;
   const cgpaInput = document.getElementById('cgpa') as HTMLInputElement | null;
@@ -735,7 +737,7 @@ const faq = [
       shareMsg += `• CGPI Score: ${cgpi.toFixed(2)} / 10\n`;
       shareMsg += `• Equivalent Marks: ${finalPercentage.toFixed(roundEnabled ? 0 : 2)}%\n`;
       shareMsg += `• Class Division: ${classLabel}\n`;
-      shareMsg += `\nConvert yours instantly at: studentutilityhub.com/cgpa-to-percentage`;
+      shareMsg += `\nConvert yours instantly at: ${SITE_URL}/cgpa-to-percentage`;
       shareTextBox.textContent = shareMsg;
     }
   };

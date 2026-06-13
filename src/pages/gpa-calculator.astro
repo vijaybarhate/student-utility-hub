@@ -495,6 +495,8 @@ const faq = [
 </BaseLayout>
 
 <script>
+  import { SITE_URL } from '../config';
+
   // DOM element bindings
   const subjectRowsContainer = document.getElementById('subject-rows');
   const addSubjectRowBtn = document.getElementById('add-subject-row');
@@ -725,7 +727,7 @@ const faq = [
     shareMsg += `• Calculated SGPA: ${gpa} / 10.00\n`;
     shareMsg += `• Total Semester Credits: ${credits}\n`;
     shareMsg += `• Equivalent Marks: ${percent} (${univ})\n`;
-    shareMsg += `\nCalculate yours at: studentutilityhub.com/gpa-calculator`;
+    shareMsg += `\nCalculate yours at: ${SITE_URL}/gpa-calculator`;
     shareTextBox.textContent = shareMsg;
   };
 

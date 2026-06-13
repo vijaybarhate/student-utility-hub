@@ -694,6 +694,8 @@ const faq = [
 </BaseLayout>
 
 <script>
+  import { SITE_URL } from '../config';
+
   // DOM element selections
   const targetInput = document.getElementById('target-percent') as HTMLInputElement | null;
   const targetSlider = document.getElementById('target-percent-range') as HTMLInputElement | null;
@@ -974,7 +976,7 @@ const faq = [
       } else if (currentPercent < target && recovery > 0) {
         shareMsg += `• Plan: Attend next ${recovery} lectures consecutively\n`;
       }
-      shareMsg += `\nCalculate yours at studentutilityhub.com/attendance-calculator`;
+      shareMsg += `\nCalculate yours at ${SITE_URL}/attendance-calculator`;
       shareTextBox.textContent = shareMsg;
     }
   };

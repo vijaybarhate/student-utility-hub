@@ -88,6 +88,7 @@ const faq = [
               >
                 <option value="mu-engg">Mumbai University Engineering (80 Theory + 20 Internals, 40% Pass)</option>
                 <option value="mu-degree">Mumbai University B.Sc/B.Com (75 Theory + 25 Internals, 40% Pass)</option>
+                <option value="autonomous">Autonomous College Scheme (30 IA-1 + 20 IA-2 + 20 MCQ + 60 ESE)</option>
                 <option value="generic-60-40">Generic Degree Scheme (60 Theory + 40 Internals, 40% Pass)</option>
                 <option value="std-100-40">Standard 100 Marks (No Internals, 40% Pass)</option>
                 <option value="std-100-35">Standard 100 Marks (No Internals, 35% Pass)</option>
@@ -95,98 +96,125 @@ const faq = [
               </select>
             </div>
 
-            <!-- Custom Configuration Inputs (Hidden by default) -->
-            <div id="custom-config-container" class="hidden rounded-sm border border-hairline bg-canvas-soft-2 p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="sm:col-span-2">
-                <span class="font-mono text-[10px] font-semibold text-mute uppercase">Custom Scheme Parameters</span>
-              </div>
+            <!-- Parameters Grid (Overall passing & Target) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label for="theory-max-input" class="block text-xs text-ink mb-1.5 font-medium">Theory Max Marks</label>
-                <input type="number" id="theory-max-input" value="80" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
-              </div>
-              <div>
-                <label for="theory-pass-percent" class="block text-xs text-ink mb-1.5 font-medium">Theory Min Pass (%)</label>
-                <input type="number" id="theory-pass-percent" value="40" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
-              </div>
-              <div>
-                <label for="internal-max-input" class="block text-xs text-ink mb-1.5 font-medium">Internals Max Marks</label>
-                <input type="number" id="internal-max-input" value="20" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
-              </div>
-              <div>
-                <label for="internal-pass-percent" class="block text-xs text-ink mb-1.5 font-medium">Internals Min Pass (%)</label>
-                <input type="number" id="internal-pass-percent" value="40" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
-              </div>
-              <div class="sm:col-span-2">
                 <label for="overall-pass-percent" class="block text-xs text-ink mb-1.5 font-medium">Combined Overall Pass (%)</label>
-                <input type="number" id="overall-pass-percent" value="40" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+                <input type="number" id="overall-pass-percent" value="40" min="0" max="100" class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />
+              </div>
+              
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label for="target-percent" class="text-xs font-medium text-ink">Desired Final Percentage</label>
+                  <span id="target-percent-val" class="text-[10px] font-mono text-mute font-semibold">60% (First Class)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input
+                    type="range"
+                    id="target-percent-range"
+                    min="35"
+                    max="100"
+                    value="60"
+                    step="1"
+                    class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary"
+                    aria-label="Target percentage slider"
+                  />
+                  <input
+                    type="number"
+                    id="target-percent"
+                    value="60"
+                    min="35"
+                    max="100"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    class="h-8 w-14 rounded-sm border border-hairline bg-canvas text-center text-xs font-semibold text-ink focus:outline-none"
+                  />
+                  <span class="font-mono text-xs text-mute font-semibold">%</span>
+                </div>
               </div>
             </div>
 
-            <!-- Internal Marks Scored (Conditional on IA Max > 0) -->
-            <div id="internal-input-container">
+            <!-- Predictor marks simulator slider -->
+            <div class="border-t border-hairline pt-4">
               <div class="flex items-center justify-between mb-2">
-                <label for="internal-scored" class="text-sm font-medium text-ink">
-                  Internal Assessment Marks Scored
+                <label for="predictor-marks" class="text-sm font-medium text-ink flex items-center gap-1.5">
+                  <span>Score Predictor / Simulator</span>
+                  <span class="rounded-full bg-link-bg-soft border border-link/10 text-link px-2 py-0.5 font-mono text-[9px] font-bold uppercase">
+                    Interactive
+                  </span>
                 </label>
-                <span id="internal-max-label" class="text-[11px] font-mono text-mute">out of 20</span>
+                <span id="predictor-max-label" class="text-[11px] font-mono text-mute">out of 80</span>
               </div>
+              <p class="text-xs text-mute mb-3 leading-normal">
+                Drag this slider to test hypothetical scores in your main theory exam and view predicted final percentages and classes.
+              </p>
               <div class="flex items-center gap-4">
                 <input
                   type="range"
-                  id="internal-scored-range"
+                  id="predictor-marks-range"
                   min="0"
-                  max="20"
-                  value="15"
+                  max="80"
+                  value="40"
                   class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary"
-                  aria-label="Internal marks slider"
+                  aria-label="Predictor score slider"
                 />
                 <input
                   type="number"
-                  id="internal-scored"
-                  value="15"
+                  id="predictor-marks"
+                  value="40"
                   min="0"
-                  max="20"
+                  max="80"
                   inputmode="numeric"
                   autocomplete="off"
                   class="h-9 w-20 rounded-sm border border-hairline bg-canvas text-center text-sm font-semibold text-ink focus:outline-none"
                 />
-              </div>
-            </div>
-
-            <!-- Target Marks / Grade Simulation -->
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <label for="target-percent" class="text-sm font-medium text-ink">
-                  Target Combined Grade / Percentage
-                </label>
-                <span id="target-percent-val" class="text-[11px] font-mono text-mute font-semibold">60% (First Class)</span>
-              </div>
-              <div class="flex items-center gap-4">
-                <input
-                  type="range"
-                  id="target-percent-range"
-                  min="40"
-                  max="100"
-                  value="60"
-                  step="5"
-                  class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary"
-                  aria-label="Target percentage slider"
-                />
-                <input
-                  type="number"
-                  id="target-percent"
-                  value="60"
-                  min="40"
-                  max="100"
-                  inputmode="numeric"
-                  autocomplete="off"
-                  class="h-9 w-20 rounded-sm border border-hairline bg-canvas text-center text-sm font-semibold text-ink focus:outline-none"
-                />
-                <span class="font-mono text-sm text-mute font-semibold">%</span>
               </div>
             </div>
 
           </div>
+        </div>
+
+        <!-- Dynamic Components Table Card -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono">
+              Assessment Components
+            </h2>
+            <span class="text-[10px] font-mono bg-canvas-soft-2 border border-hairline rounded-full px-2 py-0.5 text-mute">
+              Adjust Marks
+            </span>
+          </div>
+          <p class="text-xs text-mute mb-4 leading-normal">
+            Configure each assessment component below. Check the <b>Sim Target</b> radio button to designate the ESE or final theory exam you wish to simulate.
+          </p>
+
+          <div class="overflow-x-auto -mx-4 sm:mx-0 mb-4">
+            <table class="w-full border-collapse text-left text-xs">
+              <thead>
+                <tr class="border-b border-hairline bg-canvas-soft-2 font-mono text-[10px] uppercase text-mute">
+                  <th class="py-2 px-3 font-semibold">Component Name</th>
+                  <th class="py-2 px-3 font-semibold w-20 text-center">Max Marks</th>
+                  <th class="py-2 px-3 font-semibold w-20 text-center">Scored</th>
+                  <th class="py-2 px-3 font-semibold w-20 text-center">Min Pass %</th>
+                  <th class="py-2 px-3 font-semibold w-20 text-center">Sim Target</th>
+                  <th class="py-2 px-3 font-semibold w-12 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="components-rows" class="divide-y divide-hairline">
+                <!-- Dynamic component rows -->
+              </tbody>
+            </table>
+          </div>
+
+          <button
+            id="add-component-btn"
+            class="h-9 w-full inline-flex items-center justify-center gap-2 rounded-sm border border-hairline bg-canvas text-xs font-semibold text-ink hover:bg-canvas-soft-2 transition-colors cursor-pointer"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Add Assessment Component
+          </button>
         </div>
 
       </div>
@@ -235,9 +263,15 @@ const faq = [
             </div>
 
             <!-- Target marks output -->
-            <div class="mt-6 w-full rounded-sm border border-hairline bg-canvas-soft-2 p-3.5 text-left font-mono text-xs text-body leading-relaxed">
+            <div class="mt-4 w-full rounded-sm border border-hairline bg-canvas-soft-2 p-3.5 text-left font-mono text-xs text-body leading-relaxed">
               <span class="block font-bold text-ink mb-1 uppercase text-[10px] text-mute">Target Score Simulator:</span>
               <span id="target-breakdown">To reach 60% overall, you need 45 marks in the theory paper.</span>
+            </div>
+
+            <!-- Predictor results breakdown -->
+            <div class="mt-4 w-full rounded-sm border border-hairline bg-canvas-soft-2 p-3.5 text-left font-mono text-xs text-body leading-relaxed">
+              <span class="block font-bold text-ink mb-1 uppercase text-[10px] text-mute">Score Predictor Results:</span>
+              <span id="predictor-breakdown">Scoring 40 marks in ESE results in a final score of 70% (First Class).</span>
             </div>
 
           </div>
@@ -485,26 +519,30 @@ const faq = [
 </BaseLayout>
 
 <script>
+  import { SITE_URL } from '../config';
+
+  interface Component {
+    name: string;
+    max: number;
+    scored: number;
+    passPercent: number;
+    isTarget: boolean;
+  }
+
   // DOM element bindings
   const presetSelector = document.getElementById('preset-selector') as HTMLSelectElement | null;
-  const customConfigContainer = document.getElementById('custom-config-container');
+  const componentsRowsContainer = document.getElementById('components-rows');
+  const addComponentBtn = document.getElementById('add-component-btn');
 
-  // Custom configuration inputs
-  const theoryMaxInput = document.getElementById('theory-max-input') as HTMLInputElement | null;
-  const theoryPassPercentInput = document.getElementById('theory-pass-percent') as HTMLInputElement | null;
-  const internalMaxInput = document.getElementById('internal-max-input') as HTMLInputElement | null;
-  const internalPassPercentInput = document.getElementById('internal-pass-percent') as HTMLInputElement | null;
   const overallPassPercentInput = document.getElementById('overall-pass-percent') as HTMLInputElement | null;
-
-  // Main interactive inputs
-  const internalInputContainer = document.getElementById('internal-input-container');
-  const internalScoredInput = document.getElementById('internal-scored') as HTMLInputElement | null;
-  const internalScoredSlider = document.getElementById('internal-scored-range') as HTMLInputElement | null;
-  const internalMaxLabel = document.getElementById('internal-max-label');
 
   const targetPercentInput = document.getElementById('target-percent') as HTMLInputElement | null;
   const targetPercentSlider = document.getElementById('target-percent-range') as HTMLInputElement | null;
   const targetPercentValLabel = document.getElementById('target-percent-val');
+
+  const predictorInput = document.getElementById('predictor-marks') as HTMLInputElement | null;
+  const predictorSlider = document.getElementById('predictor-marks-range') as HTMLInputElement | null;
+  const predictorMaxLabel = document.getElementById('predictor-max-label');
 
   // Outputs
   const resultTheoryNeeded = document.getElementById('result-theory-needed');
@@ -517,11 +555,62 @@ const faq = [
   const internalStatusDesc = document.getElementById('internal-status-desc');
 
   const targetBreakdown = document.getElementById('target-breakdown');
+  const predictorBreakdown = document.getElementById('predictor-breakdown');
   const shareTextBox = document.getElementById('share-text-box');
   const copyShareBtn = document.getElementById('copy-share-btn');
   const copyBtnText = document.getElementById('copy-btn-text');
   const gaugeContainer = document.getElementById('gauge-container');
   const gaugeStatusLed = document.getElementById('gauge-status-led');
+
+  // Local state
+  let components: Component[] = [];
+  let isApplyingPreset = false;
+
+  // Default presets
+  const presets: Record<string, { components: Component[], overallPass: number }> = {
+    'mu-engg': {
+      overallPass: 40,
+      components: [
+        { name: 'Internal Assessment', max: 20, scored: 15, passPercent: 40, isTarget: false },
+        { name: 'Theory Exam (ESE)', max: 80, scored: 0, passPercent: 40, isTarget: true }
+      ]
+    },
+    'mu-degree': {
+      overallPass: 40,
+      components: [
+        { name: 'Internal Assessment', max: 25, scored: 18, passPercent: 40, isTarget: false },
+        { name: 'Theory Exam (ESE)', max: 75, scored: 0, passPercent: 40, isTarget: true }
+      ]
+    },
+    'autonomous': {
+      overallPass: 40,
+      components: [
+        { name: 'IA-1', max: 30, scored: 22, passPercent: 0, isTarget: false },
+        { name: 'IA-2', max: 20, scored: 15, passPercent: 0, isTarget: false },
+        { name: 'FA MCQ', max: 20, scored: 18, passPercent: 0, isTarget: false },
+        { name: 'End Sem Exam (ESE)', max: 60, scored: 0, passPercent: 40, isTarget: true }
+      ]
+    },
+    'generic-60-40': {
+      overallPass: 40,
+      components: [
+        { name: 'Internals', max: 40, scored: 25, passPercent: 40, isTarget: false },
+        { name: 'Theory Exam (ESE)', max: 60, scored: 0, passPercent: 40, isTarget: true }
+      ]
+    },
+    'std-100-40': {
+      overallPass: 40,
+      components: [
+        { name: 'Theory Exam (ESE)', max: 100, scored: 0, passPercent: 40, isTarget: true }
+      ]
+    },
+    'std-100-35': {
+      overallPass: 35,
+      components: [
+        { name: 'Theory Exam (ESE)', max: 100, scored: 0, passPercent: 35, isTarget: true }
+      ]
+    }
+  };
 
   // Double binding range sliders to inputs
   const syncRangeInput = (slider: HTMLInputElement | null, numInput: HTMLInputElement | null, updateCallback: () => void) => {
@@ -541,188 +630,382 @@ const faq = [
     }
   };
 
-  // Preset configuration change handler
   const handlePresetChange = () => {
     if (!presetSelector) return;
-
     const preset = presetSelector.value;
-    if (customConfigContainer) {
-      if (preset === 'custom') {
-        customConfigContainer.classList.remove('hidden');
-      } else {
-        customConfigContainer.classList.add('hidden');
+    if (preset === 'custom') return;
+
+    const data = presets[preset];
+    if (data) {
+      isApplyingPreset = true;
+      if (overallPassPercentInput) {
+        overallPassPercentInput.value = data.overallPass.toString();
       }
+      // Deep clone preset components
+      components = data.components.map(c => ({ ...c }));
+      isApplyingPreset = false;
+      
+      renderComponents();
+      calculate();
     }
-
-    // Apply presets
-    let internalMax = 20;
-
-    if (preset === 'mu-engg') {
-      internalMax = 20;
-    } else if (preset === 'mu-degree') {
-      internalMax = 25;
-    } else if (preset === 'generic-60-40') {
-      internalMax = 40;
-    } else if (preset === 'std-100-40') {
-      internalMax = 0;
-    } else if (preset === 'std-100-35') {
-      internalMax = 0;
-    } else if (preset === 'custom') {
-      // Read from custom inputs
-      internalMax = parseInt(internalMaxInput?.value || '20');
-    }
-
-    // Update Slider boundaries for internals
-    if (internalInputContainer && internalScoredSlider && internalScoredInput) {
-      if (internalMax === 0) {
-        internalInputContainer.classList.add('hidden');
-        internalScoredInput.value = '0';
-        internalScoredSlider.value = '0';
-      } else {
-        internalInputContainer.classList.remove('hidden');
-        internalScoredSlider.max = internalMax.toString();
-        internalScoredInput.max = internalMax.toString();
-        if (parseInt(internalScoredInput.value) > internalMax) {
-          internalScoredInput.value = internalMax.toString();
-          internalScoredSlider.value = internalMax.toString();
-        }
-        if (internalMaxLabel) {
-          internalMaxLabel.textContent = `out of ${internalMax}`;
-        }
-      }
-    }
-
-    calculate();
   };
 
-  // Perform pass calculations
+  const renderComponents = () => {
+    if (!componentsRowsContainer) return;
+    componentsRowsContainer.innerHTML = '';
+
+    components.forEach((comp, idx) => {
+      const tr = document.createElement('tr');
+      tr.className = "hover:bg-canvas-soft transition-colors font-mono text-xs";
+      tr.innerHTML = `
+        <td class="py-2.5 px-3">
+          <input
+            type="text"
+            value="${comp.name}"
+            class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2 text-xs text-ink focus:outline-none comp-name-input font-sans"
+            data-index="${idx}"
+            aria-label="Component Name"
+          />
+        </td>
+        <td class="py-2.5 px-3 text-center">
+          <input
+            type="number"
+            value="${comp.max}"
+            min="1"
+            class="w-full h-8 rounded-sm border border-hairline bg-canvas text-center text-xs font-semibold text-ink focus:outline-none comp-max-input"
+            data-index="${idx}"
+            aria-label="Max Marks"
+          />
+        </td>
+        <td class="py-2.5 px-3 text-center">
+          <input
+            type="number"
+            value="${comp.scored}"
+            min="0"
+            max="${comp.max}"
+            class="w-full h-8 rounded-sm border border-hairline bg-canvas text-center text-xs font-semibold text-ink focus:outline-none comp-scored-input"
+            data-index="${idx}"
+            ${comp.isTarget ? 'disabled placeholder="-" value="0"' : ''}
+            aria-label="Marks Scored"
+          />
+        </td>
+        <td class="py-2.5 px-3 text-center">
+          <input
+            type="number"
+            value="${comp.passPercent}"
+            min="0"
+            max="100"
+            class="w-full h-8 rounded-sm border border-hairline bg-canvas text-center text-xs font-semibold text-ink focus:outline-none comp-pass-input"
+            data-index="${idx}"
+            aria-label="Min Pass %"
+          />
+        </td>
+        <td class="py-2.5 px-3 text-center">
+          <input
+            type="radio"
+            name="sim-target-radio"
+            class="h-4 w-4 accent-primary cursor-pointer comp-target-radio"
+            data-index="${idx}"
+            ${comp.isTarget ? 'checked' : ''}
+            aria-label="Designate as simulated target"
+          />
+        </td>
+        <td class="py-2.5 px-3 text-center">
+          <button
+            class="h-7 w-7 inline-flex items-center justify-center rounded-sm border border-hairline text-mute hover:text-error hover:bg-error/5 hover:border-error/20 transition-colors delete-comp-btn cursor-pointer"
+            data-index="${idx}"
+            ${components.length <= 1 ? 'disabled' : ''}
+            aria-label="Delete component"
+          >
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </td>
+      `;
+      componentsRowsContainer.appendChild(tr);
+    });
+
+    // Attach row event listeners
+    document.querySelectorAll('.comp-name-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const index = parseInt((e.target as HTMLInputElement).dataset.index || '0');
+        components[index].name = (e.target as HTMLInputElement).value;
+        setPresetCustom();
+        calculate();
+      });
+    });
+
+    document.querySelectorAll('.comp-max-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const index = parseInt((e.target as HTMLInputElement).dataset.index || '0');
+        let val = parseInt((e.target as HTMLInputElement).value);
+        if (isNaN(val) || val <= 0) val = 100;
+        components[index].max = val;
+        
+        // Adjust scored boundary if needed
+        if (components[index].scored > val) {
+          components[index].scored = val;
+        }
+
+        setPresetCustom();
+        
+        // Re-render to update inputs boundaries (e.g. scored max)
+        renderComponents();
+        calculate();
+      });
+    });
+
+    document.querySelectorAll('.comp-scored-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const index = parseInt((e.target as HTMLInputElement).dataset.index || '0');
+        let val = parseInt((e.target as HTMLInputElement).value);
+        if (isNaN(val) || val < 0) val = 0;
+        if (val > components[index].max) val = components[index].max;
+        components[index].scored = val;
+
+        setPresetCustom();
+        calculate();
+      });
+    });
+
+    document.querySelectorAll('.comp-pass-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const index = parseInt((e.target as HTMLInputElement).dataset.index || '0');
+        let val = parseInt((e.target as HTMLInputElement).value);
+        if (isNaN(val) || val < 0) val = 0;
+        if (val > 100) val = 100;
+        components[index].passPercent = val;
+
+        setPresetCustom();
+        calculate();
+      });
+    });
+
+    document.querySelectorAll('.comp-target-radio').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        const index = parseInt((e.target as HTMLInputElement).dataset.index || '0');
+        components.forEach((c, idx) => {
+          c.isTarget = (idx === index);
+          if (c.isTarget) {
+            c.scored = 0; // Simulated component has no static scored mark
+          }
+        });
+        setPresetCustom();
+        renderComponents();
+        calculate();
+      });
+    });
+
+    document.querySelectorAll('.delete-comp-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const index = parseInt((e.currentTarget as HTMLButtonElement).dataset.index || '0');
+        if (components.length <= 1) return;
+        const wasTarget = components[index].isTarget;
+        components.splice(index, 1);
+        
+        // Ensure at least one target exists if the deleted one was target
+        if (wasTarget && components.length > 0) {
+          components[0].isTarget = true;
+          components[0].scored = 0;
+        }
+
+        setPresetCustom();
+        renderComponents();
+        calculate();
+      });
+    });
+  };
+
+  const setPresetCustom = () => {
+    if (isApplyingPreset) return;
+    if (presetSelector) presetSelector.value = 'custom';
+  };
+
   const calculate = () => {
-    if (!presetSelector) return;
-
-    const preset = presetSelector.value;
-    let theoryMax = 80;
-    let theoryPass = 40;
-    let internalMax = 20;
-    let internalPass = 40;
-    let overallPass = 40;
-
-    if (preset === 'mu-engg') {
-      theoryMax = 80; theoryPass = 40; internalMax = 20; internalPass = 40; overallPass = 40;
-    } else if (preset === 'mu-degree') {
-      theoryMax = 75; theoryPass = 40; internalMax = 25; internalPass = 40; overallPass = 40;
-    } else if (preset === 'generic-60-40') {
-      theoryMax = 60; theoryPass = 40; internalMax = 40; internalPass = 40; overallPass = 40;
-    } else if (preset === 'std-100-40') {
-      theoryMax = 100; theoryPass = 40; internalMax = 0; internalPass = 0; overallPass = 40;
-    } else if (preset === 'std-100-35') {
-      theoryMax = 100; theoryPass = 35; internalMax = 0; internalPass = 0; overallPass = 35;
-    } else if (preset === 'custom') {
-      theoryMax = parseInt(theoryMaxInput?.value || '80');
-      theoryPass = parseInt(theoryPassPercentInput?.value || '40');
-      internalMax = parseInt(internalMaxInput?.value || '20');
-      internalPass = parseInt(internalPassPercentInput?.value || '40');
-      overallPass = parseInt(overallPassPercentInput?.value || '40');
+    // Basic calculation parameters
+    let overallPassPercent = 40;
+    if (overallPassPercentInput) {
+      overallPassPercent = parseInt(overallPassPercentInput.value);
+      if (isNaN(overallPassPercent) || overallPassPercent < 0) overallPassPercent = 40;
+      if (overallPassPercent > 100) overallPassPercent = 100;
     }
 
-    // Constraints check
-    if (isNaN(theoryMax) || theoryMax <= 0) theoryMax = 80;
-    if (isNaN(theoryPass) || theoryPass < 0) theoryPass = 40;
-    if (isNaN(internalMax) || internalMax < 0) internalMax = 20;
-    if (isNaN(internalPass) || internalPass < 0) internalPass = 40;
-    if (isNaN(overallPass) || overallPass < 0) overallPass = 40;
-
-    let internalsScored = 0;
-    if (internalMax > 0 && internalScoredInput) {
-      internalsScored = parseInt(internalScoredInput.value);
-      if (isNaN(internalsScored)) internalsScored = 0;
-      if (internalsScored > internalMax) {
-        internalsScored = internalMax;
-        internalScoredInput.value = internalMax.toString();
-        if (internalScoredSlider) internalScoredSlider.value = internalMax.toString();
-      }
-    }
-
-    let targetPercent = 60;
+    let desiredPercent = 60;
     if (targetPercentInput) {
-      targetPercent = parseInt(targetPercentInput.value);
-      if (isNaN(targetPercent)) targetPercent = 60;
-      if (targetPercent < overallPass) {
-        targetPercent = overallPass;
-        targetPercentInput.value = overallPass.toString();
-        if (targetPercentSlider) targetPercentSlider.value = overallPass.toString();
+      desiredPercent = parseInt(targetPercentInput.value);
+      if (isNaN(desiredPercent) || desiredPercent < 0) desiredPercent = 60;
+      if (desiredPercent > 100) desiredPercent = 100;
+      // Desired percent cannot be below overall passing percent
+      if (desiredPercent < overallPassPercent) {
+        desiredPercent = overallPassPercent;
+        targetPercentInput.value = overallPassPercent.toString();
+        if (targetPercentSlider) targetPercentSlider.value = overallPassPercent.toString();
       }
     }
 
-    // Calculations
-    const theoryMinPass = Math.ceil(theoryMax * (theoryPass / 100));
-    const internalMinPass = Math.ceil(internalMax * (internalPass / 100));
-    const combinedPassTotal = Math.ceil((theoryMax + internalMax) * (overallPass / 100));
-    const targetTotal = Math.ceil((theoryMax + internalMax) * (targetPercent / 100));
-
-    // Theory marks needed to pass
-    const theoryPassNeeded = Math.max(theoryMinPass, combinedPassTotal - internalsScored);
-
-    // Theory marks needed to reach target
-    const theoryTargetNeeded = targetTotal - internalsScored;
-
-    // Display Pass Result
-    if (resultTheoryNeeded) {
-      resultTheoryNeeded.textContent = theoryPassNeeded.toString();
+    // Identify target component (simulated exam)
+    const targetIndex = components.findIndex(c => c.isTarget);
+    if (targetIndex === -1) {
+      if (theoryAdvice) theoryAdvice.textContent = "Please select a Simulated Target component.";
+      return;
     }
-    if (resultTheoryMax) {
-      resultTheoryMax.textContent = `OUT OF ${theoryMax}`;
-    }
+    const targetComp = components[targetIndex];
 
-    // Update Advice text
-    if (theoryAdvice) {
-      theoryAdvice.innerHTML = `You must score at least <span class="font-bold">${theoryPassNeeded} marks</span> out of ${theoryMax} in the theory exam to pass the course.`;
-    }
+    // Total Max Marks and Total Scored Non-target components
+    let totalMax = 0;
+    let totalScored = 0;
+    let hasShortage = false;
+    let shortageMsg = "";
 
-    // Update Internal Status Card
-    if (internalStatusCard && internalStatusIcon && internalStatusTitle && internalStatusDesc) {
-      if (internalMax === 0) {
-        internalStatusCard.className = "hidden";
-      } else {
-        internalStatusCard.className = "mt-6 w-full rounded-sm border p-3.5 flex items-start gap-3 text-left transition-all duration-300";
-        if (internalsScored >= internalMinPass) {
-          // Pass
-          internalStatusCard.classList.add('bg-success/5', 'border-success/20');
-          internalStatusTitle.textContent = "Internals Cleared";
-          internalStatusTitle.className = "text-xs font-semibold uppercase tracking-wider text-success font-mono";
-          internalStatusIcon.className = "text-success mt-0.5";
-          internalStatusIcon.innerHTML = `<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`;
-          internalStatusDesc.textContent = `Your internals score (${internalsScored}/${internalMax}) is above the minimum required ${internalMinPass} marks.`;
-        } else {
-          // Fail
-          internalStatusCard.classList.add('bg-error/5', 'border-error/20');
-          internalStatusTitle.textContent = "Internals Shortage!";
-          internalStatusTitle.className = "text-xs font-semibold uppercase tracking-wider text-error font-mono";
-          internalStatusIcon.className = "text-error mt-0.5";
-          internalStatusIcon.innerHTML = `<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
-          internalStatusDesc.textContent = `Alert: Your internals score is below the passing minimum of ${internalMinPass} marks. You fail the internal head separately.`;
+    components.forEach((c) => {
+      totalMax += c.max;
+      if (!c.isTarget) {
+        totalScored += c.scored;
+        
+        // Check separate passing rule for non-target component
+        const minPassMarks = Math.ceil(c.max * (c.passPercent / 100));
+        if (c.scored < minPassMarks) {
+          hasShortage = true;
+          shortageMsg += `${c.name} Shortage (${c.scored}/${c.max}, minimum ${minPassMarks} required). `;
         }
       }
+    });
+
+    // Sync Predictor Slider Max Limit
+    if (predictorSlider && predictorInput) {
+      predictorSlider.max = targetComp.max.toString();
+      predictorInput.max = targetComp.max.toString();
+      if (parseInt(predictorSlider.value) > targetComp.max) {
+        predictorSlider.value = targetComp.max.toString();
+        predictorInput.value = targetComp.max.toString();
+      }
+      if (predictorMaxLabel) {
+        predictorMaxLabel.textContent = `out of ${targetComp.max}`;
+      }
     }
 
-    // Update Target Grade output
-    if (targetBreakdown) {
-      if (theoryTargetNeeded > theoryMax) {
-        targetBreakdown.innerHTML = `To reach <span class="font-bold">${targetPercent}%</span> overall: <span class="text-error font-bold font-mono">Mathematically Impossible</span> (requires ${theoryTargetNeeded} marks but the paper is only out of ${theoryMax}).`;
-      } else if (theoryTargetNeeded <= theoryPassNeeded) {
-        targetBreakdown.innerHTML = `To reach <span class="font-bold">${targetPercent}%</span> overall, you only need the passing minimum of <span class="font-bold">${theoryPassNeeded} marks</span>.`;
+    // Overall Passing Marks needed
+    const overallPassTotal = Math.ceil(totalMax * (overallPassPercent / 100));
+
+    // Target Component Pass Thresholds
+    const targetMinPass = Math.ceil(targetComp.max * (targetComp.passPercent / 100));
+    const targetOverallNeeded = overallPassTotal - totalScored;
+
+    // Minimum marks needed in ESE / Simulated Target Component to Pass the Course
+    const targetPassNeeded = Math.max(targetMinPass, targetOverallNeeded);
+
+    // Update Theory Needed Displays
+    if (resultTheoryNeeded) {
+      if (hasShortage) {
+        resultTheoryNeeded.textContent = "Fail";
+      } else if (targetPassNeeded > targetComp.max) {
+        resultTheoryNeeded.textContent = "N/A";
       } else {
-        targetBreakdown.innerHTML = `To reach <span class="font-bold">${targetPercent}%</span> overall, you must score <span class="font-bold">${theoryTargetNeeded} marks</span> in the theory paper.`;
+        resultTheoryNeeded.textContent = Math.max(0, targetPassNeeded).toString();
       }
+    }
+
+    if (resultTheoryMax) {
+      resultTheoryMax.textContent = `OUT OF ${targetComp.max}`;
+    }
+
+    // Update Advice Text
+    if (theoryAdvice) {
+      if (hasShortage) {
+        theoryAdvice.innerHTML = `<span class="text-error font-semibold font-sans">You cannot pass this subject</span> because of a backlog/shortage in one of your other assessment components.`;
+      } else if (targetPassNeeded > targetComp.max) {
+        theoryAdvice.innerHTML = `<span class="text-error font-semibold font-sans">Mathematically Impossible to Pass.</span> Even a perfect score of ${targetComp.max}/${targetComp.max} in ${targetComp.name} won't reach the overall pass mark (${overallPassTotal}/${totalMax} total).`;
+      } else {
+        const needed = Math.max(0, targetPassNeeded);
+        theoryAdvice.innerHTML = `You must score at least <span class="font-bold">${needed} marks</span> out of ${targetComp.max} in ${targetComp.name} to pass the course.`;
+      }
+    }
+
+    // Update Status Card
+    if (internalStatusCard && internalStatusIcon && internalStatusTitle && internalStatusDesc) {
+      // Set Card styles based on shortage status
+      internalStatusCard.className = "mt-6 w-full rounded-sm border p-3.5 flex items-start gap-3 text-left transition-all duration-300";
+      
+      if (hasShortage) {
+        internalStatusCard.classList.add('bg-error/5', 'border-error/20');
+        internalStatusTitle.textContent = "Component Shortage!";
+        internalStatusTitle.className = "text-xs font-semibold uppercase tracking-wider text-error font-mono";
+        internalStatusIcon.className = "text-error mt-0.5";
+        internalStatusIcon.innerHTML = `<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+        internalStatusDesc.textContent = shortageMsg;
+      } else {
+        internalStatusCard.classList.add('bg-success/5', 'border-success/20');
+        internalStatusTitle.textContent = "Assessments Cleared";
+        internalStatusTitle.className = "text-xs font-semibold uppercase tracking-wider text-success font-mono";
+        internalStatusIcon.className = "text-success mt-0.5";
+        internalStatusIcon.innerHTML = `<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`;
+        
+        let clearingInfo = "All continuous assessments are above their respective passing thresholds.";
+        if (components.length <= 1) {
+          clearingInfo = "No internal/continuous assessments configured. Scoring is 100% ESE-dependent.";
+        }
+        internalStatusDesc.textContent = clearingInfo;
+      }
+    }
+
+    // Target Breakdown (Desired Final Percentage)
+    const desiredPassTotal = Math.ceil(totalMax * (desiredPercent / 100));
+    const targetDesiredNeeded = desiredPassTotal - totalScored;
+
+    if (targetBreakdown) {
+      if (hasShortage) {
+        targetBreakdown.innerHTML = `Cannot compute target marks: Component shortage detected.`;
+      } else if (targetDesiredNeeded > targetComp.max) {
+        targetBreakdown.innerHTML = `To reach <span class="font-bold">${desiredPercent}%</span> overall: <span class="text-error font-semibold font-mono">Mathematically Impossible</span> (requires ${targetDesiredNeeded} marks in ${targetComp.name} but exam max is ${targetComp.max}).`;
+      } else if (targetDesiredNeeded <= targetPassNeeded) {
+        targetBreakdown.innerHTML = `To reach <span class="font-bold">${desiredPercent}%</span> overall, you only need the passing minimum of <span class="font-bold">${Math.max(0, targetPassNeeded)} marks</span> in ${targetComp.name}.`;
+      } else {
+        targetBreakdown.innerHTML = `To reach <span class="font-bold">${desiredPercent}%</span> overall, you must score <span class="font-bold">${targetDesiredNeeded} marks</span> in ${targetComp.name}.`;
+      }
+    }
+
+    // Predictor Simulation Calculations
+    let predictorScore = 0;
+    if (predictorInput) {
+      predictorScore = parseInt(predictorInput.value);
+      if (isNaN(predictorScore)) predictorScore = 0;
+      if (predictorScore > targetComp.max) {
+        predictorScore = targetComp.max;
+        predictorInput.value = targetComp.max.toString();
+        if (predictorSlider) predictorSlider.value = targetComp.max.toString();
+      }
+    }
+
+    const predictedTotalScored = totalScored + predictorScore;
+    const predictedPercent = totalMax > 0 ? (predictedTotalScored / totalMax) * 100 : 0;
+    
+    // Check if predictor is a PASS
+    const isPredictorPass = !hasShortage && (predictorScore >= targetMinPass) && (predictedPercent >= overallPassPercent);
+
+    let gradeLabel = 'Fail';
+    let ledColor = 'bg-error';
+    let gaugeBorder = 'border-error/30';
+
+    if (isPredictorPass) {
+      ledColor = 'bg-success';
+      gaugeBorder = 'border-success/30';
+      if (predictedPercent >= 70) gradeLabel = 'First Class with Distinction';
+      else if (predictedPercent >= 60) gradeLabel = 'First Class';
+      else if (predictedPercent >= 50) gradeLabel = 'Second Class';
+      else gradeLabel = 'Pass Class';
+    }
+
+    // Update Predictor Output Markup
+    if (predictorBreakdown) {
+      let statusSpan = isPredictorPass 
+        ? `<span class="text-success font-semibold">PASS</span>` 
+        : `<span class="text-error font-semibold">FAIL</span>`;
+        
+      predictorBreakdown.innerHTML = `Scoring <span class="font-bold">${predictorScore}/${targetComp.max}</span> in ${targetComp.name} yields a final total of <span class="font-bold">${predictedTotalScored}/${totalMax}</span> (<span class="font-semibold">${predictedPercent.toFixed(1)}%</span> - ${gradeLabel}). Status: ${statusSpan}.`;
     }
 
     // Visual gauge indicators
-    let ledColor = 'bg-success';
-    let gaugeBorder = 'border-success/30';
-    if (internalMax > 0 && internalsScored < internalMinPass) {
-      ledColor = 'bg-error';
-      gaugeBorder = 'border-error/30';
-    }
-
     if (gaugeContainer) {
       gaugeContainer.className = `relative flex h-36 w-36 items-center justify-center rounded-full bg-canvas transition-colors duration-300 border-[10px] ${gaugeBorder}`;
     }
@@ -730,54 +1013,87 @@ const faq = [
       gaugeStatusLed.className = `absolute top-2 right-2 h-3.5 w-3.5 rounded-full border-2 border-canvas shadow-sm transition-all duration-300 ${ledColor}`;
     }
 
-    // Update Target display label
+    // Update Desired Target display label
     if (targetPercentValLabel) {
-      let gradeLabel = 'Pass Class';
-      if (targetPercent >= 70) gradeLabel = 'First Class with Distinction';
-      else if (targetPercent >= 60) gradeLabel = 'First Class';
-      else if (targetPercent >= 50) gradeLabel = 'Second Class';
-
-      targetPercentValLabel.textContent = `${targetPercent}% (${gradeLabel})`;
+      let desiredGradeLabel = 'Pass Class';
+      if (desiredPercent >= 70) desiredGradeLabel = 'First Class with Distinction';
+      else if (desiredPercent >= 60) desiredGradeLabel = 'First Class';
+      else if (desiredPercent >= 50) desiredGradeLabel = 'Second Class';
+      targetPercentValLabel.textContent = `${desiredPercent}% (${desiredGradeLabel})`;
     }
 
     // Update share text
-    if (shareTextBox) {
-      let schemeName = 'Custom Marking Pattern';
+    if (shareTextBox && presetSelector) {
+      const preset = presetSelector.value;
+      let schemeName = 'Custom Course Scheme';
       if (preset === 'mu-engg') schemeName = 'Mumbai Univ Engineering (80:20)';
       if (preset === 'mu-degree') schemeName = 'Mumbai Univ Degree (75:25)';
+      if (preset === 'autonomous') schemeName = 'Autonomous College Pattern (130m)';
       if (preset === 'generic-60-40') schemeName = 'Degree Scheme (60:40)';
       if (preset === 'std-100-40') schemeName = 'Standard Scheme (100 Marks)';
 
       let shareMsg = `📊 Exam Pass Marks Card\n`;
       shareMsg += `• Scheme: ${schemeName}\n`;
-      if (internalMax > 0) {
-        shareMsg += `• Internals Scored: ${internalsScored} / ${internalMax} (${internalsScored >= internalMinPass ? 'Pass' : 'Shortage'})\n`;
-      }
-      shareMsg += `• Min Theory Needed to Pass: ${theoryPassNeeded} / ${theoryMax}\n`;
-      if (theoryTargetNeeded <= theoryMax) {
-        shareMsg += `• Theory for Target (${targetPercent}%): ${theoryTargetNeeded} marks\n`;
+      
+      // List components
+      shareMsg += `• Component Scores:\n`;
+      components.forEach(c => {
+        if (!c.isTarget) {
+          shareMsg += `  - ${c.name}: ${c.scored} / ${c.max}\n`;
+        }
+      });
+
+      // Target results
+      if (hasShortage) {
+        shareMsg += `• Status: ❌ FAIL (Component Shortage)\n`;
       } else {
-        shareMsg += `• Target (${targetPercent}%): Impossible\n`;
+        const passNeededStr = targetPassNeeded > targetComp.max ? 'Impossible' : `${Math.max(0, targetPassNeeded)} / ${targetComp.max}`;
+        shareMsg += `• ${targetComp.name} Needed to Pass: ${passNeededStr}\n`;
+        
+        if (targetDesiredNeeded <= targetComp.max) {
+          shareMsg += `• ${targetComp.name} for Target (${desiredPercent}%): ${Math.max(0, targetDesiredNeeded)} marks\n`;
+        } else {
+          shareMsg += `• Target (${desiredPercent}%): Impossible\n`;
+        }
       }
-      shareMsg += `\nCalculate yours at: student-utility-hub-e7l.pages.dev/marks-needed-to-pass`;
+
+      // Predictor result
+      shareMsg += `• Predictor: Scoring ${predictorScore}/${targetComp.max} in ${targetComp.name} → ${predictedPercent.toFixed(1)}% (${gradeLabel}) - ${isPredictorPass ? 'PASS' : 'FAIL'}\n`;
+
+      shareMsg += `\nCalculate yours at: ${SITE_URL}/marks-needed-to-pass`;
       shareTextBox.textContent = shareMsg;
     }
   };
 
-  // Sync range inputs
-  syncRangeInput(internalScoredSlider, internalScoredInput, calculate);
+  // Sync inputs
   syncRangeInput(targetPercentSlider, targetPercentInput, calculate);
+  syncRangeInput(predictorSlider, predictorInput, calculate);
 
   // Hook preset selector change
   if (presetSelector) {
     presetSelector.addEventListener('change', handlePresetChange);
   }
 
-  // Hook custom configuration changes
-  const customInputs = [theoryMaxInput, theoryPassPercentInput, internalMaxInput, internalPassPercentInput, overallPassPercentInput];
-  customInputs.forEach(input => {
-    if (input) input.addEventListener('input', calculate);
-  });
+  // Hook overall pass percent input
+  if (overallPassPercentInput) {
+    overallPassPercentInput.addEventListener('input', calculate);
+  }
+
+  // Add component btn logic
+  if (addComponentBtn) {
+    addComponentBtn.addEventListener('click', () => {
+      components.push({
+        name: `Component ${components.length + 1}`,
+        max: 50,
+        scored: 30,
+        passPercent: 0,
+        isTarget: false
+      });
+      setPresetCustom();
+      renderComponents();
+      calculate();
+    });
+  }
 
   // Copy share button logic
   if (copyShareBtn && shareTextBox && copyBtnText) {
@@ -799,6 +1115,9 @@ const faq = [
     });
   }
 
-  // Initial Calculation Run
-  handlePresetChange();
+  // Initialize page on load with mu-engg or default
+  if (presetSelector) {
+    presetSelector.value = 'mu-engg';
+    handlePresetChange();
+  }
 </script>
