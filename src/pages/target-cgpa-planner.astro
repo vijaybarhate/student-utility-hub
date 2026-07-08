@@ -1,0 +1,1014 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE_URL } from '../config';
+
+const faq = [
+  {
+    question: "How is the required SGPA calculated?",
+    answer: "The calculator first determines the total grade points you need to reach your target CGPA: target CGPA multiplied by total graduation credits. It then subtracts your current grade points (current CGPA × completed credits). The remaining grade points needed are divided by your remaining credits to find the required future average SGPA."
+  },
+  {
+    question: "Can I reach my target CGPA in one semester?",
+    answer: "It depends on how many credits remain and how far you are from your target. If you have few remaining credits relative to what you have already completed, even a perfect 10.00 SGPA in one semester may not move your CGPA significantly. The calculator shows you exactly what average is required across all remaining semesters."
+  },
+  {
+    question: "Why does the calculator ask for credits?",
+    answer: "CGPA is a credit-weighted average, not a simple average of semester SGPAs. A semester with 24 credits has a larger impact on your CGPA than a semester with 16 credits. Without credits, the calculation would be inaccurate. This is why both your completed credits and each remaining semester's credits matter."
+  },
+  {
+    question: "Is CGPA the simple average of semester SGPAs?",
+    answer: "No. CGPA is the weighted average where each semester's SGPA is weighted by its credits. For example, if your first semester (20 credits) had an 8.0 SGPA and your second semester (24 credits) had a 6.0 SGPA, the CGPA would be (8.0 × 20 + 6.0 × 24) ÷ 44 = 6.91, not 7.0."
+  },
+  {
+    question: "What if my semesters have different credits?",
+    answer: "The Credit-Accurate mode handles this correctly. Each remaining semester can have its own credit value. The required SGPA and projected final CGPA are calculated using proper credit weighting across all semesters, both completed and planned."
+  },
+  {
+    question: "What happens if the required SGPA is above 10?",
+    answer: "If the required future average exceeds 10.00 (the maximum SGPA on the 10-point scale), the target is mathematically impossible with your remaining credits. The calculator shows your maximum possible final CGPA assuming a 10.00 average from now onward, so you can see what is realistically achievable."
+  },
+  {
+    question: "Can one high-SGPA semester compensate for a low one?",
+    answer: "Yes, because CGPA is credit-weighted. A semester with more credits and a high SGPA can pull up the overall average more than a low-SGPA semester with fewer credits. The scenario planner in this tool lets you test different combinations to see how they affect your final CGPA."
+  },
+  {
+    question: "Is this calculation valid for autonomous colleges?",
+    answer: "The mathematical model works for any credit-based CGPA system. However, autonomous colleges may have specific rules about grade replacement, repeated courses, backlog treatment, and credit recognition that can affect official CGPA calculations. Verify your institution's specific policies for official purposes."
+  }
+];
+---
+
+<BaseLayout
+  title="Target CGPA Planner | Required SGPA Calculator"
+  description="Calculate the SGPA you need in future semesters to reach your target CGPA. Plan semester scores with credit-weighted projections and test different scenarios."
+  {faq}
+>
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Breadcrumb & Header -->
+    <nav class="flex mb-4" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center gap-1.5 font-mono text-[11px] text-mute">
+        <li>
+          <a href="/" class="hover:text-ink transition-colors">Home</a>
+        </li>
+        <li class="flex items-center gap-1.5 select-none">
+          <span>/</span>
+          <span class="text-body font-semibold">Target CGPA Planner</span>
+        </li>
+      </ol>
+    </nav>
+
+    <div class="mb-8">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-[11px] font-semibold text-mute">
+          Tool 06
+        </span>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-mute">
+          Forward CGPA Planning
+        </span>
+      </div>
+      <h1 class="mt-4 font-sans text-3xl font-semibold tracking-[-0.96px] text-ink sm:text-4xl">
+        Target CGPA Planner
+      </h1>
+      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-body">
+        Calculate the SGPA you need in upcoming semesters to reach your target CGPA, compare different semester plans, and see whether your goal is achievable.
+      </p>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="mb-6 rounded-sm border border-hairline bg-canvas-soft p-3 sm:p-4">
+      <p class="text-xs leading-relaxed text-body">
+        This planner provides mathematical projections based on the CGPA and credit data you enter. Universities and autonomous colleges may differ in grade replacement, backlog, repeat-course, and credit rules. Verify institution-specific rules when they affect your official CGPA.
+      </p>
+    </div>
+
+    <!-- Main Tool Workspace -->
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <!-- Left Column: Inputs -->
+      <div class="flex flex-col gap-6 lg:col-span-7">
+
+        <!-- Academic Progress Card -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-4">
+            Academic Progress
+          </h2>
+
+          <div class="mb-5">
+            <label for="mode-selector" class="block text-sm font-medium text-ink mb-2">Calculation Mode</label>
+            <select
+              id="mode-selector"
+              class="w-full h-10 rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
+            >
+              <option value="quick">Quick Estimate — assumes approximately equal semester credits</option>
+              <option value="accurate">Credit-Accurate — enter credits per remaining semester</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="current-cgpa" class="block text-xs font-medium text-ink mb-1.5">Current CGPA</label>
+              <div class="relative">
+                <input
+                  type="number" id="current-cgpa" value="7.00" min="0" max="10" step="0.01"
+                  class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 pr-8 text-xs text-ink focus:outline-none"
+                  aria-describedby="cgpa-help"
+                />
+                <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-mute">/10</span>
+              </div>
+              <p id="cgpa-help" class="text-[10px] text-mute mt-1">Enter the official cumulative CGPA shown after your latest completed semester.</p>
+              <p class="text-[10px] text-mute mt-0.5">
+                <a href="/gpa-calculator" class="text-link hover:underline">Don&rsquo;t know your current CGPA? Calculate it with the GPA Calculator.</a>
+              </p>
+            </div>
+            <div>
+              <label for="target-cgpa" class="block text-xs font-medium text-ink mb-1.5">Target CGPA</label>
+              <div class="relative">
+                <input
+                  type="number" id="target-cgpa" value="7.50" min="0" max="10" step="0.01"
+                  class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 pr-8 text-xs text-ink focus:outline-none"
+                />
+                <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-mute">/10</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label for="completed-sems" class="block text-xs font-medium text-ink mb-1.5">Semesters Completed</label>
+              <input
+                type="number" id="completed-sems" value="6" min="0" max="7"
+                class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none"
+              />
+            </div>
+            <div>
+              <label for="programme-length" class="block text-xs font-medium text-ink mb-1.5">Programme Length</label>
+              <select
+                id="programme-length"
+                class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
+              >
+                <option value="6">6 Semesters (3-Year Degree)</option>
+                <option value="8" selected>8 Semesters (4-Year Degree)</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="custom-length-row" class="hidden mt-4">
+            <label for="custom-total-sems" class="block text-xs font-medium text-ink mb-1.5">Total Semesters in Programme</label>
+            <input
+              type="number" id="custom-total-sems" value="10" min="1" max="20"
+              class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none"
+            />
+          </div>
+
+          <p id="remaining-sem-count" class="mt-3 text-xs font-semibold text-ink font-mono"></p>
+        </div>
+
+        <!-- Credit Details Card -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-4">
+            Credit Details
+          </h2>
+
+          <div id="quick-credits-section">
+            <label for="credits-per-sem" class="block text-xs font-medium text-ink mb-1.5">Approximate Credits per Semester</label>
+            <input
+              type="number" id="credits-per-sem" value="20" min="1" max="50"
+              class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none"
+            />
+            <p class="text-[10px] text-mute mt-1">Used for Quick Estimate only. Assumes approximately equal credits each semester.</p>
+          </div>
+
+          <div id="accurate-credits-section" class="hidden">
+            <div class="mb-3">
+              <label for="completed-credits" class="block text-xs font-medium text-ink mb-1.5">Credits Already Completed</label>
+              <input
+                type="number" id="completed-credits" value="120" min="1" max="300"
+                class="w-full h-9 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-ink mb-2">Remaining Semester Credits</label>
+              <div id="semester-credits-rows" class="flex flex-col gap-2">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Primary Result Card -->
+        <div id="primary-result-card" class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <div class="text-center py-4">
+            <p id="result-state-label" class="text-xs font-mono font-semibold uppercase tracking-wider mb-2"></p>
+            <p id="result-main" class="font-sans text-3xl font-bold tracking-tight text-ink sm:text-4xl"></p>
+            <p id="result-subtext" class="text-xs text-body mt-3 max-w-md mx-auto leading-relaxed"></p>
+          </div>
+          <div id="result-detail-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-hairline">
+            <div class="text-center">
+              <span class="block text-[10px] font-mono font-semibold uppercase text-mute">Current CGPA</span>
+              <span id="detail-current" class="block text-sm font-bold text-ink mt-1"></span>
+            </div>
+            <div class="text-center">
+              <span class="block text-[10px] font-mono font-semibold uppercase text-mute">Target CGPA</span>
+              <span id="detail-target" class="block text-sm font-bold text-ink mt-1"></span>
+            </div>
+            <div class="text-center">
+              <span class="block text-[10px] font-mono font-semibold uppercase text-mute">Credits Done</span>
+              <span id="detail-credits-done" class="block text-sm font-bold text-ink mt-1"></span>
+            </div>
+            <div class="text-center">
+              <span class="block text-[10px] font-mono font-semibold uppercase text-mute">Credits Left</span>
+              <span id="detail-credits-left" class="block text-sm font-bold text-ink mt-1"></span>
+            </div>
+          </div>
+        </div>
+
+        <div id="validation-area" class="text-xs text-error font-medium hidden" role="alert" aria-live="polite"></div>
+      </div>
+
+      <!-- Right Column: Analysis -->
+      <div class="flex flex-col gap-6 lg:col-span-5">
+
+        <!-- Max Outcome -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-4">
+            Maximum Possible Outcome
+          </h2>
+          <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3">
+            <p class="text-xs text-body leading-relaxed">
+              If you average <strong>10.00</strong> from now, your maximum possible final CGPA would be <strong id="max-outcome-val" class="text-ink">—</strong>.
+            </p>
+          </div>
+          <div id="target-threshold-row" class="mt-3 rounded-sm border border-hairline bg-canvas-soft-2 p-3 hidden">
+            <p class="text-xs text-body leading-relaxed">
+              To finish at <strong id="target-threshold-goal" class="text-ink"></strong>, average at least <strong id="target-threshold-val" class="text-ink"></strong>.
+            </p>
+          </div>
+          <div id="current-projection-row" class="mt-3 rounded-sm border border-hairline bg-canvas-soft-2 p-3">
+            <p class="text-xs text-body leading-relaxed">
+              If your future average matches your current CGPA (<span id="current-projection-cgpa" class="font-semibold text-ink"></span>), projected final CGPA: <strong id="current-projection-val" class="text-ink"></strong>.
+            </p>
+            <p class="text-[10px] text-mute mt-1">This is a mathematical projection, not a prediction.</p>
+          </div>
+        </div>
+
+        <!-- What-If Comparison -->
+        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-3">
+            What-If Comparison
+          </h2>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between rounded-sm border border-hairline bg-canvas-soft-2 px-3 py-2.5">
+              <span class="text-xs text-body">If you average 7.00 from now</span>
+              <span id="wi-7" class="text-xs font-bold font-mono text-ink">—</span>
+            </div>
+            <div class="flex items-center justify-between rounded-sm border border-hairline bg-canvas-soft-2 px-3 py-2.5">
+              <span class="text-xs text-body">If you average 8.00 from now</span>
+              <span id="wi-8" class="text-xs font-bold font-mono text-ink">—</span>
+            </div>
+            <div class="flex items-center justify-between rounded-sm border border-hairline bg-canvas-soft-2 px-3 py-2.5">
+              <span class="text-xs text-body">If you average 9.00 from now</span>
+              <span id="wi-9" class="text-xs font-bold font-mono text-ink">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scenario Planner -->
+        <div id="scenario-card" class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono">
+              Plan Your Remaining Semesters
+            </h2>
+          </div>
+          <div id="scenario-rows" class="flex flex-col gap-2 mb-4">
+          </div>
+
+          <button
+            id="balance-btn"
+            class="mb-3 h-8 w-full inline-flex items-center justify-center gap-1.5 rounded-sm border border-hairline bg-canvas text-xs font-semibold text-ink hover:bg-canvas-soft-2 transition-colors cursor-pointer"
+          >
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M12 3v3m-3 6 3 3 3-3M5 12h14" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Generate Balanced Plan
+          </button>
+
+          <div id="projected-result" class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 text-center">
+            <p class="text-xs text-mute font-mono font-semibold uppercase">Projected Final CGPA</p>
+            <p id="projected-cgpa-val" class="text-xl font-bold text-ink mt-1">—</p>
+            <p id="projected-status" class="text-xs mt-1"></p>
+          </div>
+        </div>
+
+        <!-- Copy & Reset -->
+        <div class="flex gap-3">
+          <button
+            id="copy-plan-btn"
+            class="flex-1 h-9 inline-flex items-center justify-center gap-1.5 rounded-sm border border-hairline bg-canvas text-xs font-semibold text-ink hover:bg-canvas-soft-2 transition-colors cursor-pointer"
+          >
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Copy Plan
+          </button>
+          <button
+            id="reset-btn"
+            class="flex-1 h-9 inline-flex items-center justify-center gap-1.5 rounded-sm border border-hairline bg-canvas text-xs font-semibold text-ink hover:bg-canvas-soft-2 transition-colors cursor-pointer"
+          >
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M4 4v5h5M4 9a9 9 0 0113.43-3.43M20 20v-5h-5M20 15a9 9 0 01-13.43 3.43" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Reset
+          </button>
+        </div>
+        <div id="copy-toast" class="hidden text-center text-xs text-success font-mono font-semibold" role="status" aria-live="polite">
+          Plan copied to clipboard!
+        </div>
+      </div>
+    </div>
+
+    <!-- Guide Article -->
+    <article class="prose dark:prose-invert max-w-none mt-16 pt-12 border-t border-hairline">
+      <h2 class="font-sans text-2xl font-bold tracking-tight text-ink mb-6">
+        Planning Your Target CGPA — A Complete Guide
+      </h2>
+
+      <p class="text-sm text-body leading-relaxed mb-6">
+        A <strong>Target CGPA Planner</strong> helps you answer a specific forward-looking question: given your current CGPA and completed credits, what do you need to score in future semesters to finish with a desired final CGPA? Unlike a GPA calculator, which tells you your current standing, this tool helps you plan ahead.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+        <div class="rounded-sm border border-hairline p-5 bg-canvas-soft">
+          <h3 class="text-base font-semibold text-ink mb-2">Current GPA vs. Forward Planning</h3>
+          <p class="text-xs text-body leading-relaxed">
+            Your existing GPA calculator computes your SGPA or CGPA based on grades you have already earned. The Target CGPA Planner does the reverse: it starts from where you are and works backward to tell you what average you need going forward. They are complementary tools.
+          </p>
+        </div>
+        <div class="rounded-sm border border-hairline p-5 bg-canvas-soft">
+          <h3 class="text-base font-semibold text-ink mb-2">Why Credits Matter</h3>
+          <p class="text-xs text-body leading-relaxed">
+            CGPA is a <strong>credit-weighted average</strong>, not a simple arithmetic mean of semester SGPAs. A semester with 24 credits affects your CGPA more than a semester with 16 credits. Using the same SGPA in both semesters would produce different impacts. The Credit-Accurate mode handles this precisely.
+          </p>
+        </div>
+      </div>
+
+      <div class="my-6 rounded-sm border border-hairline p-4 bg-canvas-soft">
+        <h3 class="text-sm font-semibold text-ink mb-3">How the Required SGPA Is Calculated</h3>
+        <p class="text-xs text-body leading-relaxed mb-2">The math is straightforward and transparent:</p>
+        <ol class="list-decimal pl-5 text-xs text-body leading-relaxed space-y-1.5">
+          <li><strong>Current grade points earned:</strong> Current CGPA x Credits already completed</li>
+          <li><strong>Total grade points needed</strong> for the target: Target CGPA x Total graduation credits</li>
+          <li><strong>Grade points still needed:</strong> Total points needed minus Current points earned</li>
+          <li><strong>Required future average SGPA:</strong> Grade points needed divided by Remaining credits</li>
+        </ol>
+      </div>
+
+      <div class="my-6 rounded-sm border border-hairline p-4 bg-canvas-soft">
+        <h3 class="text-sm font-semibold text-ink mb-3">Understanding the Result States</h3>
+        <ul class="text-xs text-body leading-relaxed space-y-2 list-disc pl-4">
+          <li><strong>Achievable:</strong> The required average is within 0.00 to 10.00. You have a realistic path.</li>
+          <li><strong>Demanding but possible:</strong> The required average is high (9.00+) but still mathematically achievable.</li>
+          <li><strong>Already at or above target:</strong> Your current CGPA already meets the goal. The calculator shows what average you need to maintain that target.</li>
+          <li><strong>Mathematically impossible:</strong> The required average exceeds 10.00. Even a perfect SGPA in every remaining semester cannot reach the target. The planner shows your maximum possible final CGPA.</li>
+        </ul>
+      </div>
+
+      <h3 class="text-lg font-bold text-ink mt-8 mb-4">How One Strong Semester Can Compensate</h3>
+      <p class="text-sm text-body leading-relaxed mb-6">
+        Because CGPA is credit-weighted, a strong performance in a high-credit semester can offset weaker semesters. The scenario planner lets you test combinations: What if Sem 7 goes well? How much would that reduce the SGPA needed in Sem 8? The <strong>Generate Balanced Plan</strong> button distributes the required average evenly, but you can override individual semesters to explore your own strategy.
+      </p>
+
+      <h3 class="text-lg font-bold text-ink mt-8 mb-4">Autonomous Colleges &amp; Special Rules</h3>
+      <p class="text-sm text-body leading-relaxed mb-6">
+        The mathematical model used here works for any institution that computes CGPA on a 10-point credit-weighted scale. However, autonomous colleges may have specific policies around grade replacement, course repeats, backlog credit treatment, or caps on certain credits. Always verify your official CGPA with your college's regulations.
+      </p>
+    </article>
+
+    <!-- Related Utilities Grid -->
+    <div class="mt-16 border-t border-hairline pt-12">
+      <h3 class="font-sans text-lg font-semibold tracking-tight text-ink mb-6">
+        Explore More Academic Utilities
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a href="/gpa-calculator" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+          <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+            <span>GPA Calculator</span>
+            <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </h4>
+          <p class="text-xs text-body mt-2 leading-relaxed">
+            Calculate your current SGPA and CGPA using credit-weighted grades. Don&rsquo;t know your CGPA? Start here.
+          </p>
+        </a>
+
+        <a href="/attendance-calculator" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+          <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+            <span>Attendance &amp; Bunk Tracker</span>
+            <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </h4>
+          <p class="text-xs text-body mt-2 leading-relaxed">
+            Calculate your attendance percentage, safe bunks, and recovery classes with the 75% rule.
+          </p>
+        </a>
+
+        <a href="/cgpa-to-percentage" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+          <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+            <span>CGPA to Percentage</span>
+            <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </h4>
+          <p class="text-xs text-body mt-2 leading-relaxed">
+            Convert 10-point scale CGPA to marks percentage instantly using official university formulas.
+          </p>
+        </a>
+
+        <a href="/marks-needed-to-pass" class="group rounded-md border border-hairline bg-canvas p-5 hover:border-ink transition-all shadow-sm hover:shadow-md">
+          <h4 class="font-sans text-sm font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between">
+            <span>Pass Marks Calculator</span>
+            <svg class="h-4 w-4 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </h4>
+          <p class="text-xs text-body mt-2 leading-relaxed">
+            Find the minimum marks you need to score in end-semester theory exams based on internal marks.
+          </p>
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline define:vars={{ SITE_URL }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    // ─── DOM Refs ────────────────────────────────────────────────
+    const modeSelector = document.getElementById('mode-selector');
+    const currentCgpaInput = document.getElementById('current-cgpa');
+    const targetCgpaInput = document.getElementById('target-cgpa');
+    const completedSemsInput = document.getElementById('completed-sems');
+    const programmeLength = document.getElementById('programme-length');
+    const customTotalSems = document.getElementById('custom-total-sems');
+    const customLengthRow = document.getElementById('custom-length-row');
+    const remainingCount = document.getElementById('remaining-sem-count');
+    const creditsPerSem = document.getElementById('credits-per-sem');
+    const completedCreditsInput = document.getElementById('completed-credits');
+    const semesterCreditsRows = document.getElementById('semester-credits-rows');
+    const accurateSection = document.getElementById('accurate-credits-section');
+    const quickSection = document.getElementById('quick-credits-section');
+
+    const resultStateLabel = document.getElementById('result-state-label');
+    const resultMain = document.getElementById('result-main');
+    const resultSubtext = document.getElementById('result-subtext');
+    const detailCurrent = document.getElementById('detail-current');
+    const detailTarget = document.getElementById('detail-target');
+    const detailCreditsDone = document.getElementById('detail-credits-done');
+    const detailCreditsLeft = document.getElementById('detail-credits-left');
+    const validationArea = document.getElementById('validation-area');
+
+    const maxOutcomeVal = document.getElementById('max-outcome-val');
+    const targetThresholdRow = document.getElementById('target-threshold-row');
+    const targetThresholdGoal = document.getElementById('target-threshold-goal');
+    const targetThresholdVal = document.getElementById('target-threshold-val');
+    const currentProjectionCgpa = document.getElementById('current-projection-cgpa');
+    const currentProjectionVal = document.getElementById('current-projection-val');
+
+    const wi7 = document.getElementById('wi-7');
+    const wi8 = document.getElementById('wi-8');
+    const wi9 = document.getElementById('wi-9');
+
+    const scenarioRows = document.getElementById('scenario-rows');
+    const balanceBtn = document.getElementById('balance-btn');
+    const projectedCgpaVal = document.getElementById('projected-cgpa-val');
+    const projectedStatus = document.getElementById('projected-status');
+
+    const copyBtn = document.getElementById('copy-plan-btn');
+    const copyToast = document.getElementById('copy-toast');
+    const resetBtn = document.getElementById('reset-btn');
+
+    // ─── Constants ───────────────────────────────────────────────
+    const STORAGE_KEY = 'hub_target_cgpa_planner';
+
+    // ─── State ───────────────────────────────────────────────────
+    let state = {
+      mode: 'quick',
+      currentCgpa: 7.00,
+      targetCgpa: 7.50,
+      completedSems: 6,
+      programme: '8',
+      customTotalSems: 10,
+      creditsPerSem: 20,
+      completedCredits: 120,
+      semesterCredits: [20, 20],
+      plannedSgpas: [8.00, 8.00]
+    };
+
+    // ─── Helpers ─────────────────────────────────────────────────
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+    function getTotalSems() {
+      const prog = programmeLength ? programmeLength.value : '8';
+      if (prog === 'custom') return parseInt(customTotalSems?.value || '10') || 10;
+      return parseInt(prog) || 8;
+    }
+
+    function getRemainingSems() {
+      const total = getTotalSems();
+      const done = parseInt(completedSemsInput?.value || '0') || 0;
+      return Math.max(0, total - done);
+    }
+
+    // ─── Save / Load State ──────────────────────────────────────────
+    function saveState() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            Object.assign(state, parsed);
+            return true;
+          }
+        }
+      } catch (_) {}
+      return false;
+    }
+
+    function resetState() {
+      state = {
+        mode: 'quick',
+        currentCgpa: 7.00,
+        targetCgpa: 7.50,
+        completedSems: 6,
+        programme: '8',
+        customTotalSems: 10,
+        creditsPerSem: 20,
+        completedCredits: 120,
+        semesterCredits: [20, 20],
+        plannedSgpas: [8.00, 8.00]
+      };
+      try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+    }
+
+    function applyStateToDom() {
+      if (currentCgpaInput) currentCgpaInput.value = state.currentCgpa.toString();
+      if (targetCgpaInput) targetCgpaInput.value = state.targetCgpa.toString();
+      if (completedSemsInput) completedSemsInput.value = state.completedSems.toString();
+      if (programmeLength) programmeLength.value = state.programme;
+      if (customTotalSems) customTotalSems.value = state.customTotalSems.toString();
+      if (creditsPerSem) creditsPerSem.value = state.creditsPerSem.toString();
+      if (completedCreditsInput) completedCreditsInput.value = state.completedCredits.toString();
+      if (modeSelector) modeSelector.value = state.mode;
+      if (customLengthRow) {
+        customLengthRow.classList.toggle('hidden', state.programme !== 'custom');
+      }
+      syncModeSections();
+      renderSemesterCredits();
+      renderScenarioRows();
+      calculateAll();
+    }
+
+    function syncStateFromDom() {
+      let cv = parseFloat(currentCgpaInput?.value || '7.00');
+      if (isNaN(cv)) cv = 0;
+      state.currentCgpa = clamp(cv, 0, 10);
+
+      let tv = parseFloat(targetCgpaInput?.value || '7.50');
+      if (isNaN(tv)) tv = 0;
+      state.targetCgpa = clamp(tv, 0, 10);
+
+      state.completedSems = parseInt(completedSemsInput?.value || '6') || 0;
+      state.programme = programmeLength?.value || '8';
+      state.customTotalSems = parseInt(customTotalSems?.value || '10') || 10;
+      state.creditsPerSem = parseInt(creditsPerSem?.value || '20') || 20;
+      state.completedCredits = parseInt(completedCreditsInput?.value || '120') || 120;
+      state.mode = modeSelector?.value || 'quick';
+
+      // Re-read semester credits from DOM
+      const remaining = getRemainingSems();
+      for (let i = 0; i < remaining; i++) {
+        const inp = document.getElementById('sem-credits-' + i);
+        if (inp) {
+          state.semesterCredits[i] = parseInt(inp.value) || 20;
+        }
+      }
+      // Re-read planned SGPAs from DOM
+      for (let i = 0; i < remaining; i++) {
+        const inp = document.getElementById('planned-sgpa-' + i);
+        if (inp) {
+          let sg = parseFloat(inp.value);
+          if (isNaN(sg)) sg = 0;
+          state.plannedSgpas[i] = clamp(sg, 0, 10);
+        }
+      }
+    }
+
+    function syncModeSections() {
+      if (modeSelector?.value === 'quick') {
+        quickSection?.classList.remove('hidden');
+        accurateSection?.classList.add('hidden');
+      } else {
+        quickSection?.classList.add('hidden');
+        accurateSection?.classList.remove('hidden');
+      }
+    }
+
+    // ─── Render remaining semester credit inputs ─────────────────
+    function renderSemesterCredits() {
+      if (!semesterCreditsRows) return;
+      const remaining = getRemainingSems();
+      const total = getTotalSems();
+      const startSem = total - remaining + 1;
+
+      while (state.semesterCredits.length < remaining) state.semesterCredits.push(20);
+      while (state.semesterCredits.length > remaining) state.semesterCredits.pop();
+      while (state.plannedSgpas.length < remaining) state.plannedSgpas.push(8.00);
+      while (state.plannedSgpas.length > remaining) state.plannedSgpas.pop();
+
+      semesterCreditsRows.innerHTML = '';
+      for (let i = 0; i < remaining; i++) {
+        const semNum = startSem + i;
+        const div = document.createElement('div');
+        div.className = 'flex items-center gap-3';
+        div.innerHTML =
+          '<label class="text-xs text-ink font-medium w-24 shrink-0">Semester ' + semNum + '</label>' +
+          '<input type="number" id="sem-credits-' + i + '" value="' + (state.semesterCredits[i] || 20) + '" min="1" max="50" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />' +
+          '<span class="text-[10px] font-mono text-mute w-12">credits</span>';
+        const inp = div.querySelector('input');
+        if (inp) {
+          inp.addEventListener('input', function () {
+            state.semesterCredits[i] = parseInt(this.value) || 20;
+            renderScenarioRows();
+            saveState();
+            calculateAll();
+          });
+        }
+        semesterCreditsRows.appendChild(div);
+      }
+
+      if (remainingCount) {
+        if (remaining <= 0) {
+          remainingCount.textContent = 'No remaining semesters — you have completed all terms.';
+        } else if (remaining === 1) {
+          remainingCount.textContent = '1 semester remaining';
+        } else {
+          remainingCount.textContent = remaining + ' semesters remaining';
+        }
+      }
+    }
+
+    // ─── Render scenario rows ───────────────────────────────────────
+    function renderScenarioRows() {
+      if (!scenarioRows) return;
+      const remaining = getRemainingSems();
+      const total = getTotalSems();
+      const startSem = total - remaining + 1;
+
+      while (state.plannedSgpas.length < remaining) state.plannedSgpas.push(8.00);
+      while (state.plannedSgpas.length > remaining) state.plannedSgpas.pop();
+
+      scenarioRows.innerHTML = '';
+      for (let i = 0; i < remaining; i++) {
+        const semNum = startSem + i;
+        const credits = state.semesterCredits[i] || 20;
+        const div = document.createElement('div');
+        div.className = 'flex items-center gap-3';
+        div.innerHTML =
+          '<span class="text-xs font-medium text-ink w-24 shrink-0">Sem ' + semNum + '</span>' +
+          '<span class="text-[10px] font-mono text-mute w-16">' + credits + ' cr</span>' +
+          '<input type="number" id="planned-sgpa-' + i + '" value="' + (state.plannedSgpas[i] || 8.00).toFixed(2) + '" min="0" max="10" step="0.01" class="w-full h-8 rounded-sm border border-hairline bg-canvas px-2.5 text-xs text-ink focus:outline-none" />' +
+          '<span class="text-[10px] font-mono text-mute w-8">SGPA</span>';
+        const inp = div.querySelector('input');
+        if (inp) {
+          inp.addEventListener('input', function () {
+            let v = parseFloat(this.value);
+            if (isNaN(v)) v = 0;
+            state.plannedSgpas[i] = clamp(v, 0, 10);
+            saveState();
+            updateProjectedResult();
+          });
+        }
+        scenarioRows.appendChild(div);
+      }
+    }
+
+    // ─── Main Calculation ─────────────────────────────────────────
+    function calculateAll() {
+      syncStateFromDom();
+
+      const remaining = getRemainingSems();
+
+      let errors = [];
+      if (remaining <= 0 && state.completedSems >= getTotalSems()) {
+        errors.push('You have no remaining semesters. Adjust completed semesters or programme length.');
+      }
+      if (state.mode === 'accurate' && (state.completedCredits <= 0)) {
+        errors.push('Completed credits must be greater than 0 in Credit-Accurate mode.');
+      }
+      if (state.mode === 'accurate' && remaining > 0) {
+        for (let i = 0; i < remaining; i++) {
+          const cr = state.semesterCredits[i] || 0;
+          if (cr <= 0) {
+            errors.push('Each remaining semester must have at least 1 credit.');
+            break;
+          }
+        }
+      }
+
+      if (errors.length > 0) {
+        if (validationArea) {
+          validationArea.textContent = errors.join(' ');
+          validationArea.classList.remove('hidden');
+        }
+        if (resultStateLabel) resultStateLabel.textContent = '';
+        if (resultMain) resultMain.textContent = '—';
+        if (resultSubtext) resultSubtext.textContent = '';
+        if (detailCurrent) detailCurrent.textContent = '—';
+        if (detailTarget) detailTarget.textContent = '—';
+        if (detailCreditsDone) detailCreditsDone.textContent = '—';
+        if (detailCreditsLeft) detailCreditsLeft.textContent = '—';
+        if (maxOutcomeVal) maxOutcomeVal.textContent = '—';
+        if (targetThresholdRow) targetThresholdRow.classList.add('hidden');
+        if (currentProjectionVal) currentProjectionVal.textContent = '—';
+        if (currentProjectionCgpa) currentProjectionCgpa.textContent = '—';
+        if (wi7) wi7.textContent = '—';
+        if (wi8) wi8.textContent = '—';
+        if (wi9) wi9.textContent = '—';
+        if (projectedCgpaVal) projectedCgpaVal.textContent = '—';
+        if (projectedStatus) projectedStatus.textContent = '';
+        return;
+      }
+
+      if (validationArea) validationArea.classList.add('hidden');
+
+      let completedCredits = state.completedCredits;
+      let remainingCredits = 0;
+      if (state.mode === 'quick') {
+        completedCredits = state.creditsPerSem * state.completedSems;
+        remainingCredits = state.creditsPerSem * remaining;
+      } else {
+        remainingCredits = state.semesterCredits.reduce(function (a, b) { return a + (b || 0); }, 0);
+      }
+
+      const totalCredits = completedCredits + remainingCredits;
+      const currentPoints = state.currentCgpa * completedCredits;
+      const targetPoints = state.targetCgpa * totalCredits;
+      const neededPoints = targetPoints - currentPoints;
+      const requiredAvg = remainingCredits > 0 ? neededPoints / remainingCredits : 0;
+      const maxPossibleCgpa = remainingCredits > 0
+        ? (currentPoints + 10 * remainingCredits) / totalCredits
+        : state.currentCgpa;
+
+      // Detail grid
+      if (detailCurrent) detailCurrent.textContent = state.currentCgpa.toFixed(2);
+      if (detailTarget) detailTarget.textContent = state.targetCgpa.toFixed(2);
+      if (detailCreditsDone) detailCreditsDone.textContent = completedCredits.toString();
+      if (detailCreditsLeft) detailCreditsLeft.textContent = remainingCredits.toString();
+
+      // Primary result
+      if (remainingCredits <= 0) {
+        if (resultStateLabel) resultStateLabel.textContent = 'All Semesters Complete';
+        if (resultMain) resultMain.textContent = '—';
+        if (resultSubtext) resultSubtext.textContent = 'Your CGPA is final.';
+      } else if (requiredAvg > 10) {
+        if (resultStateLabel) {
+          resultStateLabel.textContent = 'Not Reachable';
+          resultStateLabel.className = 'text-xs font-mono font-semibold uppercase text-error mb-2';
+        }
+        if (resultMain) resultMain.textContent = '> 10.00';
+        if (resultSubtext) resultSubtext.textContent = 'This target is not mathematically reachable with the remaining credits. Even with a 10.00 average SGPA from now onward, your maximum possible final CGPA would be ' + maxPossibleCgpa.toFixed(2) + '.';
+      } else {
+        const displayAvg = clamp(requiredAvg, 0, 10);
+        if (state.currentCgpa >= state.targetCgpa) {
+          if (resultStateLabel) {
+            resultStateLabel.textContent = 'Target Secured \u2014 Maintain';
+            resultStateLabel.className = 'text-xs font-mono font-semibold uppercase text-success mb-2';
+          }
+          if (resultMain) resultMain.textContent = displayAvg.toFixed(2);
+          if (resultSubtext) resultSubtext.textContent = 'Average SGPA needed to finish with at least ' + state.targetCgpa.toFixed(2) + '. Your current CGPA of ' + state.currentCgpa.toFixed(2) + ' already exceeds this target.';
+        } else if (displayAvg >= 9.0) {
+          if (resultStateLabel) {
+            resultStateLabel.textContent = 'Achievable, but Demanding';
+            resultStateLabel.className = 'text-xs font-mono font-semibold uppercase text-warning-deep mb-2';
+          }
+          if (resultMain) resultMain.textContent = displayAvg.toFixed(2);
+          if (resultSubtext) resultSubtext.textContent = 'Average SGPA needed across ' + remainingCredits + ' remaining credits to reach ' + state.targetCgpa.toFixed(2) + '.';
+        } else {
+          if (resultStateLabel) {
+            resultStateLabel.textContent = 'Target is Achievable';
+            resultStateLabel.className = 'text-xs font-mono font-semibold uppercase text-success mb-2';
+          }
+          if (resultMain) resultMain.textContent = displayAvg.toFixed(2);
+          if (resultSubtext) resultSubtext.textContent = 'Average SGPA needed across ' + remainingCredits + ' remaining credits to finish with a ' + state.targetCgpa.toFixed(2) + ' CGPA.';
+        }
+      }
+
+      // Quick Estimate note
+      if (resultSubtext && state.mode === 'quick' && remainingCredits > 0) {
+        resultSubtext.textContent = (resultSubtext.textContent || '') + ' Estimated result \u2014 assumes approximately equal future semester credits.';
+      }
+
+      // Max outcome
+      if (maxOutcomeVal) maxOutcomeVal.textContent = maxPossibleCgpa.toFixed(2);
+      if (targetThresholdRow) {
+        if (requiredAvg <= 10 && remainingCredits > 0) {
+          targetThresholdRow.classList.remove('hidden');
+          if (targetThresholdGoal) targetThresholdGoal.textContent = state.targetCgpa.toFixed(2);
+          if (targetThresholdVal) targetThresholdVal.textContent = clamp(requiredAvg, 0, 10).toFixed(2);
+        } else {
+          targetThresholdRow.classList.add('hidden');
+        }
+      }
+
+      // Current projection
+      if (currentProjectionCgpa) currentProjectionCgpa.textContent = state.currentCgpa.toFixed(2);
+      if (currentProjectionVal) {
+        const proj = remainingCredits > 0
+          ? (currentPoints + state.currentCgpa * remainingCredits) / totalCredits
+          : state.currentCgpa;
+        currentProjectionVal.textContent = proj.toFixed(2);
+      }
+
+      // What-if
+      function whatIf(avg) {
+        if (remainingCredits <= 0) return '\u2014';
+        return ((currentPoints + avg * remainingCredits) / totalCredits).toFixed(2);
+      }
+      if (wi7) wi7.textContent = whatIf(7);
+      if (wi8) wi8.textContent = whatIf(8);
+      if (wi9) wi9.textContent = whatIf(9);
+
+      // Scenario projected result
+      updateProjectedResult();
+
+      saveState();
+    }
+
+    function updateProjectedResult() {
+      if (!projectedCgpaVal || !projectedStatus) return;
+      const remaining = getRemainingSems();
+      if (remaining <= 0) {
+        projectedCgpaVal.textContent = '\u2014';
+        projectedStatus.textContent = 'No remaining semesters to plan.';
+        return;
+      }
+
+      const completedCredits = state.mode === 'quick'
+        ? (state.creditsPerSem * state.completedSems)
+        : state.completedCredits;
+
+      let totalPlannedPoints = 0;
+      let totalPlannedCredits = 0;
+      for (let i = 0; i < remaining; i++) {
+        const cr = state.semesterCredits[i] || 20;
+        const sgpa = state.plannedSgpas[i] != null ? state.plannedSgpas[i] : 8.00;
+        totalPlannedPoints += sgpa * cr;
+        totalPlannedCredits += cr;
+      }
+
+      const totalCredits = completedCredits + totalPlannedCredits;
+      const currentPoints = state.currentCgpa * completedCredits;
+      const projectedCgpa = totalCredits > 0 ? (currentPoints + totalPlannedPoints) / totalCredits : 0;
+      const cappedCgpa = clamp(projectedCgpa, 0, 10);
+
+      projectedCgpaVal.textContent = cappedCgpa.toFixed(2);
+      const diff = cappedCgpa - state.targetCgpa;
+      if (Math.abs(diff) < 0.005) {
+        projectedStatus.textContent = 'On track!';
+        projectedStatus.className = 'text-xs mt-1 text-success font-semibold';
+      } else if (diff > 0) {
+        projectedStatus.textContent = 'Target ' + state.targetCgpa.toFixed(2) + ' \u2014 On track by +' + diff.toFixed(2);
+        projectedStatus.className = 'text-xs mt-1 text-success font-semibold';
+      } else {
+        projectedStatus.textContent = 'Target ' + state.targetCgpa.toFixed(2) + ' \u2014 Short by ' + Math.abs(diff).toFixed(2);
+        projectedStatus.className = 'text-xs mt-1 text-error font-semibold';
+      }
+    }
+
+    // ─── Copy Plan ───────────────────────────────────────────────
+    function copyPlan() {
+      const remaining = getRemainingSems();
+      const total = getTotalSems();
+      const startSem = total - remaining + 1;
+
+      const completedCredits = state.mode === 'quick'
+        ? (state.creditsPerSem * state.completedSems)
+        : state.completedCredits;
+      const remainingCredits = state.mode === 'quick'
+        ? (state.creditsPerSem * remaining)
+        : state.semesterCredits.reduce(function (a, b) { return a + (b || 0); }, 0);
+      const totalCredits = completedCredits + remainingCredits;
+      const currentPoints = state.currentCgpa * completedCredits;
+      const targetPoints = state.targetCgpa * totalCredits;
+      const neededPoints = targetPoints - currentPoints;
+      const requiredAvg = remainingCredits > 0 ? neededPoints / remainingCredits : 0;
+
+      let planLines = 'Target CGPA Plan\n\n';
+      planLines += 'Current CGPA: ' + state.currentCgpa.toFixed(2) + '\n';
+      planLines += 'Target CGPA: ' + state.targetCgpa.toFixed(2) + '\n';
+      planLines += 'Required future average: ' + clamp(requiredAvg, 0, 10).toFixed(2) + '\n\n';
+
+      let planCredits = 0;
+      for (let i = 0; i < remaining; i++) {
+        const semNum = startSem + i;
+        const sgpa = state.plannedSgpas[i] != null ? state.plannedSgpas[i] : 8.00;
+        const cr = state.semesterCredits[i] || 20;
+        planCredits += cr;
+        planLines += 'Semester ' + semNum + ' plan: ' + sgpa.toFixed(2) + '\n';
+      }
+
+      const totalPlannedCredits = state.mode === 'quick' ? (state.creditsPerSem * remaining) : planCredits;
+      const totalPlannedPoints = state.plannedSgpas.reduce(function (sum, sg, i) {
+        return sum + sg * (state.semesterCredits[i] || 20);
+      }, 0);
+      const projectedCgpa = (completedCredits + totalPlannedCredits) > 0
+        ? (currentPoints + totalPlannedPoints) / (completedCredits + totalPlannedCredits) : 0;
+
+      planLines += '\nProjected final CGPA: ' + clamp(projectedCgpa, 0, 10).toFixed(2) + '\n\n';
+      planLines += 'Plan from: ' + SITE_URL + '/target-cgpa-planner';
+
+      navigator.clipboard.writeText(planLines).then(function () {
+        if (copyToast) {
+          copyToast.classList.remove('hidden');
+          setTimeout(function () { copyToast.classList.add('hidden'); }, 2500);
+        }
+      }).catch(function () {});
+    }
+
+    // ─── Reset ───────────────────────────────────────────────────
+    function resetPlanner() {
+      resetState();
+      applyStateToDom();
+    }
+
+    // ─── Generate Balanced Plan ──────────────────────────────────
+    function generateBalancedPlan() {
+      const remaining = getRemainingSems();
+      if (remaining <= 0) return;
+
+      const completedCredits = state.mode === 'quick'
+        ? (state.creditsPerSem * state.completedSems)
+        : state.completedCredits;
+      const remainingCredits = state.mode === 'quick'
+        ? (state.creditsPerSem * remaining)
+        : state.semesterCredits.reduce(function (a, b) { return a + (b || 0); }, 0);
+
+      const currentPoints = state.currentCgpa * completedCredits;
+      const totalCredits = completedCredits + remainingCredits;
+      const targetPoints = state.targetCgpa * totalCredits;
+      const neededPoints = targetPoints - currentPoints;
+      const requiredAvg = remainingCredits > 0 ? neededPoints / remainingCredits : 0;
+
+      const balancedSgpa = clamp(requiredAvg, 0, 10);
+      for (let i = 0; i < remaining; i++) {
+        state.plannedSgpas[i] = balancedSgpa;
+      }
+      renderScenarioRows();
+      updateProjectedResult();
+      saveState();
+    }
+
+    // ─── Event Wiring ────────────────────────────────────────────
+
+    const inputIds = ['current-cgpa', 'target-cgpa', 'completed-sems', 'credits-per-sem', 'completed-credits'];
+    inputIds.forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', handleInput);
+        // also trigger on change for number inputs that may not fire input properly
+        el.addEventListener('change', handleInput);
+      }
+    });
+
+    [modeSelector, programmeLength, customTotalSems].forEach(function (el) {
+      if (el) {
+        el.addEventListener('change', handleInput);
+      }
+    });
+
+    function handleInput() {
+      if (modeSelector) syncModeSections();
+      if (programmeLength) {
+        customLengthRow?.classList.toggle('hidden', programmeLength.value !== 'custom');
+      }
+      renderSemesterCredits();
+      renderScenarioRows();
+      calculateAll();
+    }
+
+    if (balanceBtn) balanceBtn.addEventListener('click', generateBalancedPlan);
+    if (copyBtn) copyBtn.addEventListener('click', copyPlan);
+    if (resetBtn) resetBtn.addEventListener('click', resetPlanner);
+
+    // ─── Init ────────────────────────────────────────────────────
+    function init() {
+      loadState();
+      applyStateToDom();
+    }
+
+    init();
+  });
+</script>
