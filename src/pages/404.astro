@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="404 — Page Not Found | Student Utility Hub"
+  description="This page could not be found. Navigate back to the Student Utility Hub homepage or explore our academic utilities."
+  noindex={true}
+>
+  <div class="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center px-4 py-24 text-center">
+    <span class="font-mono text-[120px] font-bold leading-none tracking-tighter text-hairline select-none sm:text-[160px]">404</span>
+    <h1 class="-mt-4 font-sans text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+      Page not found
+    </h1>
+    <p class="mt-3 max-w-md text-sm leading-relaxed text-body">
+      The page you were looking for does not exist or has been moved.
+      Try checking the URL or use a link below to find what you need.
+    </p>
+    <a
+      href="/"
+      class="mt-8 inline-flex h-11 items-center justify-center rounded-sm bg-primary px-6 text-sm font-semibold text-on-primary hover:bg-primary/90 transition-colors"
+    >
+      Go to Home
+    </a>
+    <div class="mt-12 w-full border-t border-hairline pt-8">
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-mute font-mono mb-4">
+        Explore Academic Utilities
+      </h2>
+      <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <a href="/attendance-calculator/" class="rounded-sm border border-hairline bg-canvas px-4 py-3 text-left text-sm font-medium text-ink hover:border-ink transition-colors">
+          Attendance &amp; Bunk Tracker
+        </a>
+        <a href="/gpa-calculator/" class="rounded-sm border border-hairline bg-canvas px-4 py-3 text-left text-sm font-medium text-ink hover:border-ink transition-colors">
+          GPA (SGPA/CGPA) Calculator
+        </a>
+        <a href="/cgpa-to-percentage/" class="rounded-sm border border-hairline bg-canvas px-4 py-3 text-left text-sm font-medium text-ink hover:border-ink transition-colors">
+          CGPA to Percentage Converter
+        </a>
+        <a href="/marks-needed-to-pass/" class="rounded-sm border border-hairline bg-canvas px-4 py-3 text-left text-sm font-medium text-ink hover:border-ink transition-colors">
+          Pass Marks Needed
+        </a>
+        <a href="/atkt-eligibility-helper/" class="rounded-sm border border-hairline bg-canvas px-4 py-3 text-left text-sm font-medium text-ink hover:border-ink transition-colors sm:col-span-2">
+          ATKT Eligibility Helper
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
