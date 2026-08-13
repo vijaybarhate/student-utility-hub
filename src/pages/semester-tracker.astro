@@ -1,0 +1,562 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const faq = [
+  {
+    question: "Where is my semester progress stored?",
+    answer: "Your subjects and unit checkboxes are saved locally in your browser's LocalStorage under the key suh-semester-v1. Nothing is ever uploaded — the tracker is fully local-first, so your data stays on your device."
+  },
+  {
+    question: "What counts as a unit?",
+    answer: "A unit is one checkbox per subject — typically a chapter or module of the syllabus. When you add a subject you choose how many units it has, then tick each one as you finish revising it. Overall progress is simply completed units divided by total units."
+  },
+  {
+    question: "Can I back up or clear my progress?",
+    answer: "Yes. The Export button downloads your current semester as a .json file using the browser's built-in Blob download — no libraries involved. The Clear semester button wipes everything after a confirmation dialog, which is handy once a term ends."
+  }
+];
+---
+
+<BaseLayout
+  title="Semester Syllabus Tracker"
+  description="Check off every unit of every subject as you finish it and watch your overall term progress climb. A local-first syllabus checklist that persists privately on your device."
+  {faq}
+>
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Breadcrumb & Header -->
+    <nav class="flex mb-4" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center gap-1.5 font-mono text-[11px] text-mute">
+        <li>
+          <a href="/" class="hover:text-ink transition-colors">Home</a>
+        </li>
+        <li class="flex items-center gap-1.5 select-none">
+          <span>/</span>
+          <span class="text-body font-semibold">Semester Tracker</span>
+        </li>
+      </ol>
+    </nav>
+
+    <div class="mb-8">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-[11px] font-semibold text-mute">
+          Tool 08
+        </span>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-mute">
+          Tick units, not tasks.
+        </span>
+      </div>
+      <h1 class="mt-4 font-sans text-3xl font-semibold tracking-[-0.96px] text-ink sm:text-4xl">
+        Semester Syllabus Tracker
+      </h1>
+      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-body">
+        Break every subject down into units, tick each one off as you finish it, and watch your overall term progress climb. Everything is saved privately on your device — and you can export your whole semester as a backup anytime.
+      </p>
+    </div>
+
+    <!-- Overall Progress Card -->
+    <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200 overflow-hidden">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center justify-center rounded-full bg-canvas-soft-2 border border-hairline-strong/40 px-4 py-2">
+            <span id="progress-percent" class="font-mono text-2xl font-bold tracking-tighter tabular-nums text-ink">
+              0.0%
+            </span>
+          </div>
+          <div class="min-w-0">
+            <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono">
+              Overall Progress
+            </h2>
+            <p id="progress-units" class="mt-1 text-sm font-semibold text-body">
+              0 of 0 units completed
+            </p>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <button
+            id="btn-export"
+            type="button"
+            class="btn-secondary !h-10 !px-4"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Export .json
+          </button>
+          <button
+            id="btn-clear"
+            type="button"
+            class="inline-flex items-center justify-center rounded-md border border-error/30 px-4 py-2.5 text-sm font-semibold text-error shadow-level-1 transition-all hover:bg-error/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error active:scale-[0.98] cursor-pointer"
+          >
+            Clear semester
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="progress-bar"
+        class="mt-6 h-2.5 w-full overflow-hidden rounded-full bg-canvas-soft-2"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+        aria-label="Overall syllabus progress"
+      >
+        <div
+          id="progress-bar-fill"
+          class="h-full rounded-full transition-all duration-500"
+          style="width:0%; background:linear-gradient(90deg,#007cf0,#00dfd8);"
+        ></div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2">
+        <span class="font-mono text-[11px] font-semibold uppercase tracking-tight text-mute">
+          <span id="subjects-count">0 subjects</span>
+        </span>
+        <span class="font-mono text-[11px] font-semibold uppercase tracking-tight text-mute">
+          <span id="subjects-complete">0 subjects complete</span>
+        </span>
+      </div>
+    </div>
+
+    <div id="sem-status-live" class="sr-only" role="status" aria-live="polite"></div>
+
+    <!-- Main Tool Workspace -->
+    <div class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <!-- Add Subject Form -->
+      <div class="lg:col-span-4 min-w-0">
+        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200 overflow-hidden">
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono">
+              Add Subject
+            </h2>
+            <span class="text-[10px] font-bold font-mono bg-canvas-soft-2 border border-hairline-strong rounded-full px-3 py-1 text-mute uppercase tracking-tight">
+              Offline Cache
+            </span>
+          </div>
+
+          <form id="subject-form" class="flex flex-col gap-6" novalidate>
+            <div class="space-y-2">
+              <label for="subject-name" class="block text-sm font-bold text-ink">
+                Subject Name
+              </label>
+              <input
+                type="text"
+                id="subject-name"
+                name="name"
+                placeholder="e.g., Data Structures…"
+                class="h-11 w-full rounded-md border border-hairline-strong bg-canvas px-4 text-sm text-ink placeholder-mute focus:ring-2 focus:ring-link/20 focus:outline-none transition-all"
+                autocomplete="off"
+                spellcheck="false"
+                required
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label for="subject-units" class="block text-sm font-bold text-ink">
+                Units <span class="font-normal text-mute">(optional, default 5)</span>
+              </label>
+              <input
+                type="number"
+                id="subject-units"
+                name="units"
+                min="1"
+                max="30"
+                placeholder="e.g., 5"
+                class="h-11 w-full rounded-md border border-hairline-strong bg-canvas px-4 text-sm text-ink placeholder-mute focus:ring-2 focus:ring-link/20 focus:outline-none transition-all"
+                inputmode="numeric"
+              />
+            </div>
+
+            <p id="subject-form-error" class="hidden text-xs font-semibold text-error" role="alert">
+              Please enter a subject name and a valid unit count (1–30).
+            </p>
+
+            <button type="submit" class="btn-primary !h-11 w-full">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              Add Subject
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Subjects Checklist -->
+      <div class="lg:col-span-8 min-w-0">
+        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200 overflow-hidden">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono">
+              Subject Units
+            </h2>
+            <span id="subject-count" class="font-mono text-[10px] font-bold bg-canvas-soft-2 border border-hairline-strong rounded-full px-3 py-1 text-mute uppercase tracking-tight">
+              0 subjects
+            </span>
+          </div>
+
+          <div id="subject-list" class="divide-y divide-hairline">
+            <!-- Dynamically populated -->
+          </div>
+
+          <!-- Empty state -->
+          <div id="subject-empty-state" class="py-14 text-center border border-dashed border-hairline-strong rounded-md bg-canvas-soft">
+            <svg class="mx-auto h-8 w-8 text-mute" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <p class="mt-4 text-sm font-semibold text-body">No subjects tracked yet.</p>
+            <p class="mt-1 text-xs text-mute">Add your first subject on the left and tick units as you cover them.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <section class="py-16 mt-16 border-t border-hairline transition-colors duration-200">
+      <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <h2 class="text-center font-sans text-2xl font-semibold tracking-tight text-ink md:text-3xl">
+          Semester Tracker FAQ
+        </h2>
+        <p class="text-center mt-2 text-sm text-body">
+          How unit progress is tracked and where your syllabus data lives.
+        </p>
+
+        <div class="mt-10 divide-y divide-hairline border-t border-b border-hairline bg-canvas px-6 rounded-md border">
+          {faq.map((item) => (
+            <div class="py-4">
+              <details class="group [&_summary::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center justify-between gap-1.5 text-base font-medium text-ink focus:outline-none select-none">
+                  <span>{item.question}</span>
+                  <span class="relative h-5 w-5 shrink-0">
+                    <svg
+                      class="absolute inset-0 h-5 w-5 opacity-100 group-open:opacity-0 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <svg
+                      class="absolute inset-0 h-5 w-5 opacity-0 group-open:opacity-100 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </summary>
+                <p class="mt-3 text-sm leading-relaxed text-body animate-fade-in">
+                  {item.answer}
+                </p>
+              </details>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  import { storageLoad, storageSave } from '../lib/storage';
+  import { formatPercent } from '../lib/format';
+
+  const STORAGE_KEY = 'suh-semester-v1';
+  const UNITS_MIN = 1;
+  const UNITS_MAX = 30;
+  const UNITS_DEFAULT = 5;
+
+  interface Subject {
+    id: string;
+    name: string;
+    units: number;
+    completed: boolean[];
+  }
+
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  const form = document.getElementById('subject-form') as HTMLFormElement | null;
+  const nameInput = document.getElementById('subject-name') as HTMLInputElement | null;
+  const unitsInput = document.getElementById('subject-units') as HTMLInputElement | null;
+  const formError = document.getElementById('subject-form-error');
+
+  const listEl = document.getElementById('subject-list');
+  const emptyEl = document.getElementById('subject-empty-state');
+  const countEl = document.getElementById('subject-count');
+  const progressPercentEl = document.getElementById('progress-percent');
+  const progressUnitsEl = document.getElementById('progress-units');
+  const progressBarEl = document.getElementById('progress-bar');
+  const progressBarFillEl = document.getElementById('progress-bar-fill');
+  const subjectsCountEl = document.getElementById('subjects-count');
+  const subjectsCompleteEl = document.getElementById('subjects-complete');
+  const exportBtn = document.getElementById('btn-export');
+  const clearBtn = document.getElementById('btn-clear');
+  const statusLive = document.getElementById('sem-status-live');
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  function normalize(raw: unknown): Subject[] {
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .filter((s): s is Subject => !!s && typeof (s as Subject).name === 'string')
+      .map((s) => {
+        const units = Math.max(UNITS_MIN, Math.min(UNITS_MAX, Math.floor(Number(s.units)) || UNITS_DEFAULT));
+        const completed = Array.isArray(s.completed)
+          ? Array.from({ length: units }, (_, i) => Boolean(s.completed[i]))
+          : Array.from({ length: units }, () => false);
+        return {
+          id: s.id || genId(),
+          name: s.name,
+          units,
+          completed
+        };
+      });
+  }
+
+  let subjects: Subject[] = normalize(storageLoad<Subject[]>(STORAGE_KEY, []));
+  const expanded = new Set<string>();
+
+  function genId(): string {
+    return typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function todayKey(): string {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function escapeHtml(s: string): string {
+    return s.replace(/[&<>"']/g, (c) => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string
+    ));
+  }
+
+  function announce(message: string) {
+    if (statusLive) statusLive.textContent = message;
+  }
+
+  function totalUnits(): number {
+    return subjects.reduce((sum, s) => sum + s.units, 0);
+  }
+
+  function completedUnits(): number {
+    return subjects.reduce((sum, s) => sum + s.completed.filter(Boolean).length, 0);
+  }
+
+  function percent(): number {
+    const t = totalUnits();
+    return t === 0 ? 0 : (completedUnits() / t) * 100;
+  }
+
+  function save() {
+    storageSave(STORAGE_KEY, subjects);
+  }
+
+  // ── Rendering ─────────────────────────────────────────────────────────────
+  function updateProgress() {
+    const p = percent();
+    if (progressPercentEl) progressPercentEl.textContent = formatPercent(p);
+    if (progressUnitsEl) {
+      const t = totalUnits();
+      const c = completedUnits();
+      progressUnitsEl.textContent = `${c} of ${t} unit${t === 1 ? '' : 's'} completed`;
+    }
+    if (progressBarFillEl) progressBarFillEl.style.width = `${p}%`;
+    if (progressBarEl) progressBarEl.setAttribute('aria-valuenow', String(Math.round(p)));
+    if (subjectsCountEl) {
+      subjectsCountEl.textContent = `${subjects.length} subject${subjects.length === 1 ? '' : 's'}`;
+    }
+    if (subjectsCompleteEl) {
+      const complete = subjects.filter((s) => s.completed.filter(Boolean).length === s.units).length;
+      subjectsCompleteEl.textContent = `${complete} subject${complete === 1 ? '' : 's'} complete`;
+    }
+  }
+
+  function renderSubject(subject: Subject): string {
+    const done = subject.completed.filter(Boolean).length;
+    const subPercent = subject.units > 0 ? (done / subject.units) * 100 : 0;
+    const isOpen = expanded.has(subject.id);
+    const chevron = isOpen ? 'rotate-90' : '';
+    const panelClass = isOpen ? '' : 'hidden';
+
+    const unitsHtml = subject.completed
+      .map((checked, i) => `
+        <label class="flex cursor-pointer items-center gap-2.5 rounded-md border px-3 py-2 text-xs font-semibold transition-colors ${checked ? 'border-link/30 bg-link-bg-soft/40 text-ink' : 'border-hairline bg-canvas-soft text-body hover:border-hairline-strong'}">
+          <input
+            type="checkbox"
+            data-action="unit"
+            data-id="${subject.id}"
+            data-index="${i}"
+            ${checked ? 'checked' : ''}
+            class="h-4 w-4 shrink-0 cursor-pointer"
+            style="accent-color:#007cf0;"
+            aria-label="Unit ${i + 1} of ${escapeHtml(subject.name)}"
+          />
+          <span>Unit ${i + 1}</span>
+        </label>
+      `)
+      .join('');
+
+    return `
+      <div class="py-4">
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            data-action="toggle"
+            data-id="${subject.id}"
+            aria-expanded="${isOpen}"
+            aria-controls="units-${subject.id}"
+            class="group flex min-w-0 flex-1 items-center gap-2 text-left focus:outline-none cursor-pointer"
+          >
+            <svg class="h-4 w-4 shrink-0 text-mute transition-transform duration-200 ${chevron}" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m9 6 6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="min-w-0">
+              <span class="block truncate font-sans text-sm font-semibold tracking-tight text-ink transition-colors group-hover:text-link">${escapeHtml(subject.name)}</span>
+              <span class="mt-0.5 block font-mono text-[11px] text-mute">${done} of ${subject.units} unit${subject.units === 1 ? '' : 's'} done</span>
+            </span>
+          </button>
+          <span class="shrink-0 rounded-full border border-hairline-strong bg-canvas-soft-2 px-2.5 py-0.5 font-mono text-[10px] font-bold text-body tabular-nums">${formatPercent(subPercent)}</span>
+          <button
+            type="button"
+            data-action="delete"
+            data-id="${subject.id}"
+            aria-label="Delete subject ${escapeHtml(subject.name)}"
+            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-hairline-strong text-mute transition-all hover:border-error hover:text-error hover:bg-error/5 focus:ring-2 focus:ring-error/20 focus:outline-none cursor-pointer"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+        <div id="units-${subject.id}" class="mt-3 ${panelClass}">
+          <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">${unitsHtml}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function render() {
+    if (!listEl || !emptyEl || !countEl) return;
+
+    if (subjects.length === 0) {
+      listEl.innerHTML = '';
+      emptyEl.classList.remove('hidden');
+      countEl.textContent = '0 subjects';
+      updateProgress();
+      announce('No subjects tracked yet.');
+      return;
+    }
+
+    emptyEl.classList.add('hidden');
+    countEl.textContent = `${subjects.length} subject${subjects.length === 1 ? '' : 's'}`;
+
+    listEl.innerHTML = subjects.map(renderSubject).join('');
+    updateProgress();
+    announce(`${subjects.length} subjects. ${completedUnits()} of ${totalUnits()} units done.`);
+  }
+
+  // ── Actions ───────────────────────────────────────────────────────────────
+  function addSubject(event: Event) {
+    event.preventDefault();
+    if (!nameInput) return;
+
+    const name = nameInput.value.trim();
+    const unitsRaw = unitsInput && unitsInput.value !== '' ? parseInt(unitsInput.value, 10) : UNITS_DEFAULT;
+    const units = Number.isFinite(unitsRaw) ? Math.max(UNITS_MIN, Math.min(UNITS_MAX, unitsRaw)) : UNITS_DEFAULT;
+
+    if (!name) {
+      if (formError) formError.classList.remove('hidden');
+      return;
+    }
+    if (formError) formError.classList.add('hidden');
+
+    subjects.push({ id: genId(), name, units, completed: Array.from({ length: units }, () => false) });
+    expanded.add(subjects[subjects.length - 1].id);
+    save();
+    render();
+
+    form?.reset();
+    if (unitsInput) unitsInput.value = '';
+    nameInput.focus();
+  }
+
+  function deleteSubject(id: string) {
+    subjects = subjects.filter((s) => s.id !== id);
+    expanded.delete(id);
+    save();
+    render();
+    announce('Subject removed.');
+  }
+
+  function exportData() {
+    const payload = {
+      app: 'student-utility-hub',
+      feature: 'semester-tracker',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      subjects
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `suh-semester-${todayKey()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    announce('Semester data exported as JSON.');
+  }
+
+  function clearAll() {
+    if (!window.confirm('Clear all subjects and reset your semester progress? This cannot be undone.')) return;
+    subjects = [];
+    expanded.clear();
+    save();
+    render();
+    announce('Semester cleared.');
+  }
+
+  // ── Wiring ────────────────────────────────────────────────────────────────
+  form?.addEventListener('submit', addSubject);
+  exportBtn?.addEventListener('click', exportData);
+  clearBtn?.addEventListener('click', clearAll);
+
+  listEl?.addEventListener('click', (event) => {
+    const target = (event.target as HTMLElement).closest('button[data-action]') as HTMLElement | null;
+    if (!target) return;
+    const id = target.dataset.id;
+    if (!id) return;
+
+    if (target.dataset.action === 'toggle') {
+      if (expanded.has(id)) {
+        expanded.delete(id);
+      } else {
+        expanded.add(id);
+      }
+      render();
+    } else if (target.dataset.action === 'delete') {
+      deleteSubject(id);
+    }
+  });
+
+  listEl?.addEventListener('change', (event) => {
+    const target = event.target as HTMLInputElement;
+    if (target.dataset.action !== 'unit') return;
+    const id = target.dataset.id;
+    const index = Number(target.dataset.index);
+    const subject = subjects.find((s) => s.id === id);
+    if (!subject || Number.isNaN(index) || index < 0 || index >= subject.units) return;
+    subject.completed[index] = target.checked;
+    save();
+    render();
+  });
+
+  render();
+</script>
