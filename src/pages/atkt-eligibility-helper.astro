@@ -1976,17 +1976,42 @@ const faq = [
     }
 
     // Share button listener
-    shareBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(shareTextContent).then(() => {
-        shareToast.classList.remove('opacity-0');
-        shareToast.classList.add('opacity-100');
-        setTimeout(() => {
-          shareToast.classList.remove('opacity-100');
-          shareToast.classList.add('opacity-0');
-        }, 2000);
-      }).catch(err => {
-        console.error('Failed to copy text: ', err);
-      });
+    const copyTextToClipboard = async (text) => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch (_) { /* fall through to execCommand fallback */ }
+      }
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.top = '0';
+        textarea.style.left = '0';
+        textarea.style.opacity = '0';
+        textarea.style.pointerEvents = 'none';
+        document.body.appendChild(textarea);
+        textarea.select();
+        textarea.setSelectionRange(0, text.length);
+        const ok = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        return ok;
+      } catch (_) {
+        return false;
+      }
+    };
+
+    shareBtn.addEventListener('click', async () => {
+      const ok = await copyTextToClipboard(shareTextContent);
+      if (!ok) return;
+      shareToast.classList.remove('opacity-0');
+      shareToast.classList.add('opacity-100');
+      setTimeout(() => {
+        shareToast.classList.remove('opacity-100');
+        shareToast.classList.add('opacity-0');
+      }, 2000);
     });
 
     // Run Initialization

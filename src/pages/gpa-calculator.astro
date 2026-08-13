@@ -498,6 +498,7 @@ const faq = [
 
 <script>
   import { SITE_URL } from '../config';
+  import { copyText } from '../lib/clipboard';
 
   // DOM element bindings
   const subjectRowsContainer = document.getElementById('subject-rows');
@@ -782,24 +783,22 @@ const faq = [
 
   // Copy results code
   if (copyShareBtn && shareTextBox && copyBtnText) {
-    copyShareBtn.addEventListener('click', () => {
+    copyShareBtn.addEventListener('click', async () => {
       const textToCopy = shareTextBox.textContent || '';
-      navigator.clipboard.writeText(textToCopy).then(() => {
-        copyBtnText.textContent = "Copied!";
-        copyShareBtn.classList.remove('bg-primary');
-        copyShareBtn.classList.add('bg-success');
-        const liveRegion = document.getElementById('copy-status-live');
-        if (liveRegion) liveRegion.textContent = 'Results copied to clipboard';
+      const ok = await copyText(textToCopy);
+      if (!ok) return;
+      copyBtnText.textContent = "Copied!";
+      copyShareBtn.classList.remove('bg-primary');
+      copyShareBtn.classList.add('bg-success');
+      const liveRegion = document.getElementById('copy-status-live');
+      if (liveRegion) liveRegion.textContent = 'Results copied to clipboard';
 
-        setTimeout(() => {
-          copyBtnText.textContent = "Copy Results";
-          copyShareBtn.classList.remove('bg-success');
-          copyShareBtn.classList.add('bg-primary');
-          if (liveRegion) liveRegion.textContent = '';
-        }, 2000);
-      }).catch(err => {
-        console.error("Copy failed", err);
-      });
+      setTimeout(() => {
+        copyBtnText.textContent = "Copy Results";
+        copyShareBtn.classList.remove('bg-success');
+        copyShareBtn.classList.add('bg-primary');
+        if (liveRegion) liveRegion.textContent = '';
+      }, 2000);
     });
   }
 

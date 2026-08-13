@@ -295,13 +295,13 @@ const faq = [
 <script>
   import { storageLoad, storageSave } from '../lib/storage';
   import { formatPercent } from '../lib/format';
+  import { gradeFor } from '../lib/grading';
 
   const STORAGE_KEY = 'suh-marks-v1';
   const INTERNAL_MAX_OPTIONS = [10, 20, 30, 40, 50];
   const EXTERNAL_MAX_OPTIONS = [70, 100];
   const DEFAULT_INTERNAL_MAX = 30;
   const DEFAULT_EXTERNAL_MAX = 70;
-  const PASS_PERCENT = 50;
 
   interface Entry {
     id: string;
@@ -312,16 +312,7 @@ const faq = [
     externalMax: number;
   }
 
-  // ── Grade rules ───────────────────────────────────────────────────────────
-  function gradeFor(percent: number): string {
-    if (percent >= 90) return 'A+';
-    if (percent >= 80) return 'A';
-    if (percent >= 70) return 'B+';
-    if (percent >= 60) return 'B';
-    if (percent >= PASS_PERCENT) return 'C';
-    return 'F';
-  }
-
+  // ── Grade rules (imported from src/lib/grading.ts) ────────────────────────
   function entryPercent(entry: Entry): number {
     const max = entry.internalMax + entry.externalMax;
     return max > 0 ? ((entry.internal + entry.external) / max) * 100 : 0;
