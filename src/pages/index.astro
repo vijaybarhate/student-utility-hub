@@ -43,12 +43,21 @@ const tools = [
     tags: ['atkt', 'backlog', 'fail subject', 'promotion rules', 'year down', 'kt rules']
   },
   {
+<<<<<<< HEAD
     title: 'Target CGPA Planner',
     description: 'Calculate the SGPA you need in remaining semesters to reach your target CGPA. Plan semester-by-semester scores with credit weighting.',
     href: '/target-cgpa-planner',
     badge: 'New',
     icon: 'trending-up',
     tags: ['target cgpa', 'sgpa needed', 'future grades', 'credit planning', 'gpa goal']
+  },
+  {
+    title: 'Exam Countdown & Deadline Tracker',
+    description: 'Track every paper, internal, and submission deadline with a live countdown. Get urgency warnings when an exam is within 7 days.',
+    href: '/exam-countdown',
+    badge: 'New',
+    icon: 'clock',
+    tags: ['exam countdown', 'deadline', 'days left', 'exam date', 'study plan', 'tracker']
   }
 ];
 
@@ -216,8 +225,12 @@ const faq = [
                   {tool.icon === 'shield-alert' && (
                     <svg class="h-5.5 w-5.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
                   )}
+<<<<<<< HEAD
                   {tool.icon === 'trending-up' && (
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>
+                  )}
+                  {tool.icon === 'clock' && (
+                    <svg class="h-5.5 w-5.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
                   )}
                 </div>
 
