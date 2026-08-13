@@ -1,0 +1,616 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const faq = [
+  {
+    question: "Where is my marks ledger stored?",
+    answer: "Every subject entry is saved locally in your browser's LocalStorage under the key suh-marks-v1. Nothing is ever uploaded — the ledger is fully local-first, so your marks stay private on your device."
+  },
+  {
+    question: "How are total, percentage, and grade computed?",
+    answer: "The total is simply internal + external marks scored, expressed out of the combined maxima you chose per row. The percentage is (total ÷ max total) × 100. Grades follow: A+ at 90% and above, A at 80+, B+ at 70+, B at 60+, C at 50+, and F below 50%."
+  },
+  {
+    question: "Can I change the max marks for a subject?",
+    answer: "Yes. Each row lets you pick an internal max (10, 20, 30, 40 or 50) and an external/theory max (70 or 100) independently — matching how different papers are graded in Indian universities. Edit any row anytime to adjust the scored marks or the maxima."
+  }
+];
+---
+
+<BaseLayout
+  title="Marks Ledger & Grade Tracker"
+  description="Record internal and external marks per subject and watch totals, percentages, and letter grades compute instantly. A local-first marks ledger that flags failures and your best subject at a glance."
+  {faq}
+>
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Breadcrumb & Header -->
+    <nav class="flex mb-4" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center gap-1.5 font-mono text-[11px] text-mute">
+        <li>
+          <a href="/" class="hover:text-ink transition-colors">Home</a>
+        </li>
+        <li class="flex items-center gap-1.5 select-none">
+          <span>/</span>
+          <span class="text-body font-semibold">Marks Ledger</span>
+        </li>
+      </ol>
+    </nav>
+
+    <div class="mb-8">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-[11px] font-semibold text-mute">
+          Tool 09
+        </span>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-mute">
+          Know where you stand.
+        </span>
+      </div>
+      <h1 class="mt-4 font-sans text-3xl font-semibold tracking-[-0.96px] text-ink sm:text-4xl">
+        Marks Ledger &amp; Grade Tracker
+      </h1>
+      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-body">
+        Log the internal and external marks you scored in each subject, and the ledger instantly computes totals, percentages, and letter grades. Spot failures early and keep your best subject in sight — all saved privately on your device.
+      </p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div class="rounded-md border border-hairline bg-canvas p-5 shadow-level-2 transition-colors duration-200 overflow-hidden">
+        <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono">
+          Overall Percentage
+        </h2>
+        <p id="summary-overall" class="mt-2 font-mono text-3xl font-bold tracking-tighter tabular-nums text-ink">
+          0.0%
+        </p>
+        <p class="mt-1 text-xs text-mute">Weighted across all subjects.</p>
+      </div>
+      <div class="rounded-md border border-hairline bg-canvas p-5 shadow-level-2 transition-colors duration-200 overflow-hidden">
+        <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono">
+          Best Subject
+        </h2>
+        <p id="summary-best" class="mt-2 truncate font-sans text-lg font-bold tracking-tight text-ink">
+          —
+        </p>
+        <p id="summary-best-meta" class="mt-1 text-xs text-mute">No entries yet.</p>
+      </div>
+      <div class="rounded-md border border-hairline bg-canvas p-5 shadow-level-2 transition-colors duration-200 overflow-hidden">
+        <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono">
+          Failures
+        </h2>
+        <p id="summary-failures" class="mt-2 font-mono text-3xl font-bold tracking-tighter tabular-nums text-ink">
+          0
+        </p>
+        <p class="mt-1 text-xs text-mute">Subjects below 50%.</p>
+      </div>
+    </div>
+
+    <div id="marks-status-live" class="sr-only" role="status" aria-live="polite"></div>
+
+    <!-- Main Tool Workspace -->
+    <div class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <!-- Add Entry Form -->
+      <div class="lg:col-span-4 min-w-0">
+        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200 overflow-hidden">
+          <div class="flex items-center justify-between mb-8">
+            <h2 id="form-title" class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono">
+              Add Subject
+            </h2>
+            <span class="text-[10px] font-bold font-mono bg-canvas-soft-2 border border-hairline-strong rounded-full px-3 py-1 text-mute uppercase tracking-tight">
+              Offline Cache
+            </span>
+          </div>
+
+          <form id="entry-form" class="flex flex-col gap-6" novalidate>
+            <div class="space-y-2">
+              <label for="entry-name" class="block text-sm font-bold text-ink">
+                Subject Name
+              </label>
+              <input
+                type="text"
+                id="entry-name"
+                name="name"
+                placeholder="e.g., Engineering Mathematics…"
+                class="h-11 w-full rounded-md border border-hairline-strong bg-canvas px-4 text-sm text-ink placeholder-mute focus:ring-2 focus:ring-link/20 focus:outline-none transition-all"
+                autocomplete="off"
+                spellcheck="false"
+                required
+              />
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label for="entry-internal" class="block text-sm font-bold text-ink">
+                  Internal
+                </label>
+                <input
+                  type="number"
+                  id="entry-internal"
+                  name="internal"
+                  min="0"
+                  step="1"
+                  placeholder="e.g., 22"
+                  class="h-11 w-full rounded-md border border-hairline-strong bg-canvas px-4 text-sm text-ink placeholder-mute focus:ring-2 focus:ring-link/20 focus:outline-none transition-all"
+                  inputmode="numeric"
+                />
+              </div>
+              <div class="space-y-2">
+                <label for="entry-internal-max" class="block text-sm font-bold text-ink">
+                  Internal Max
+                </label>
+                <select
+                  id="entry-internal-max"
+                  name="internalMax"
+                  class="h-11 w-full cursor-pointer rounded-md border border-hairline-strong bg-canvas px-3 text-sm text-ink focus:ring-2 focus:ring-link/20 focus:outline-none transition-all"
+                >
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="30" selected>30</option>
+                  <option value="40">40</option>
+                  <option value="50">50</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label for="entry-external" class="block text-sm font-bold text-ink">
+                  External
+                </label>
+                <input
+                  type="number"
+                  id="entry-external"
+                  name="external"
+                  min="0"
+                  step="1"
+                  placeholder="e.g., 55"
+                  class="h-11 w-full rounded-md border border-hairline-strong bg-canvas px-4 text-sm text-ink placeholder-mute focus:ring-2 focus:ring-link/20 focus:outline-none transition-all"
+                  inputmode="numeric"
+                />
+              </div>
+              <div class="space-y-2">
+                <label for="entry-external-max" class="block text-sm font-bold text-ink">
+                  External Max
+                </label>
+                <select
+                  id="entry-external-max"
+                  name="externalMax"
+                  class="h-11 w-full cursor-pointer rounded-md border border-hairline-strong bg-canvas px-3 text-sm text-ink focus:ring-2 focus:ring-link/20 focus:outline-none transition-all"
+                >
+                  <option value="70" selected>70</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+            </div>
+
+            <p id="entry-form-error" class="hidden text-xs font-semibold text-error" role="alert">
+              Please enter a subject name and marks within the chosen maxima.
+            </p>
+
+            <div class="flex flex-col gap-3">
+              <button type="submit" id="entry-submit" class="btn-primary !h-11 w-full">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span id="entry-submit-label">Add Subject</span>
+              </button>
+              <button type="button" id="entry-cancel" class="hidden btn-secondary !h-11 w-full">
+                Cancel edit
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Entries Ledger -->
+      <div class="lg:col-span-8 min-w-0">
+        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200 overflow-hidden">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+            <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono">
+              Subject Ledger
+            </h2>
+            <div class="flex items-center gap-3">
+              <span id="entry-count" class="font-mono text-[10px] font-bold bg-canvas-soft-2 border border-hairline-strong rounded-full px-3 py-1 text-mute uppercase tracking-tight">
+                0 subjects
+              </span>
+              <button
+                id="btn-sort"
+                type="button"
+                aria-pressed="false"
+                class="inline-flex items-center gap-1.5 rounded-full border border-hairline-strong bg-canvas px-3.5 py-1.5 text-xs font-bold text-body transition-all hover:bg-canvas-soft-2 hover:text-ink focus:outline-none focus:ring-2 focus:ring-link/20 cursor-pointer"
+              >
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8 6h13M8 12h9M8 18h5" stroke-linecap="round" />
+                  <path d="m3 8 2-2 2 2M5 6v12" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Sort by %
+              </button>
+            </div>
+          </div>
+
+          <div id="entry-list" class="divide-y divide-hairline">
+            <!-- Dynamically populated -->
+          </div>
+
+          <!-- Empty state -->
+          <div id="entry-empty-state" class="py-14 text-center border border-dashed border-hairline-strong rounded-md bg-canvas-soft">
+            <svg class="mx-auto h-8 w-8 text-mute" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 12h6M9 16h6M7 3h10a2 2 0 0 1 2 2v16l-3-2-3 2-3-2-3 2V5a2 2 0 0 1 2-2Z" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <p class="mt-4 text-sm font-semibold text-body">No subjects recorded yet.</p>
+            <p class="mt-1 text-xs text-mute">Add your first subject on the left and your grades will compute instantly.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <section class="py-16 mt-16 border-t border-hairline transition-colors duration-200">
+      <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <h2 class="text-center font-sans text-2xl font-semibold tracking-tight text-ink md:text-3xl">
+          Marks Ledger FAQ
+        </h2>
+        <p class="text-center mt-2 text-sm text-body">
+          How totals, percentages, and grades are worked out.
+        </p>
+
+        <div class="mt-10 divide-y divide-hairline border-t border-b border-hairline bg-canvas px-6 rounded-md border">
+          {faq.map((item) => (
+            <div class="py-4">
+              <details class="group [&_summary::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center justify-between gap-1.5 text-base font-medium text-ink focus:outline-none select-none">
+                  <span>{item.question}</span>
+                  <span class="relative h-5 w-5 shrink-0">
+                    <svg
+                      class="absolute inset-0 h-5 w-5 opacity-100 group-open:opacity-0 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <svg
+                      class="absolute inset-0 h-5 w-5 opacity-0 group-open:opacity-100 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </summary>
+                <p class="mt-3 text-sm leading-relaxed text-body animate-fade-in">
+                  {item.answer}
+                </p>
+              </details>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  import { storageLoad, storageSave } from '../lib/storage';
+  import { formatPercent } from '../lib/format';
+
+  const STORAGE_KEY = 'suh-marks-v1';
+  const INTERNAL_MAX_OPTIONS = [10, 20, 30, 40, 50];
+  const EXTERNAL_MAX_OPTIONS = [70, 100];
+  const DEFAULT_INTERNAL_MAX = 30;
+  const DEFAULT_EXTERNAL_MAX = 70;
+  const PASS_PERCENT = 50;
+
+  interface Entry {
+    id: string;
+    name: string;
+    internal: number;
+    internalMax: number;
+    external: number;
+    externalMax: number;
+  }
+
+  // ── Grade rules ───────────────────────────────────────────────────────────
+  function gradeFor(percent: number): string {
+    if (percent >= 90) return 'A+';
+    if (percent >= 80) return 'A';
+    if (percent >= 70) return 'B+';
+    if (percent >= 60) return 'B';
+    if (percent >= PASS_PERCENT) return 'C';
+    return 'F';
+  }
+
+  function entryPercent(entry: Entry): number {
+    const max = entry.internalMax + entry.externalMax;
+    return max > 0 ? ((entry.internal + entry.external) / max) * 100 : 0;
+  }
+
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  const form = document.getElementById('entry-form') as HTMLFormElement | null;
+  const nameInput = document.getElementById('entry-name') as HTMLInputElement | null;
+  const internalInput = document.getElementById('entry-internal') as HTMLInputElement | null;
+  const internalMaxSelect = document.getElementById('entry-internal-max') as HTMLSelectElement | null;
+  const externalInput = document.getElementById('entry-external') as HTMLInputElement | null;
+  const externalMaxSelect = document.getElementById('entry-external-max') as HTMLSelectElement | null;
+  const formError = document.getElementById('entry-form-error');
+  const formTitle = document.getElementById('form-title');
+  const submitLabel = document.getElementById('entry-submit-label');
+  const cancelBtn = document.getElementById('entry-cancel');
+
+  const listEl = document.getElementById('entry-list');
+  const emptyEl = document.getElementById('entry-empty-state');
+  const countEl = document.getElementById('entry-count');
+  const sortBtn = document.getElementById('btn-sort');
+  const summaryOverallEl = document.getElementById('summary-overall');
+  const summaryBestEl = document.getElementById('summary-best');
+  const summaryBestMetaEl = document.getElementById('summary-best-meta');
+  const summaryFailuresEl = document.getElementById('summary-failures');
+  const statusLive = document.getElementById('marks-status-live');
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  function normalize(raw: unknown): Entry[] {
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .filter((e): e is Entry => !!e && typeof (e as Entry).name === 'string')
+      .map((e) => ({
+        id: e.id || genId(),
+        name: e.name,
+        internal: clampMarks(e.internal, e.internalMax, DEFAULT_INTERNAL_MAX),
+        internalMax: pickMax(e.internalMax, INTERNAL_MAX_OPTIONS, DEFAULT_INTERNAL_MAX),
+        external: clampMarks(e.external, e.externalMax, DEFAULT_EXTERNAL_MAX),
+        externalMax: pickMax(e.externalMax, EXTERNAL_MAX_OPTIONS, DEFAULT_EXTERNAL_MAX)
+      }));
+  }
+
+  function pickMax(value: unknown, options: number[], fallback: number): number {
+    const n = Number(value);
+    return options.includes(n) ? n : fallback;
+  }
+
+  function clampMarks(value: unknown, maxValue: unknown, maxFallback: number): number {
+    const n = Math.floor(Number(value));
+    const max = Number(maxValue) > 0 ? Number(maxValue) : maxFallback;
+    if (!Number.isFinite(n) || n < 0) return 0;
+    return Math.min(n, max);
+  }
+
+  let entries: Entry[] = normalize(storageLoad<Entry[]>(STORAGE_KEY, []));
+  let sortDesc = false;
+  let editingId: string | null = null;
+
+  function genId(): string {
+    return typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function escapeHtml(s: string): string {
+    return s.replace(/[&<>"']/g, (c) => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string
+    ));
+  }
+
+  function announce(message: string) {
+    if (statusLive) statusLive.textContent = message;
+  }
+
+  function save() {
+    storageSave(STORAGE_KEY, entries);
+  }
+
+  function visibleEntries(): Entry[] {
+    const list = [...entries];
+    if (sortDesc) list.sort((a, b) => entryPercent(b) - entryPercent(a));
+    return list;
+  }
+
+  function overallPercent(): number {
+    const totalMax = entries.reduce((sum, e) => sum + e.internalMax + e.externalMax, 0);
+    const totalScored = entries.reduce((sum, e) => sum + e.internal + e.external, 0);
+    return totalMax > 0 ? (totalScored / totalMax) * 100 : 0;
+  }
+
+  function bestEntry(): Entry | null {
+    if (entries.length === 0) return null;
+    return entries.reduce((best, e) => (entryPercent(e) > entryPercent(best) ? e : best));
+  }
+
+  function failuresCount(): number {
+    return entries.filter((e) => gradeFor(entryPercent(e)) === 'F').length;
+  }
+
+  function gradeBadgeClass(grade: string): string {
+    return grade === 'F'
+      ? 'border-error/30 bg-error-soft/40 text-error'
+      : 'border-success/30 bg-link-bg-soft/40 text-success';
+  }
+
+  // ── Rendering ─────────────────────────────────────────────────────────────
+  function updateSummary() {
+    if (summaryOverallEl) summaryOverallEl.textContent = formatPercent(overallPercent());
+    const best = bestEntry();
+    if (summaryBestEl) summaryBestEl.textContent = best ? escapeHtml(best.name) : '—';
+    if (summaryBestMetaEl) {
+      summaryBestMetaEl.textContent = best ? `${formatPercent(entryPercent(best))} · ${best.internal + best.external}/${best.internalMax + best.externalMax} marks` : 'No entries yet.';
+    }
+    if (summaryFailuresEl) {
+      const f = failuresCount();
+      summaryFailuresEl.textContent = String(f);
+      summaryFailuresEl.classList.toggle('text-error', f > 0);
+    }
+  }
+
+  function renderEntry(entry: Entry): string {
+    const percent = entryPercent(entry);
+    const grade = gradeFor(percent);
+    const total = entry.internal + entry.external;
+    const max = entry.internalMax + entry.externalMax;
+
+    return `
+      <div class="py-4">
+        <div class="flex items-center gap-3">
+          <div class="min-w-0 flex-1">
+            <span class="block truncate font-sans text-sm font-semibold tracking-tight text-ink">${escapeHtml(entry.name)}</span>
+            <span class="mt-0.5 block font-mono text-[11px] text-mute">
+              Internal ${entry.internal}/${entry.internalMax} · External ${entry.external}/${entry.externalMax} · Total ${total}/${max}
+            </span>
+          </div>
+          <span class="shrink-0 rounded-full border ${gradeBadgeClass(grade)} px-2.5 py-0.5 font-mono text-[10px] font-bold tabular-nums">${grade}</span>
+          <span class="shrink-0 w-14 text-right font-mono text-xs font-bold tabular-nums ${grade === 'F' ? 'text-error' : 'text-ink'}">${formatPercent(percent)}</span>
+          <button
+            type="button"
+            data-action="edit"
+            data-id="${entry.id}"
+            aria-label="Edit ${escapeHtml(entry.name)}"
+            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-hairline-strong text-mute transition-all hover:border-link hover:text-link hover:bg-link-bg-soft/40 focus:ring-2 focus:ring-link/20 focus:outline-none cursor-pointer"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            data-action="delete"
+            data-id="${entry.id}"
+            aria-label="Delete ${escapeHtml(entry.name)}"
+            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-hairline-strong text-mute transition-all hover:border-error hover:text-error hover:bg-error/5 focus:ring-2 focus:ring-error/20 focus:outline-none cursor-pointer"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function render() {
+    if (!listEl || !emptyEl || !countEl) return;
+
+    if (entries.length === 0) {
+      listEl.innerHTML = '';
+      emptyEl.classList.remove('hidden');
+      countEl.textContent = '0 subjects';
+      if (sortBtn) sortBtn.setAttribute('aria-pressed', 'false');
+      sortDesc = false;
+      updateSummary();
+      announce('No subjects recorded yet.');
+      return;
+    }
+
+    emptyEl.classList.add('hidden');
+    countEl.textContent = `${entries.length} subject${entries.length === 1 ? '' : 's'}`;
+
+    listEl.innerHTML = visibleEntries().map(renderEntry).join('');
+    updateSummary();
+
+    const best = bestEntry();
+    const label = best ? `${formatPercent(entryPercent(best))} in ${best.name}` : `${entries.length} subjects tracked`;
+    announce(label);
+  }
+
+  // ── Form / actions ────────────────────────────────────────────────────────
+  function resetForm() {
+    form?.reset();
+    if (internalMaxSelect) internalMaxSelect.value = String(DEFAULT_INTERNAL_MAX);
+    if (externalMaxSelect) externalMaxSelect.value = String(DEFAULT_EXTERNAL_MAX);
+    if (formError) formError.classList.add('hidden');
+    editingId = null;
+    if (formTitle) formTitle.textContent = 'Add Subject';
+    if (submitLabel) submitLabel.textContent = 'Add Subject';
+    if (cancelBtn) cancelBtn.classList.add('hidden');
+  }
+
+  function startEdit(id: string) {
+    const entry = entries.find((e) => e.id === id);
+    if (!entry || !nameInput || !internalInput || !externalInput) return;
+
+    editingId = id;
+    nameInput.value = entry.name;
+    internalInput.value = String(entry.internal);
+    externalInput.value = String(entry.external);
+    if (internalMaxSelect) internalMaxSelect.value = String(entry.internalMax);
+    if (externalMaxSelect) externalMaxSelect.value = String(entry.externalMax);
+    if (formError) formError.classList.add('hidden');
+    if (formTitle) formTitle.textContent = 'Edit Subject';
+    if (submitLabel) submitLabel.textContent = 'Save Changes';
+    if (cancelBtn) cancelBtn.classList.remove('hidden');
+
+    form?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    nameInput.focus();
+  }
+
+  function handleSubmit(event: Event) {
+    event.preventDefault();
+    if (!nameInput || !internalInput || !externalInput || !internalMaxSelect || !externalMaxSelect) return;
+
+    const name = nameInput.value.trim();
+    const internalMax = Number(internalMaxSelect.value);
+    const externalMax = Number(externalMaxSelect.value);
+    const internal = Math.floor(Number(internalInput.value));
+    const external = Math.floor(Number(externalInput.value));
+
+    const validInternal = Number.isFinite(internal) && internal >= 0 && internal <= internalMax;
+    const validExternal = Number.isFinite(external) && external >= 0 && external <= externalMax;
+
+    if (!name || !validInternal || !validExternal) {
+      if (formError) formError.classList.remove('hidden');
+      return;
+    }
+    if (formError) formError.classList.add('hidden');
+
+    if (editingId) {
+      const idx = entries.findIndex((e) => e.id === editingId);
+      if (idx !== -1) {
+        entries[idx] = { ...entries[idx], name, internal, internalMax, external, externalMax };
+      }
+      announce('Subject updated.');
+    } else {
+      entries.push({ id: genId(), name, internal, internalMax, external, externalMax });
+      announce(`Added ${name}.`);
+    }
+
+    save();
+    resetForm();
+    render();
+    nameInput.focus();
+  }
+
+  function deleteEntry(id: string) {
+    const entry = entries.find((e) => e.id === id);
+    entries = entries.filter((e) => e.id !== id);
+    if (editingId === id) resetForm();
+    save();
+    render();
+    announce(entry ? `${entry.name} removed.` : 'Subject removed.');
+  }
+
+  // ── Wiring ────────────────────────────────────────────────────────────────
+  form?.addEventListener('submit', handleSubmit);
+  cancelBtn?.addEventListener('click', resetForm);
+  sortBtn?.addEventListener('click', () => {
+    sortDesc = !sortDesc;
+    sortBtn.setAttribute('aria-pressed', String(sortDesc));
+    render();
+    announce(sortDesc ? 'Sorted by percentage, highest first.' : 'Showing subjects in original order.');
+  });
+
+  listEl?.addEventListener('click', (event) => {
+    const target = (event.target as HTMLElement).closest('button[data-action]') as HTMLElement | null;
+    if (!target) return;
+    const id = target.dataset.id;
+    if (!id) return;
+
+    if (target.dataset.action === 'edit') {
+      startEdit(id);
+    } else if (target.dataset.action === 'delete') {
+      deleteEntry(id);
+    }
+  });
+
+  render();
+</script>
