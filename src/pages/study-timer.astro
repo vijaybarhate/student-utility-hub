@@ -1,0 +1,573 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const faq = [
+  {
+    question: "Where is my Pomodoro progress stored?",
+    answer: "Completed focus sessions are saved locally in your browser's LocalStorage under the key suh-pomodoro-v1, grouped by date (e.g. 2026-08-13). The active timer session is kept under suh-pomodoro-session-v1 so a refresh never loses your run. Nothing is ever uploaded."
+  },
+  {
+    question: "How do the break lengths work?",
+    answer: "A standard Pomodoro rhythm is used: 25 minutes of focus, a 5-minute short break, and a 15-minute long break after every 4th completed focus session. When a session finishes you get a short beep and the timer automatically switches to the next mode."
+  },
+  {
+    question: "Does the timer keep running if I switch tabs?",
+    answer: "Yes. The countdown is computed from an absolute end timestamp rather than tick-by-tick subtraction, so even if the browser throttles timers in a background tab, the remaining time snaps back to the correct value the moment the tab is active again."
+  }
+];
+---
+
+<BaseLayout
+  title="Pomodoro Study Timer"
+  description="Focus with 25-minute Pomodoro sprints, short and long breaks, and a daily focus log. A distraction-free local-first study timer that stays accurate even in the background."
+  {faq}
+>
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Breadcrumb & Header -->
+    <nav class="flex mb-4" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center gap-1.5 font-mono text-[11px] text-mute">
+        <li>
+          <a href="/" class="hover:text-ink transition-colors">Home</a>
+        </li>
+        <li class="flex items-center gap-1.5 select-none">
+          <span>/</span>
+          <span class="text-body font-semibold">Study Timer</span>
+        </li>
+      </ol>
+    </nav>
+
+    <div class="mb-8">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-[11px] font-semibold text-mute">
+          Tool 07
+        </span>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-mute">
+          Focus in 25-minute sprints.
+        </span>
+      </div>
+      <h1 class="mt-4 font-sans text-3xl font-semibold tracking-[-0.96px] text-ink sm:text-4xl">
+        Pomodoro Study Timer
+      </h1>
+      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-body">
+        Run focus sprints, take short breaks, and earn a long break after every four pomodoros. Your daily focus log is saved privately on your device and the tab title always shows how much time is left.
+      </p>
+    </div>
+
+    <!-- Main Tool Workspace -->
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <!-- Timer Card -->
+      <div class="lg:col-span-7 min-w-0">
+        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200 overflow-hidden">
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono">
+              Focus Timer
+            </h2>
+            <span class="text-[10px] font-bold font-mono bg-canvas-soft-2 border border-hairline-strong rounded-full px-3 py-1 text-mute uppercase tracking-tight">
+              Offline · Local
+            </span>
+          </div>
+
+          <!-- Mode Pills -->
+          <div id="mode-tabs" class="flex flex-wrap items-center justify-center gap-2" role="tablist" aria-label="Timer mode">
+            <button type="button" role="tab" data-mode="focus" class="mode-pill cursor-pointer">Focus</button>
+            <button type="button" role="tab" data-mode="short" class="mode-pill cursor-pointer">Short Break</button>
+            <button type="button" role="tab" data-mode="long" class="mode-pill cursor-pointer">Long Break</button>
+          </div>
+
+          <!-- Circular Progress Ring -->
+          <div class="relative mx-auto mt-10 h-60 w-60 sm:h-64 sm:w-64" role="timer" aria-label="Pomodoro countdown timer">
+            <svg class="h-full w-full -rotate-90" viewBox="0 0 280 280" fill="none" aria-hidden="true">
+              <circle cx="140" cy="140" r="124" stroke="var(--color-hairline)" stroke-width="14" />
+              <circle
+                id="ring"
+                cx="140"
+                cy="140"
+                r="124"
+                stroke="url(#ring-grad-focus)"
+                stroke-width="14"
+                stroke-linecap="round"
+              />
+              <defs>
+                <linearGradient id="ring-grad-focus" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#007cf0" />
+                  <stop offset="100%" stop-color="#00dfd8" />
+                </linearGradient>
+                <linearGradient id="ring-grad-short" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#7928ca" />
+                  <stop offset="100%" stop-color="#ff0080" />
+                </linearGradient>
+                <linearGradient id="ring-grad-long" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ff4d4d" />
+                  <stop offset="100%" stop-color="#f9cb28" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span id="timer-mode-label" class="font-mono text-[10px] font-bold uppercase tracking-widest text-mute">
+                Focus
+              </span>
+              <span id="timer-time" class="mt-1 font-mono text-5xl font-bold tracking-tighter tabular-nums text-ink sm:text-6xl">
+                25:00
+              </span>
+              <span id="timer-state" class="mt-1 text-xs font-semibold text-mute">
+                Ready
+              </span>
+            </div>
+          </div>
+
+          <!-- Cycle Dots -->
+          <div class="mt-8 flex items-center justify-center gap-2">
+            <span class="mr-1 font-mono text-[10px] font-bold uppercase tracking-widest text-mute">Cycle</span>
+            <span id="cycle-dots" class="flex items-center gap-1.5" aria-hidden="true"></span>
+          </div>
+
+          <!-- Controls -->
+          <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <button
+              id="btn-start"
+              type="button"
+              class="btn-primary !h-12 min-w-[10rem]"
+            >
+              Start
+            </button>
+            <button
+              id="btn-reset"
+              type="button"
+              class="btn-secondary !h-12 min-w-[7rem]"
+            >
+              Reset
+            </button>
+            <button
+              id="btn-skip"
+              type="button"
+              class="btn-secondary !h-12 min-w-[7rem]"
+            >
+              Skip
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress / Stats Card -->
+      <div class="lg:col-span-5 min-w-0">
+        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200 overflow-hidden">
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono">
+              Today's Progress
+            </h2>
+            <span class="text-[10px] font-bold font-mono bg-canvas-soft-2 border border-hairline-strong rounded-full px-3 py-1 text-mute uppercase tracking-tight">
+              Pomodoro Log
+            </span>
+          </div>
+
+          <!-- Today count -->
+          <div class="rounded-md border border-hairline-strong/20 bg-canvas-soft-2 p-5">
+            <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-mute">Today</span>
+            <p class="mt-2 font-mono text-4xl font-bold tracking-tighter tabular-nums text-ink">
+              <span id="today-count">0</span>
+            </p>
+            <p id="today-label" class="mt-1 text-sm text-body">pomodoros completed today</p>
+          </div>
+
+          <!-- 7-day history -->
+          <div class="mt-8">
+            <h3 class="font-mono text-[10px] font-bold uppercase tracking-widest text-mute">Last 7 days</h3>
+            <div id="week-list" class="mt-2 divide-y divide-hairline">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="timer-status-live" class="sr-only" role="status" aria-live="polite"></div>
+
+    <!-- FAQ Section -->
+    <section class="py-16 mt-16 border-t border-hairline transition-colors duration-200">
+      <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <h2 class="text-center font-sans text-2xl font-semibold tracking-tight text-ink md:text-3xl">
+          Study Timer FAQ
+        </h2>
+        <p class="text-center mt-2 text-sm text-body">
+          How the timer rhythm works and where your focus data lives.
+        </p>
+
+        <div class="mt-10 divide-y divide-hairline border-t border-b border-hairline bg-canvas px-6 rounded-md border">
+          {faq.map((item) => (
+            <div class="py-4">
+              <details class="group [&_summary::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer items-center justify-between gap-1.5 text-base font-medium text-ink focus:outline-none select-none">
+                  <span>{item.question}</span>
+                  <span class="relative h-5 w-5 shrink-0">
+                    <svg
+                      class="absolute inset-0 h-5 w-5 opacity-100 group-open:opacity-0 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <svg
+                      class="absolute inset-0 h-5 w-5 opacity-0 group-open:opacity-100 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </summary>
+                <p class="mt-3 text-sm leading-relaxed text-body animate-fade-in">
+                  {item.answer}
+                </p>
+              </details>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  #ring {
+    transition: stroke-dashoffset 0.5s linear, stroke 0.3s ease;
+  }
+</style>
+
+<script>
+  import { storageLoad, storageSave } from '../lib/storage';
+
+  const STORAGE_KEY = 'suh-pomodoro-v1';
+  const SESSION_KEY = 'suh-pomodoro-session-v1';
+
+  type Mode = 'focus' | 'short' | 'long';
+
+  const DURATIONS: Record<Mode, number> = {
+    focus: 25 * 60,
+    short: 5 * 60,
+    long: 15 * 60
+  };
+
+  const MODE_LABELS: Record<Mode, string> = {
+    focus: 'Focus',
+    short: 'Short Break',
+    long: 'Long Break'
+  };
+
+  const RING_RADIUS = 124;
+  const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
+  const RING_STROKE: Record<Mode, string> = {
+    focus: 'url(#ring-grad-focus)',
+    short: 'url(#ring-grad-short)',
+    long: 'url(#ring-grad-long)'
+  };
+
+  interface SessionState {
+    mode: Mode;
+    remaining: number;
+    running: boolean;
+    endAt: number | null;
+    completedInCycle: number;
+  }
+
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  const ring = document.getElementById('ring');
+  const timeEl = document.getElementById('timer-time');
+  const modeLabelEl = document.getElementById('timer-mode-label');
+  const stateEl = document.getElementById('timer-state');
+  const cycleDotsEl = document.getElementById('cycle-dots');
+  const startBtn = document.getElementById('btn-start') as HTMLButtonElement | null;
+  const resetBtn = document.getElementById('btn-reset');
+  const skipBtn = document.getElementById('btn-skip');
+  const todayCountEl = document.getElementById('today-count');
+  const todayLabelEl = document.getElementById('today-label');
+  const weekListEl = document.getElementById('week-list');
+  const statusLive = document.getElementById('timer-status-live');
+  const modeButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('#mode-tabs button[data-mode]'));
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  interface DailyCount {
+    [date: string]: number;
+  }
+
+  let daily: DailyCount = storageLoad<DailyCount>(STORAGE_KEY, {});
+
+  let session = storageLoad<SessionState>(SESSION_KEY, {
+    mode: 'focus',
+    remaining: DURATIONS.focus,
+    running: false,
+    endAt: null,
+    completedInCycle: 0
+  });
+
+  let mode: Mode = session.mode === 'short' || session.mode === 'long' || session.mode === 'focus' ? session.mode : 'focus';
+  let remaining: number = typeof session.remaining === 'number' && session.remaining > 0 ? session.remaining : DURATIONS[mode];
+  let completedInCycle: number = typeof session.completedInCycle === 'number' ? session.completedInCycle : 0;
+  let running: boolean = false;
+  let endAt: number | null = null;
+
+  // Class sets for the mode pills. Declared up-front (before the init block
+  // below) because a session that completed while the page was closed calls
+  // render() during module evaluation — const bindings are still in their
+  // temporal dead zone until their declaration line runs.
+  const pillBase =
+    'mode-pill inline-flex items-center justify-center rounded-full px-4 py-1.5 text-[13px] font-semibold transition-all duration-150 focus:outline-none select-none';
+  const pillActive = 'bg-primary text-on-primary shadow-level-2';
+  const pillIdle = 'bg-canvas-soft-2 text-body border border-hairline hover:text-ink hover:border-hairline-strong';
+
+  // If the timer was mid-run when the page was left, pick it back up
+  // (or quietly finish it if it completed while we were away).
+  if (session.running && typeof session.endAt === 'number') {
+    const elapsed = session.endAt - Date.now();
+    if (elapsed <= 0) {
+      completeSession(true);
+    } else {
+      running = true;
+      endAt = session.endAt;
+      remaining = Math.max(1, Math.round(elapsed / 1000));
+    }
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function dateKey(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function todayKey(): string {
+    return dateKey(new Date());
+  }
+
+  function todayCount(): number {
+    return daily[todayKey()] || 0;
+  }
+
+  function fmt(seconds: number): string {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+
+  function announce(message: string) {
+    if (statusLive) statusLive.textContent = message;
+  }
+
+  function persist() {
+    storageSave(SESSION_KEY, { mode, remaining, running, endAt, completedInCycle } satisfies SessionState);
+  }
+
+  function incrementToday() {
+    const key = todayKey();
+    daily[key] = (daily[key] || 0) + 1;
+    storageSave(STORAGE_KEY, daily);
+  }
+
+  // ── Audio beep (WebAudio, no external asset) ──────────────────────────────
+  let audioCtx: AudioContext | null = null;
+
+  function ensureAudio() {
+    try {
+      const Ctor = window.AudioContext || (window as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!Ctor) return;
+      if (!audioCtx) audioCtx = new Ctor();
+      if (audioCtx.state === 'suspended') void audioCtx.resume();
+    } catch {
+      // audio unavailable — stay silent
+    }
+  }
+
+  function beep() {
+    ensureAudio();
+    if (!audioCtx) return;
+    try {
+      const ctx = audioCtx;
+      const start = ctx.currentTime;
+      [0, 0.18, 0.36].forEach((offset) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.0001, start + offset);
+        gain.gain.exponentialRampToValueAtTime(0.3, start + offset + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + offset + 0.16);
+        osc.start(start + offset);
+        osc.stop(start + offset + 0.18);
+      });
+    } catch {
+      // best-effort beep
+    }
+  }
+
+  // ── Timer control ─────────────────────────────────────────────────────────
+  function startOrPause() {
+    if (running) {
+      if (endAt) remaining = Math.max(0, Math.round((endAt - Date.now()) / 1000));
+      running = false;
+      endAt = null;
+      persist();
+      render();
+      announce('Timer paused.');
+      return;
+    }
+    ensureAudio();
+    running = true;
+    endAt = Date.now() + remaining * 1000;
+    persist();
+    render();
+    announce('Timer started.');
+  }
+
+  function reset() {
+    running = false;
+    endAt = null;
+    remaining = DURATIONS[mode];
+    persist();
+    render();
+    announce(`${MODE_LABELS[mode]} timer reset.`);
+  }
+
+  function switchMode(next: Mode) {
+    if (next === mode) return;
+    mode = next;
+    remaining = DURATIONS[mode];
+    running = false;
+    endAt = null;
+    persist();
+    render();
+    announce(`${MODE_LABELS[mode]} selected — ${fmt(remaining)}.`);
+  }
+
+  function skip() {
+    const next: Mode = mode === 'focus' ? 'short' : 'focus';
+    mode = next;
+    remaining = DURATIONS[next];
+    running = false;
+    endAt = null;
+    persist();
+    render();
+    announce(`Skipped to ${MODE_LABELS[next]}.`);
+  }
+
+  function completeSession(silent: boolean) {
+    const completedLabel = MODE_LABELS[mode];
+    if (mode === 'focus') {
+      completedInCycle += 1;
+      incrementToday();
+    }
+    const next: Mode = mode === 'focus' ? (completedInCycle % 4 === 0 ? 'long' : 'short') : 'focus';
+    mode = next;
+    remaining = DURATIONS[next];
+    running = false;
+    endAt = null;
+
+    if (!silent) beep();
+    persist();
+    render();
+    announce(`${completedLabel} complete. ${todayCount()} pomodoros today. Starting ${MODE_LABELS[next]}.`);
+  }
+
+  // ── Rendering ─────────────────────────────────────────────────────────────
+  function render() {
+    if (timeEl) timeEl.textContent = fmt(remaining);
+    if (modeLabelEl) modeLabelEl.textContent = MODE_LABELS[mode];
+    if (stateEl) stateEl.textContent = running ? 'Running' : remaining < DURATIONS[mode] ? 'Paused' : 'Ready';
+
+    if (ring) {
+      const progress = DURATIONS[mode] > 0 ? remaining / DURATIONS[mode] : 0;
+      ring.style.strokeDasharray = String(RING_CIRCUMFERENCE);
+      ring.style.strokeDashoffset = String(RING_CIRCUMFERENCE * (1 - progress));
+      ring.setAttribute('stroke', RING_STROKE[mode]);
+    }
+
+    if (cycleDotsEl) {
+      const pos = completedInCycle % 4;
+      cycleDotsEl.innerHTML = [0, 1, 2, 3]
+        .map((i) =>
+          i < pos
+            ? '<span class="h-2.5 w-2.5 rounded-full bg-develop-start transition-colors"></span>'
+            : '<span class="h-2.5 w-2.5 rounded-full bg-canvas-soft-2 border border-hairline-strong transition-colors"></span>'
+        )
+        .join('');
+    }
+
+    if (startBtn) startBtn.textContent = running ? 'Pause' : 'Start';
+
+    if (todayCountEl) todayCountEl.textContent = String(todayCount());
+    if (todayLabelEl) {
+      const n = todayCount();
+      todayLabelEl.textContent = `${n === 1 ? 'pomodoro' : 'pomodoros'} completed today`;
+    }
+
+    renderWeek();
+
+    if (modeButtons.length > 0) {
+      modeButtons.forEach((btn) => {
+        const isActive = btn.dataset.mode === mode;
+        btn.className = `${pillBase} ${isActive ? pillActive : pillIdle}`;
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+    }
+
+    document.title = `${MODE_LABELS[mode]} · ${fmt(remaining)} | Student Utility Hub`;
+  }
+
+  function renderWeek() {
+    if (!weekListEl) return;
+    const days: { label: string; count: number }[] = [];
+    for (let i = 6; i >= 0; i -= 1) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const label = i === 0 ? 'Today' : i === 1 ? 'Yesterday' : d.toLocaleDateString(undefined, { weekday: 'short' });
+      days.push({ label, count: daily[dateKey(d)] || 0 });
+    }
+    const max = Math.max(1, ...days.map((d) => d.count));
+    weekListEl.innerHTML = days
+      .map(
+        (d) => `
+          <div class="flex items-center justify-between gap-4 py-2.5">
+            <span class="w-14 shrink-0 text-xs font-semibold ${d.label === 'Today' ? 'text-ink' : 'text-mute'}">${d.label}</span>
+            <div class="h-2 flex-1 overflow-hidden rounded-full bg-canvas-soft-2" aria-hidden="true">
+              <div
+                class="h-full rounded-full transition-all duration-500"
+                style="width:${Math.round((d.count / max) * 100)}%; ${d.count > 0 ? 'background:linear-gradient(90deg,#007cf0,#00dfd8);' : 'background:transparent;'}"
+              ></div>
+            </div>
+            <span class="w-6 shrink-0 text-right font-mono text-xs font-bold tabular-nums text-ink">${d.count}</span>
+          </div>
+        `
+      )
+      .join('');
+  }
+
+  // ── Wiring ────────────────────────────────────────────────────────────────
+  startBtn?.addEventListener('click', startOrPause);
+  resetBtn?.addEventListener('click', reset);
+  skipBtn?.addEventListener('click', skip);
+
+  modeButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const m = btn.dataset.mode as Mode | undefined;
+      if (m) switchMode(m);
+    });
+  });
+
+  setInterval(() => {
+    if (!running || !endAt) return;
+    const rem = Math.max(0, Math.round((endAt - Date.now()) / 1000));
+    if (rem !== remaining) {
+      remaining = rem;
+      render();
+    }
+    if (rem <= 0) completeSession(false);
+  }, 250);
+
+  render();
+</script>

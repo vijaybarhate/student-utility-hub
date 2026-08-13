@@ -58,6 +58,14 @@ const tools = [
     badge: 'New',
     icon: 'clock',
     tags: ['exam countdown', 'deadline', 'days left', 'exam date', 'study plan', 'tracker']
+  },
+  {
+    title: 'Pomodoro Study Timer',
+    description: 'Focus with 25-minute Pomodoro sprints, short and long breaks, and a daily focus log that persists locally on your device.',
+    href: '/study-timer',
+    badge: 'New',
+    icon: 'timer',
+    tags: ['pomodoro', 'study timer', 'focus timer', '25 minutes', 'break timer', 'productivity', 'time management']
   }
 ];
 
@@ -231,6 +239,9 @@ const faq = [
                   )}
                   {tool.icon === 'clock' && (
                     <svg class="h-5.5 w-5.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                  )}
+                  {tool.icon === 'timer' && (
+                    <svg class="h-5.5 w-5.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 2.5M9 2h6M12 5V2" stroke-linecap="round" stroke-linejoin="round" /></svg>
                   )}
                 </div>
 
