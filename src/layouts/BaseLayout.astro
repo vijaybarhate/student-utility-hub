@@ -34,7 +34,7 @@ const { title, description, canonicalUrl, noindex, faq } = Astro.props;
     <meta name="generator" content={Astro.generator} />
     <Seo {title} {description} {canonicalUrl} {noindex} {faq} />
   </head>
-  <body class="flex min-h-screen flex-col bg-canvas-soft text-ink transition-colors duration-200">
+  <body class="flex min-h-screen flex-col bg-canvas-soft text-ink transition-colors duration-200 overflow-x-hidden">
     <!-- Skip link for keyboard accessibility -->
     <a
       href="#main-content"

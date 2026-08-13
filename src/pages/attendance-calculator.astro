@@ -72,21 +72,21 @@ const faq = [
     <!-- Main Tool Workspace -->
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
       <!-- Calculator Inputs & Subject Manager -->
-      <div class="flex flex-col gap-6 lg:col-span-7">
+      <div class="flex flex-col gap-6 lg:col-span-7 min-w-0">
         
         <!-- Interactive Form -->
-        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-6">
+        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200 overflow-hidden">
+          <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono mb-8">
             Calculator Inputs
           </h2>
 
-          <div class="flex flex-col gap-6">
+          <div class="flex flex-col gap-8">
             <!-- Target Percentage Selector -->
-            <div>
-              <label for="target-percent" class="block text-sm font-medium text-ink mb-2">
+            <div class="space-y-4">
+              <label for="target-percent" class="block text-sm font-bold text-ink">
                 Target Attendance Percentage
               </label>
-              <div class="flex items-center gap-4">
+              <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                 <input
                   type="range"
                   id="target-percent-range"
@@ -94,185 +94,192 @@ const faq = [
                   max="100"
                   value="75"
                   step="5"
-                  class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary"
+                  class="h-2 w-full sm:flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary transition-all hover:h-2.5"
                   aria-label="Target percentage slider"
                 />
-                <input
-                  type="number"
-                  id="target-percent"
-                  value="75"
-                  min="50"
-                  max="100"
-                  inputmode="numeric"
-                  autocomplete="off"
-                  class="h-9 w-20 rounded-sm border border-hairline bg-canvas text-center text-sm font-semibold text-ink focus:outline-none"
-                />
-                <span class="font-mono text-sm text-mute font-semibold">%</span>
+                <div class="flex items-center gap-2 self-end sm:self-auto">
+                  <input
+                    type="number"
+                    id="target-percent"
+                    value="75"
+                    min="50"
+                    max="100"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    class="h-10 w-20 rounded-md border border-hairline-strong bg-canvas text-center text-sm font-bold text-ink focus:ring-2 focus:ring-link/20 focus:outline-none transition-all"
+                  />
+                  <span class="font-mono text-xs text-mute font-bold">%</span>
+                </div>
               </div>
             </div>
 
             <!-- Total Classes Conducted -->
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <label for="conducted" class="text-sm font-medium text-ink">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <label for="conducted" class="text-sm font-bold text-ink">
                   Total Classes Conducted
                 </label>
-                <span class="text-[11px] font-mono text-mute">Includes labs & lectures</span>
+                <span class="text-[10px] font-bold font-mono text-mute uppercase tracking-tight bg-canvas-soft-2 px-2 py-0.5 rounded border border-hairline">Labs & Lectures</span>
               </div>
-              <div class="flex items-center gap-4">
+              <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                 <input
                   type="range"
                   id="conducted-range"
                   min="0"
                   max="150"
                   value="40"
-                  class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary"
+                  class="h-2 w-full sm:flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary transition-all hover:h-2.5"
                   aria-label="Total conducted classes slider"
                 />
-                <input
-                  type="number"
-                  id="conducted"
-                  value="40"
-                  min="0"
-                  placeholder="40…"
-                  inputmode="numeric"
-                  autocomplete="off"
-                  class="h-9 w-20 rounded-sm border border-hairline bg-canvas text-center text-sm font-semibold text-ink focus:outline-none"
-                />
-                <span class="font-mono text-sm text-mute font-semibold">lectures</span>
+                <div class="flex items-center gap-2 self-end sm:self-auto min-w-[120px] justify-end">
+                  <input
+                    type="number"
+                    id="conducted"
+                    value="40"
+                    min="0"
+                    placeholder="40…"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    class="h-10 w-20 rounded-md border border-hairline-strong bg-canvas text-center text-sm font-bold text-ink focus:ring-2 focus:ring-link/20 focus:outline-none transition-all"
+                  />
+                  <span class="font-mono text-[10px] text-mute font-bold uppercase whitespace-nowrap">Lectures</span>
+                </div>
               </div>
             </div>
 
             <!-- Classes Attended -->
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <label for="attended" class="text-sm font-medium text-ink">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <label for="attended" class="text-sm font-bold text-ink">
                   Classes Attended
                 </label>
-                <span id="attended-warning" class="text-xs text-error font-medium hidden" role="alert" aria-live="polite">Cannot exceed conducted!</span>
+                <span id="attended-warning" class="text-[10px] text-error font-bold uppercase tracking-tight bg-error/10 px-2 py-0.5 rounded border border-error/20 hidden" role="alert" aria-live="polite">Invalid Count</span>
               </div>
-              <div class="flex items-center gap-4">
+              <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                 <input
                   type="range"
                   id="attended-range"
                   min="0"
                   max="150"
                   value="32"
-                  class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary"
+                  class="h-2 w-full sm:flex-1 cursor-pointer appearance-none rounded-full bg-canvas-soft-2 accent-primary transition-all hover:h-2.5"
                   aria-label="Classes attended slider"
                 />
-                <input
-                  type="number"
-                  id="attended"
-                  value="32"
-                  min="0"
-                  placeholder="32…"
-                  inputmode="numeric"
-                  autocomplete="off"
-                  class="h-9 w-20 rounded-sm border border-hairline bg-canvas text-center text-sm font-semibold text-ink focus:outline-none"
-                />
-                <span class="font-mono text-sm text-mute font-semibold">lectures</span>
+                <div class="flex items-center gap-2 self-end sm:self-auto min-w-[120px] justify-end">
+                  <input
+                    type="number"
+                    id="attended"
+                    value="32"
+                    min="0"
+                    placeholder="32…"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    class="h-10 w-20 rounded-md border border-hairline-strong bg-canvas text-center text-sm font-bold text-ink focus:ring-2 focus:ring-link/20 focus:outline-none transition-all"
+                  />
+                  <span class="font-mono text-[10px] text-mute font-bold uppercase whitespace-nowrap">Lectures</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Subject Profiles Manager -->
-        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono">
+        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200 overflow-hidden">
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono">
               Subject Manager
             </h2>
-            <span class="text-[10px] font-mono bg-canvas-soft-2 border border-hairline rounded-full px-2 py-0.5 text-mute">
+            <span class="text-[10px] font-bold font-mono bg-canvas-soft-2 border border-hairline-strong rounded-full px-3 py-1 text-mute uppercase tracking-tight">
               Offline Cache
             </span>
           </div>
 
           <!-- Save Current Values Panel -->
-          <div class="flex flex-col sm:flex-row gap-3 mb-6">
+          <div class="flex flex-col sm:flex-row gap-3 mb-8">
             <input
               type="text"
               id="subject-name"
               placeholder="e.g., Mathematics-II…"
-              class="h-9 flex-1 rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink placeholder-mute focus:outline-none"
+              class="h-10 flex-1 rounded-md border border-hairline-strong bg-canvas px-4 text-sm text-ink placeholder-mute focus:ring-2 focus:ring-link/20 focus:outline-none transition-all"
               autocomplete="off"
               spellcheck="false"
             />
             <button
               id="save-subject"
-              class="h-9 inline-flex items-center justify-center rounded-sm bg-primary px-4 text-xs font-semibold text-on-primary hover:bg-ink/90 transition-colors cursor-pointer"
+              class="btn-primary !h-10 !px-5"
             >
-              Save Subject
+              Save Tool State
             </button>
           </div>
 
           <!-- Subject Dashboard Grid -->
-          <div id="subject-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-1">
+          <div id="subject-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-72 overflow-y-auto pr-1">
             <!-- Dynamically populated -->
           </div>
           
-          <div id="subject-empty-state" class="py-6 text-center border border-dashed border-hairline rounded-sm bg-canvas-soft">
-            <p class="text-xs text-mute font-medium">No saved subjects yet. Enter a name above to start tracking.</p>
+          <div id="subject-empty-state" class="py-10 text-center border border-dashed border-hairline-strong rounded-md bg-canvas-soft">
+            <p class="text-xs text-mute font-bold uppercase tracking-tight">No saved subjects yet.</p>
+            <p class="text-[10px] text-mute/70 mt-1">Enter a name above to start tracking locally.</p>
           </div>
         </div>
 
       </div>
 
       <!-- Calculation Outputs & Share Panel -->
-      <div class="flex flex-col gap-6 lg:col-span-5">
+      <div class="flex flex-col gap-6 lg:col-span-5 min-w-0">
         
         <!-- Live Calculations Card -->
-        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-6">
+        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200 overflow-hidden">
+          <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono mb-8">
             Calculated Results
           </h2>
 
           <!-- Visual Gauge Block -->
           <div class="flex flex-col items-center justify-center py-4 text-center">
-            <div id="gauge-container" class="relative flex h-36 w-36 items-center justify-center rounded-full border-[10px] border-canvas-soft-2 bg-canvas transition-colors duration-300">
+            <div id="gauge-container" class="relative flex h-40 w-40 items-center justify-center rounded-full border-[12px] border-canvas-soft-2 bg-canvas transition-all duration-500 shadow-inner">
               <div class="flex flex-col items-center">
                 <!-- Large current % display with tabular numbers -->
-                <span id="result-percent" class="font-sans text-3xl font-semibold tracking-tight tabular-nums text-ink">
+                <span id="result-percent" class="font-sans text-4xl font-bold tracking-tighter tabular-nums text-ink">
                   80.0%
                 </span>
-                <span class="text-[10px] font-mono font-medium text-mute mt-0.5">CURRENT</span>
+                <span class="text-[10px] font-bold font-mono text-mute mt-1 uppercase tracking-widest">Current</span>
               </div>
               <!-- Colored status circle indicator -->
-              <span id="gauge-status-led" class="absolute top-2 right-2 h-3.5 w-3.5 rounded-full border-2 border-canvas shadow-sm bg-success transition-all duration-300"></span>
+              <span id="gauge-status-led" class="absolute top-2 right-2 h-4 w-4 rounded-full border-2 border-canvas shadow-md bg-success transition-all duration-300"></span>
             </div>
             
-            <p id="gauge-advice" class="mt-5 text-sm leading-relaxed text-body font-medium px-4">
+            <p id="gauge-advice" class="mt-8 text-sm leading-relaxed text-body font-bold px-4">
               Your attendance is in the safe zone.
             </p>
 
             <!-- Progress Bar toward target attendance -->
-            <div class="w-full mt-6 px-4">
-              <div class="flex justify-between text-[10px] font-mono text-mute mb-1.5">
+            <div class="w-full mt-8 px-4">
+              <div class="flex justify-between text-[10px] font-bold font-mono text-mute mb-2 uppercase tracking-tight">
                 <span>0%</span>
-                <span id="target-marker" class="font-semibold text-primary">Target: 75%</span>
+                <span id="target-marker" class="text-primary font-bold">Target: 75%</span>
                 <span>100%</span>
               </div>
-              <div class="h-2 w-full rounded-full bg-canvas-soft-2 overflow-hidden border border-hairline relative">
+              <div class="h-3 w-full rounded-full bg-canvas-soft-2 overflow-hidden border border-hairline-strong relative">
                 <!-- Target vertical line marker -->
-                <div id="target-line" class="absolute top-0 bottom-0 w-0.5 bg-primary/40 z-10 transition-all duration-300" style="left: 75%;"></div>
+                <div id="target-line" class="absolute top-0 bottom-0 w-1 bg-primary/40 z-10 transition-all duration-500" style="left: 75%;"></div>
                 <!-- Progress fill -->
-                <div id="progress-bar-fill" class="h-full bg-success transition-all duration-300" style="width: 80%;"></div>
+                <div id="progress-bar-fill" class="h-full bg-success transition-all duration-500 shadow-sm" style="width: 80%;"></div>
               </div>
             </div>
 
             <!-- Exam Eligibility Status Card -->
-            <div id="eligibility-card" class="mt-6 w-full rounded-sm border p-3.5 flex items-start gap-3 text-left transition-all duration-300 bg-success/5 border-success/20">
-              <div id="eligibility-icon" class="text-success mt-0.5">
+            <div id="eligibility-card" class="mt-8 w-full rounded-md border p-4 flex items-start gap-4 text-left transition-all duration-500 bg-success/10 border-success/30 shadow-sm">
+              <div id="eligibility-icon" class="text-success mt-1">
                 <!-- Dynamic svg check/alert -->
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                   <circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" />
                 </svg>
               </div>
               <div>
-                <h4 id="eligibility-title" class="text-xs font-semibold uppercase tracking-wider text-success font-mono">
+                <h4 id="eligibility-title" class="text-xs font-bold uppercase tracking-[0.1em] text-success font-mono">
                   Exam Eligible
                 </h4>
-                <p id="eligibility-desc" class="text-xs text-body mt-1 leading-normal">
+                <p id="eligibility-desc" class="text-xs text-body mt-1.5 font-medium leading-relaxed">
                   Your attendance is above the 75% threshold. You are fully eligible for semester exams.
                 </p>
               </div>
@@ -280,22 +287,22 @@ const faq = [
 
           </div>
 
-          <div class="h-px bg-hairline my-6"></div>
+          <div class="h-px bg-hairline-strong/20 my-8"></div>
 
           <!-- Concrete Outcomes -->
-          <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-5">
             <!-- Safe Bunks Info -->
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-body">Safe Bunks Remaining:</span>
-              <span id="result-bunks" class="font-mono text-sm font-semibold text-success bg-success/10 px-2.5 py-0.5 rounded-full">
+            <div class="flex items-center justify-between p-3 rounded-md bg-canvas-soft-2 border border-hairline-strong/10">
+              <span class="text-xs font-bold text-body uppercase tracking-tight">Safe Bunks Remaining</span>
+              <span id="result-bunks" class="font-mono text-xs font-bold text-success bg-success/15 px-3 py-1 rounded-full border border-success/20">
                 0 classes
               </span>
             </div>
 
             <!-- Recovery Plan Info -->
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-body">Recovery Classes Needed:</span>
-              <span id="result-recovery" class="font-mono text-sm font-semibold text-mute bg-canvas-soft-2 px-2.5 py-0.5 rounded-full">
+            <div class="flex items-center justify-between p-3 rounded-md bg-canvas-soft-2 border border-hairline-strong/10">
+              <span class="text-xs font-bold text-body uppercase tracking-tight">Recovery Plan</span>
+              <span id="result-recovery" class="font-mono text-xs font-bold text-mute bg-mute/15 px-3 py-1 rounded-full border border-mute/20">
                 0 classes
               </span>
             </div>
@@ -303,24 +310,24 @@ const faq = [
         </div>
 
         <!-- Share & Export Card -->
-        <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 transition-colors duration-200">
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono mb-4">
+        <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 transition-colors duration-200 overflow-hidden">
+          <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono mb-4">
             Share Calculations
           </h2>
-          <p class="text-xs text-mute mb-4 leading-relaxed">
+          <p class="text-xs text-body mb-5 font-medium leading-relaxed">
             Generate a clean, copy-paste format to share with classmates on WhatsApp or Telegram groups.
           </p>
 
-          <div class="rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-[11px] text-body whitespace-pre-wrap select-all leading-normal" id="share-text-box">
+          <div class="rounded-md border border-hairline-strong bg-canvas-soft-2 p-4 font-mono text-[11px] text-body whitespace-pre-wrap select-all break-words break-all leading-normal shadow-inner" id="share-text-box">
             Loading results card…
           </div>
 
           <button
             id="copy-share-btn"
-            class="mt-4 w-full h-9 inline-flex items-center justify-center gap-2 rounded-sm bg-primary px-4 text-xs font-semibold text-on-primary hover:bg-ink/90 transition-colors cursor-pointer"
+            class="btn-primary w-full mt-6"
             aria-label="Copy attendance calculation results to clipboard"
           >
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
             <span id="copy-btn-text">Copy Results</span>
@@ -332,76 +339,72 @@ const faq = [
     </div>
 
     <!-- Attendance Forecast Grid Panel (Full Width) -->
-    <div class="rounded-md border border-hairline bg-canvas p-4 sm:p-6 shadow-level-2 mt-8 transition-colors duration-200">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div class="rounded-md border border-hairline bg-canvas p-6 shadow-level-2 mt-8 transition-colors duration-200">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 border-b border-hairline pb-6">
         <div>
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-mute font-mono">
+          <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono">
             Attendance Forecast
           </h2>
-          <p class="text-xs text-mute mt-1">
-            Simulate how skipping or attending future classes impacts your percentage.
+          <p class="text-[10px] text-mute mt-1 font-bold uppercase tracking-tight">
+            Simulation Logic (+1 to +10)
           </p>
         </div>
         
         <!-- Tab Switches (Vercel Pill style) -->
-        <div class="inline-flex rounded-full bg-canvas-soft-2 p-0.5 border border-hairline self-start sm:self-auto">
+        <div class="inline-flex rounded-full bg-canvas-soft-2 p-1 border border-hairline-strong/30 self-start sm:self-auto shadow-inner">
           <button
             id="tab-bunks"
-            class="rounded-full px-3 py-1 text-xs font-medium bg-canvas text-ink shadow-sm transition-all focus:outline-none cursor-pointer"
+            class="rounded-full px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider bg-canvas text-ink shadow-sm transition-all focus:outline-none cursor-pointer"
           >
-            Bunk Simulation (+1 to +10)
+            Bunk Simulation
           </button>
           <button
             id="tab-attendance"
-            class="rounded-full px-3 py-1 text-xs font-medium text-body hover:text-ink transition-all focus:outline-none cursor-pointer"
+            class="rounded-full px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider text-body hover:text-ink transition-all focus:outline-none cursor-pointer"
           >
-            Attend Simulation (+1 to +10)
+            Attend Simulation
           </button>
         </div>
       </div>
 
       <!-- Bunk Forecast Table -->
-      <div id="bunks-forecast-container" class="overflow-x-auto -mx-4 sm:mx-0">
-        <div class="inline-block min-w-full align-middle px-4 sm:px-0">
-          <table class="w-full border-collapse text-left">
-            <thead>
-              <tr class="border-b border-hairline bg-canvas-soft-2">
-                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Bunked</th>
-                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Conducted</th>
-                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider text-right">Attendance</th>
-                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider text-right">Status</th>
-              </tr>
-            </thead>
-            <tbody id="bunks-forecast-body" class="divide-y divide-hairline font-mono text-xs text-body tabular-nums">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
+      <div id="bunks-forecast-container" class="overflow-x-auto w-full rounded-md border border-hairline-strong/20 mt-4">
+        <table class="w-full border-collapse text-left min-w-[400px]">
+          <thead>
+            <tr class="border-b border-hairline-strong/20 bg-canvas-soft-2">
+              <th class="py-3 px-4 font-mono text-[10px] font-bold text-mute uppercase tracking-wider">Bunked</th>
+              <th class="py-3 px-4 font-mono text-[10px] font-bold text-mute uppercase tracking-wider">Conducted</th>
+              <th class="py-3 px-4 font-mono text-[10px] font-bold text-mute uppercase tracking-wider text-right">Attendance</th>
+              <th class="py-3 px-4 font-mono text-[10px] font-bold text-mute uppercase tracking-wider text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody id="bunks-forecast-body" class="divide-y divide-hairline-strong/20 font-mono text-xs text-body tabular-nums">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
       </div>
 
       <!-- Attend Forecast Table (Hidden by default) -->
-      <div id="attendance-forecast-container" class="hidden overflow-x-auto -mx-4 sm:mx-0">
-        <div class="inline-block min-w-full align-middle px-4 sm:px-0">
-          <table class="w-full border-collapse text-left">
-            <thead>
-              <tr class="border-b border-hairline bg-canvas-soft-2">
-                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Attended</th>
-                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider">Conducted</th>
-                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider text-right">Attendance</th>
-                <th class="py-2.5 px-4 font-mono text-[10px] font-semibold text-mute uppercase tracking-wider text-right">Status</th>
-              </tr>
-            </thead>
-            <tbody id="attendance-forecast-body" class="divide-y divide-hairline font-mono text-xs text-body tabular-nums">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
+      <div id="attendance-forecast-container" class="hidden overflow-x-auto w-full rounded-md border border-hairline-strong/20 mt-4">
+        <table class="w-full border-collapse text-left min-w-[400px]">
+          <thead>
+            <tr class="border-b border-hairline-strong/20 bg-canvas-soft-2">
+              <th class="py-3 px-4 font-mono text-[10px] font-bold text-mute uppercase tracking-wider">Attended</th>
+              <th class="py-3 px-4 font-mono text-[10px] font-bold text-mute uppercase tracking-wider">Conducted</th>
+              <th class="py-3 px-4 font-mono text-[10px] font-bold text-mute uppercase tracking-wider text-right">Attendance</th>
+              <th class="py-3 px-4 font-mono text-[10px] font-bold text-mute uppercase tracking-wider text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody id="attendance-forecast-body" class="divide-y divide-hairline-strong/20 font-mono text-xs text-body tabular-nums">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
       </div>
     </div>
 
     <!-- Detailed Guide Section -->
     <section class="py-16 mt-16 border-t border-hairline transition-colors duration-200">
-      <div class="mx-auto max-w-4xl">
+      <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <span class="font-mono text-[11px] uppercase tracking-wider text-mute block text-center mb-2">Detailed Guide</span>
         <h2 class="text-center font-sans text-2xl font-semibold tracking-tight text-ink md:text-3xl mb-12 animate-fade-in">
           Understanding College Attendance & Bunk Mathematics
@@ -425,7 +428,7 @@ const faq = [
               Calculating your attendance percentage is a simple mathematical ratio. It measures the number of classes you attended against the total number of classes that your college conducted. The standard formula is:
             </p>
             
-            <div class="my-6 rounded-sm border border-hairline bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm">
+            <div class="my-6 rounded-md border border-hairline-strong/20 bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm break-words whitespace-normal">
               Attendance Percentage = (Classes Attended / Classes Conducted) &times; 100
             </div>
 
@@ -447,7 +450,7 @@ const faq = [
             <p class="mt-4">
               For example, let's assume your engineering college conducted a total of 60 lectures in Mathematics so far. If you attended 48 of those sessions, your calculation would look like this:
             </p>
-            <div class="my-4 rounded-sm border border-hairline bg-canvas-soft-2 p-3 font-mono text-xs text-ink leading-relaxed pl-6">
+            <div class="my-4 rounded-md border border-hairline-strong/20 bg-canvas-soft-2 p-3 font-mono text-xs text-ink leading-relaxed pl-6 break-words whitespace-normal shadow-sm">
               Current Percentage = (48 / 60) &times; 100 = 80.0%
             </div>
             <p class="mt-4">
@@ -470,7 +473,7 @@ const faq = [
               If your current attendance percentage is higher than your target (e.g., you are at 85% and your target is 75%), you have a safety cushion. The formula to find the exact number of consecutive classes you can skip is:
             </p>
 
-            <div class="my-6 rounded-sm border border-hairline bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm">
+            <div class="my-6 rounded-md border border-hairline-strong/20 bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm break-words whitespace-normal">
               Safe Bunk Limit = Math.floor((100 &times; Attended - Target &times; Conducted) / Target)
             </div>
 
@@ -495,7 +498,7 @@ const faq = [
               If you have skipped too many classes and your attendance is below the threshold (e.g., you are at 60% and need to reach 75%), you are in an attendance deficit. The formula to calculate the minimum number of consecutive upcoming classes you must attend is:
             </p>
 
-            <div class="my-6 rounded-sm border border-hairline bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm">
+            <div class="my-6 rounded-md border border-hairline-strong/20 bg-canvas-soft-2 p-4 text-center font-mono text-sm text-ink leading-relaxed shadow-sm break-words whitespace-normal">
               Required Classes = Math.ceil((Target &times; Conducted - 100 &times; Attended) / (100 - Target))
             </div>
 
@@ -648,7 +651,7 @@ const faq = [
 
     <!-- FAQ Section -->
     <section class="py-16 mt-16 border-t border-hairline transition-colors duration-200">
-      <div class="mx-auto max-w-4xl">
+      <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <h2 class="text-center font-sans text-2xl font-semibold tracking-tight text-ink md:text-3xl">
           Attendance Calculations FAQ
         </h2>
@@ -844,7 +847,7 @@ const faq = [
 
     // Visual gauge styling
     if (currentPercent >= target) {
-      statusClass = "border-[10px] border-success/30";
+      statusClass = "border-[12px] border-success/30 shadow-success/10";
       ledColor = "bg-success";
       if (bunks > 0) {
         message = `You are in the safe zone. You can safely bunk the next **${bunks} classes** consecutively.`;
@@ -854,30 +857,30 @@ const faq = [
         message = `You are maintaining your target attendance.`;
       }
     } else {
-      statusClass = "border-[10px] border-error/30";
+      statusClass = "border-[12px] border-error/30 shadow-error/10";
       ledColor = "bg-error";
       message = `Attendance shortage. You must attend the next **${recovery} classes** consecutively to recover.`;
     }
 
     if (gaugeContainer) {
-      gaugeContainer.className = `relative flex h-36 w-36 items-center justify-center rounded-full bg-canvas transition-colors duration-300 ${statusClass}`;
+      gaugeContainer.className = `relative flex h-40 w-40 items-center justify-center rounded-full bg-canvas transition-all duration-500 shadow-inner ${statusClass}`;
     }
 
     if (gaugeStatusLed) {
-      gaugeStatusLed.className = `absolute top-2 right-2 h-3.5 w-3.5 rounded-full border-2 border-canvas shadow-sm transition-all duration-300 ${ledColor}`;
+      gaugeStatusLed.className = `absolute top-2 right-2 h-4 w-4 rounded-full border-2 border-canvas shadow-md transition-all duration-300 ${ledColor}`;
     }
 
     if (gaugeAdvice) {
-      gaugeAdvice.innerHTML = message.replace(/\*\*(.*?)\*\*/g, '<span class="font-bold">$1</span>');
+      gaugeAdvice.innerHTML = message.replace(/\*\*(.*?)\*\*/g, '<span class="font-bold text-ink">$1</span>');
     }
 
     // Update Progress Bar
     if (progressBarFill) {
       progressBarFill.style.width = `${Math.min(100, currentPercent)}%`;
       if (currentPercent >= target) {
-        progressBarFill.className = "h-full bg-success transition-all duration-300";
+        progressBarFill.className = "h-full bg-success transition-all duration-500 shadow-sm";
       } else {
-        progressBarFill.className = "h-full bg-error transition-all duration-300";
+        progressBarFill.className = "h-full bg-error transition-all duration-500 shadow-sm";
       }
     }
     if (targetLine) {
@@ -891,27 +894,27 @@ const faq = [
     if (eligibilityCard && eligibilityTitle && eligibilityDesc && eligibilityIcon) {
       if (currentPercent >= target) {
         // Eligible (>= target)
-        eligibilityCard.className = "mt-6 w-full rounded-sm border p-3.5 flex items-start gap-3 text-left transition-all duration-300 bg-success/5 border-success/20";
+        eligibilityCard.className = "mt-8 w-full rounded-md border p-4 flex items-start gap-4 text-left transition-all duration-500 bg-success/10 border-success/30 shadow-sm";
         eligibilityTitle.textContent = "Exam Eligible";
-        eligibilityTitle.className = "text-xs font-semibold uppercase tracking-wider text-success font-mono";
-        eligibilityIcon.className = "text-success mt-0.5";
-        eligibilityIcon.innerHTML = `<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`;
+        eligibilityTitle.className = "text-xs font-bold uppercase tracking-[0.1em] text-success font-mono";
+        eligibilityIcon.className = "text-success mt-1";
+        eligibilityIcon.innerHTML = `<svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`;
         eligibilityDesc.textContent = `Your attendance (${currentPercent.toFixed(1)}%) is above the ${target}% target. You are eligible for examinations.`;
       } else if (currentPercent >= 60) {
         // Condonation Bracket (60% to target-1%)
-        eligibilityCard.className = "mt-6 w-full rounded-sm border p-3.5 flex items-start gap-3 text-left transition-all duration-300 bg-warning/5 border-warning/20";
+        eligibilityCard.className = "mt-8 w-full rounded-md border p-4 flex items-start gap-4 text-left transition-all duration-500 bg-warning/10 border-warning/30 shadow-sm";
         eligibilityTitle.textContent = "Condonation Bracket";
-        eligibilityTitle.className = "text-xs font-semibold uppercase tracking-wider text-warning font-mono";
-        eligibilityIcon.className = "text-warning mt-0.5";
-        eligibilityIcon.innerHTML = `<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+        eligibilityTitle.className = "text-xs font-bold uppercase tracking-[0.1em] text-warning font-mono";
+        eligibilityIcon.className = "text-warning mt-1";
+        eligibilityIcon.innerHTML = `<svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
         eligibilityDesc.textContent = `You are in the condonation range. You may require a medical certificate or dean's permission to sit for exams.`;
       } else {
         // Detained (< 60%)
-        eligibilityCard.className = "mt-6 w-full rounded-sm border p-3.5 flex items-start gap-3 text-left transition-all duration-300 bg-error/5 border-error/20";
+        eligibilityCard.className = "mt-8 w-full rounded-md border p-4 flex items-start gap-4 text-left transition-all duration-500 bg-error/10 border-error/30 shadow-sm";
         eligibilityTitle.textContent = "Detained / High Risk";
-        eligibilityTitle.className = "text-xs font-semibold uppercase tracking-wider text-error font-mono";
-        eligibilityIcon.className = "text-error mt-0.5";
-        eligibilityIcon.innerHTML = `<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+        eligibilityTitle.className = "text-xs font-bold uppercase tracking-[0.1em] text-error font-mono";
+        eligibilityIcon.className = "text-error mt-1";
+        eligibilityIcon.innerHTML = `<svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
         eligibilityDesc.textContent = `Detention alert. Your percentage is below the 60% baseline. You are at high risk of academic detention.`;
       }
     }
@@ -1048,25 +1051,26 @@ const faq = [
     subjects.forEach(sub => {
       const currentPercent = sub.conducted > 0 ? (sub.attended / sub.conducted) * 100 : 100.0;
       const card = document.createElement('div');
-      card.className = "flex items-center justify-between rounded-sm border border-hairline bg-canvas-soft-2 p-3 group/sub transition-shadow hover:shadow-sm";
+      card.className = "flex items-center justify-between rounded-md border border-hairline-strong bg-canvas-soft-2 p-4 group/sub transition-all hover:shadow-md hover:border-link/30";
       
       const isOk = currentPercent >= sub.target;
       const statusColor = isOk ? 'text-success' : 'text-error';
+      const statusBg = isOk ? 'bg-success/10' : 'bg-error/10';
 
       card.innerHTML = `
-        <button class="flex-1 text-left select-none focus:outline-none load-sub-trigger cursor-pointer" data-id="${sub.id}">
-          <p class="font-sans text-xs font-semibold text-ink line-clamp-1">${sub.name}</p>
-          <div class="flex items-center gap-2 mt-1">
-            <span class="font-mono text-[10px] text-mute">${sub.attended}/${sub.conducted} Attended</span>
-            <span class="font-mono text-[10px] ${statusColor} font-semibold">${currentPercent.toFixed(1)}%</span>
+        <button class="flex-1 text-left select-none focus:outline-none load-sub-trigger cursor-pointer group/btn" data-id="${sub.id}">
+          <p class="font-sans text-sm font-bold text-ink line-clamp-1 group-hover/btn:text-link transition-colors">${sub.name}</p>
+          <div class="flex items-center gap-3 mt-2">
+            <span class="font-mono text-[10px] text-mute font-bold uppercase tracking-tight">${sub.attended}/${sub.conducted} lectures</span>
+            <span class="font-mono text-[10px] ${statusColor} font-bold ${statusBg} px-2 py-0.5 rounded-full border border-current/20">${currentPercent.toFixed(1)}%</span>
           </div>
         </button>
         <button 
-          class="h-6 w-6 inline-flex items-center justify-center rounded-md text-mute hover:text-error hover:bg-error/10 transition-colors opacity-0 group-hover/sub:opacity-100 focus:opacity-100 delete-sub-trigger cursor-pointer"
+          class="h-8 w-8 inline-flex items-center justify-center rounded-md text-mute hover:text-error hover:bg-error/10 transition-all opacity-0 group-hover/sub:opacity-100 focus:opacity-100 delete-sub-trigger cursor-pointer"
           data-id="${sub.id}"
           aria-label="Delete ${sub.name}"
         >
-          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>

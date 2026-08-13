@@ -122,19 +122,29 @@ const faq = [
         A fast, local-first set of calculators tailored for Indian college students. Track your attendance limits, convert semester grades, and prepare for final exams.
       </p>
 
+      <!-- Primary CTA Action -->
+      <div class="mt-10 flex flex-wrap justify-center gap-4">
+        <a href="#tools-grid" class="btn-primary">
+          Explore All Tools
+        </a>
+        <a href="/about" class="btn-secondary">
+          How it works
+        </a>
+      </div>
+
       <!-- Search Input -->
-      <div class="mx-auto mt-10 max-w-md">
+      <div class="mx-auto mt-12 max-w-md">
         <div class="relative flex items-center">
           <input
             type="text"
             id="tool-search"
             placeholder="Search tools (e.g., bunk, cgpa, pass marks)…"
-            class="h-11 w-full rounded-md border border-hairline bg-canvas pl-10 pr-4 text-sm text-ink placeholder-mute shadow-level-2 focus:outline-none transition-shadow duration-200"
+            class="h-12 w-full rounded-md border border-hairline-strong bg-canvas pl-11 pr-4 text-sm text-ink placeholder-mute shadow-level-2 focus:ring-2 focus:ring-link/20 focus:outline-none transition-all duration-200"
             autocomplete="off"
             spellcheck="false"
           />
           <svg
-            class="absolute left-3.5 h-4.5 w-4.5 text-mute"
+            class="absolute left-3.5 h-5 w-5 text-mute"
             fill="none"
             stroke="currentColor"
             stroke-width="2.5"
@@ -150,30 +160,30 @@ const faq = [
   </section>
 
   <!-- Directory Grid -->
-  <section class="py-16 md:py-24 bg-canvas-soft transition-colors duration-200">
+  <section id="tools-grid-section" class="py-20 md:py-32 bg-canvas-soft transition-colors duration-200">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <!-- Section Title -->
-      <div class="mb-10 flex items-center justify-between">
+      <div class="mb-12 flex items-end justify-between border-b border-hairline pb-8">
         <div>
-          <h2 class="text-xs font-semibold uppercase tracking-wider text-mute font-mono">
+          <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-mute font-mono">
             Directory
           </h2>
-          <p class="mt-1 text-lg font-semibold tracking-tight text-ink">
+          <p class="mt-2 text-2xl font-bold tracking-tight text-ink md:text-3xl">
             Launch Academic Tools
           </p>
         </div>
-        <span id="results-count" class="text-xs font-mono text-mute hidden md:inline-block">
+        <span id="results-count" class="text-xs font-mono font-semibold text-mute hidden md:inline-block bg-canvas-soft-2 px-2 py-1 rounded-sm border border-hairline">
           Showing {tools.length} utilities
         </span>
       </div>
 
       <!-- No Results State -->
-      <div id="no-results" class="hidden py-16 text-center border border-dashed border-hairline rounded-md bg-canvas">
+      <div id="no-results" class="hidden py-16 text-center border border-dashed border-hairline-strong rounded-md bg-canvas">
         <svg class="mx-auto h-8 w-8 text-mute" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
           <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
-        <p class="mt-4 text-sm font-medium text-body">No matching tools found.</p>
-        <button id="reset-search" class="mt-2 text-xs font-semibold text-link hover:underline">
+        <p class="mt-4 text-sm font-semibold text-body">No matching tools found.</p>
+        <button id="reset-search" class="mt-2 text-xs font-bold text-link hover:underline">
           Reset search filter
         </button>
       </div>
@@ -182,7 +192,7 @@ const faq = [
       <div id="tools-grid" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {tools.map(tool => (
           <div
-            class="tool-card group relative flex flex-col justify-between overflow-hidden rounded-md border border-hairline bg-canvas p-6 shadow-level-2 hover:shadow-level-3 transition-all duration-200"
+            class="tool-card group relative flex flex-col justify-between overflow-hidden rounded-md border border-hairline-strong bg-canvas p-8 shadow-level-2 hover:shadow-level-4 transition-all duration-300 hover:-translate-y-1"
             data-title={tool.title.toLowerCase()}
             data-tags={tool.tags.join(' ')}
             data-desc={tool.description.toLowerCase()}
@@ -190,21 +200,21 @@ const faq = [
             <div>
               <div class="flex items-start justify-between">
                 <!-- Icon Frame -->
-                <div class="flex h-9 w-9 items-center justify-center rounded-sm bg-canvas-soft-2 text-ink border border-hairline">
+                <div class="flex h-10 w-10 items-center justify-center rounded-md bg-canvas-soft-2 text-ink border border-hairline-strong transition-colors group-hover:bg-primary group-hover:text-on-primary">
                   {tool.icon === 'calendar' && (
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                    <svg class="h-5.5 w-5.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
                   )}
                   {tool.icon === 'graduation-cap' && (
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" /></svg>
+                    <svg class="h-5.5 w-5.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" /></svg>
                   )}
                   {tool.icon === 'percent' && (
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="19" y1="5" x2="5" y2="19" /><circle cx="6.5" cy="6.5" r="2.5" /><circle cx="17.5" cy="17.5" r="2.5" /></svg>
+                    <svg class="h-5.5 w-5.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="19" y1="5" x2="5" y2="19" /><circle cx="6.5" cy="6.5" r="2.5" /><circle cx="17.5" cy="17.5" r="2.5" /></svg>
                   )}
                   {tool.icon === 'target' && (
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg>
+                    <svg class="h-5.5 w-5.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg>
                   )}
                   {tool.icon === 'shield-alert' && (
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+                    <svg class="h-5.5 w-5.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
                   )}
                   {tool.icon === 'trending-up' && (
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>
@@ -212,24 +222,24 @@ const faq = [
                 </div>
 
                 <!-- Badge -->
-                <span class="rounded-full border border-hairline bg-canvas-soft px-2.5 py-0.5 font-mono text-[10px] font-medium text-body">
+                <span class="rounded-full border border-hairline-strong bg-canvas-soft px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-tight text-body">
                   {tool.badge}
                 </span>
               </div>
 
               <!-- Info -->
-              <h3 class="mt-4 font-sans text-base font-semibold tracking-tight text-ink">
+              <h3 class="mt-5 font-sans text-lg font-bold tracking-tight text-ink group-hover:text-link transition-colors">
                 {tool.title}
               </h3>
-              <p class="mt-2 text-sm leading-relaxed text-body">
+              <p class="mt-3 text-sm leading-relaxed text-body">
                 {tool.description}
               </p>
             </div>
 
             <!-- CTA Link -->
-            <div class="mt-6 flex items-center text-xs font-semibold text-link group-hover:text-link-deep transition-colors duration-150">
-              Launch tool
-              <svg class="ml-1 h-3.5 w-3.5 transform transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+            <div class="mt-8 flex items-center text-xs font-bold uppercase tracking-widest text-link group-hover:text-link-deep transition-colors duration-150">
+              Launch Utility
+              <svg class="ml-2 h-4 w-4 transform transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M5 12h14m-7-7 7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
               <!-- Absolute link wrapper for overlay click -->

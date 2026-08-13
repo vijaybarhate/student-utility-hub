@@ -7,22 +7,24 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   description="Send your feature requests, bugs, or feedback for Student Utility Hub. Found a formula error? Attach a screenshot and we'll fix it immediately."
 >
   <div class="mx-auto max-w-lg px-4 py-16 sm:px-6 lg:px-8">
-    <span class="rounded-full border border-hairline bg-canvas px-3 py-1 font-mono text-xs font-semibold text-mute">
-      Get in Touch
-    </span>
-    <h1 class="mt-4 font-sans text-3xl font-semibold tracking-[-0.96px] text-ink sm:text-4xl">
-      Contact & Feedback.
-    </h1>
-    <p class="mt-2 text-sm text-body leading-relaxed">
-      Found a formula error? Spotted a bug? Have a feature request? Let us know — attach a screenshot and we'll fix it immediately.
-    </p>
+    <div class="mb-10">
+      <span class="rounded-full border border-hairline-strong bg-canvas px-3 py-1 font-mono text-[10px] font-bold text-mute uppercase tracking-widest">
+        Get in Touch
+      </span>
+      <h1 class="mt-6 font-sans text-4xl font-bold tracking-[-1.5px] text-ink sm:text-5xl">
+        Contact & Feedback.
+      </h1>
+      <p class="mt-4 text-lg text-body font-medium leading-relaxed">
+        Found a formula error? Spotted a bug? Have a feature request? Let us know — attach a screenshot and we'll fix it immediately.
+      </p>
+    </div>
 
     <!-- Feedback Form -->
-    <form id="contact-form" class="mt-10 flex flex-col gap-5 border border-hairline bg-canvas p-6 rounded-md shadow-level-2 transition-colors duration-200">
+    <form id="contact-form" class="mt-12 flex flex-col gap-6 border border-hairline-strong bg-canvas p-8 rounded-md shadow-level-3 transition-all duration-300">
       <!-- Success Banner (Hidden by default) -->
       <div
         id="success-banner"
-        class="hidden rounded-sm bg-success/10 border border-success/20 p-4 text-sm text-success font-medium animate-fade-in"
+        class="hidden rounded-md bg-success/10 border border-success/30 p-5 text-sm text-success font-bold animate-fade-in shadow-sm"
         role="alert"
         aria-live="polite"
       >
@@ -32,7 +34,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <!-- Error Banner (Hidden by default) -->
       <div
         id="error-banner"
-        class="hidden rounded-sm bg-error/10 border border-error/20 p-4 text-sm text-error-deep font-medium animate-fade-in"
+        class="hidden rounded-md bg-error/10 border border-error/30 p-5 text-sm text-error font-bold animate-fade-in shadow-sm"
         role="alert"
         aria-live="polite"
       >
@@ -41,7 +43,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       <!-- Name Input -->
       <div>
-        <label for="user-name" class="block text-xs font-mono font-semibold uppercase tracking-wider text-mute mb-2">
+        <label for="user-name" class="block text-xs font-bold font-mono uppercase tracking-[0.2em] text-mute mb-3">
           Your Name
         </label>
         <input
@@ -49,7 +51,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           id="user-name"
           name="name"
           placeholder="e.g., Rohan Sharma…"
-          class="h-10 w-full rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink placeholder-mute focus:outline-none focus:ring-1 focus:ring-primary/40"
+          class="h-11 w-full rounded-md border border-hairline-strong bg-canvas px-4 text-sm font-bold text-ink placeholder-mute focus:ring-2 focus:ring-link/20 focus:outline-none transition-all shadow-sm"
           required
           autocomplete="name"
         />
@@ -57,7 +59,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       <!-- Email Input -->
       <div>
-        <label for="user-email" class="block text-xs font-mono font-semibold uppercase tracking-wider text-mute mb-2">
+        <label for="user-email" class="block text-xs font-bold font-mono uppercase tracking-[0.2em] text-mute mb-3">
           Email Address
         </label>
         <input
@@ -65,7 +67,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           id="user-email"
           name="email"
           placeholder="e.g., rohan@college.edu…"
-          class="h-10 w-full rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink placeholder-mute focus:outline-none focus:ring-1 focus:ring-primary/40"
+          class="h-11 w-full rounded-md border border-hairline-strong bg-canvas px-4 text-sm font-bold text-ink placeholder-mute focus:ring-2 focus:ring-link/20 focus:outline-none transition-all shadow-sm"
           required
           autocomplete="email"
           spellcheck="false"
@@ -74,13 +76,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       <!-- Topic Dropdown -->
       <div>
-        <label for="topic" class="block text-xs font-mono font-semibold uppercase tracking-wider text-mute mb-2">
+        <label for="topic" class="block text-xs font-bold font-mono uppercase tracking-[0.2em] text-mute mb-3">
           Topic / Category
         </label>
         <select
           id="topic"
           name="topic"
-          class="h-10 w-full rounded-sm border border-hairline bg-canvas px-3 text-sm text-ink focus:outline-none focus:ring-1 focus:ring-primary/40 appearance-none cursor-pointer"
+          class="h-11 w-full rounded-md border border-hairline-strong bg-canvas px-4 text-sm font-bold text-ink focus:ring-2 focus:ring-link/20 focus:outline-none appearance-none cursor-pointer transition-all shadow-sm"
           required
         >
           <option value="feedback">General Feedback</option>
@@ -92,7 +94,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       <!-- Message Area -->
       <div>
-        <label for="message" class="block text-xs font-mono font-semibold uppercase tracking-wider text-mute mb-2">
+        <label for="message" class="block text-xs font-bold font-mono uppercase tracking-[0.2em] text-mute mb-3">
           Message
         </label>
         <textarea
@@ -100,29 +102,29 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           name="message"
           rows="5"
           placeholder="Tell us what tool you need or what formula needs updating…"
-          class="w-full rounded-sm border border-hairline bg-canvas p-3 text-sm text-ink placeholder-mute focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none"
+          class="w-full rounded-md border border-hairline-strong bg-canvas p-4 text-sm font-bold text-ink placeholder-mute focus:ring-2 focus:ring-link/20 focus:outline-none resize-none transition-all shadow-sm"
           required
         ></textarea>
       </div>
 
       <!-- Screenshot Upload -->
       <div>
-        <label class="block text-xs font-mono font-semibold uppercase tracking-wider text-mute mb-2">
-          Screenshot <span class="normal-case font-sans text-[10px] text-mute ml-1">(optional, max 150KB)</span>
+        <label class="block text-xs font-bold font-mono uppercase tracking-[0.2em] text-mute mb-3">
+          Screenshot <span class="normal-case font-sans text-[10px] text-mute ml-2 font-medium tracking-normal">(optional, max 150KB)</span>
         </label>
 
         <!-- Drop Zone -->
         <label
           for="screenshot-input"
           id="drop-zone"
-          class="flex flex-col items-center justify-center gap-2 w-full rounded-sm border-2 border-dashed border-hairline bg-canvas-soft-2 p-6 cursor-pointer hover:border-primary/40 hover:bg-canvas transition-all duration-200 group"
+          class="flex flex-col items-center justify-center gap-3 w-full rounded-md border-2 border-dashed border-hairline-strong bg-canvas-soft-2 p-8 cursor-pointer hover:border-link/40 hover:bg-canvas transition-all duration-300 group shadow-inner"
         >
-          <svg class="h-8 w-8 text-mute group-hover:text-ink transition-colors" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <svg class="h-10 w-10 text-mute group-hover:text-link transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <span class="text-xs text-mute group-hover:text-ink transition-colors text-center">
-            Click to upload or drag a screenshot here<br/>
-            <span class="font-mono text-[10px]">PNG, JPG, JPEG, WEBP accepted</span>
+          <span class="text-xs font-bold text-mute group-hover:text-ink transition-colors text-center uppercase tracking-tight">
+            Click to upload or drag screenshot here<br/>
+            <span class="font-mono text-[10px] normal-case opacity-70">PNG, JPG, WEBP only</span>
           </span>
           <input
             type="file"
@@ -133,16 +135,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </label>
 
         <!-- Preview Area (hidden until image selected) -->
-        <div id="screenshot-preview-area" class="hidden mt-3 rounded-sm border border-hairline bg-canvas p-3 flex items-start gap-3">
-          <img id="screenshot-thumb" src="" alt="Screenshot preview" class="w-20 h-14 object-cover rounded-sm border border-hairline flex-shrink-0" />
+        <div id="screenshot-preview-area" class="hidden mt-4 rounded-md border border-hairline-strong bg-canvas p-4 flex items-start gap-4 shadow-sm animate-fade-in">
+          <img id="screenshot-thumb" src="" alt="Screenshot preview" class="w-24 h-16 object-cover rounded-md border border-hairline-strong flex-shrink-0 shadow-sm" />
           <div class="flex flex-col gap-1 min-w-0 flex-1">
-            <span id="screenshot-name" class="text-xs font-medium text-ink truncate"></span>
-            <span id="screenshot-size" class="text-[10px] font-mono text-mute"></span>
-            <div id="screenshot-size-warning" class="hidden mt-1 rounded-sm bg-warning/10 border border-warning/20 px-2 py-1 text-[10px] text-warning font-medium">
-              ⚠ Image is large. Consider compressing it at <a href="https://squoosh.app" target="_blank" class="underline">squoosh.app</a> before uploading.
+            <span id="screenshot-name" class="text-xs font-bold text-ink truncate"></span>
+            <span id="screenshot-size" class="text-[10px] font-bold font-mono text-mute"></span>
+            <div id="screenshot-size-warning" class="hidden mt-2 rounded-md bg-warning/10 border border-warning/30 px-3 py-1.5 text-[10px] text-warning font-bold">
+              ⚠ Image is large. Consider compressing it first.
             </div>
-            <button type="button" id="remove-screenshot" class="mt-1 text-[10px] text-mute hover:text-error font-mono transition-colors cursor-pointer text-left">
-              [Remove]
+            <button type="button" id="remove-screenshot" class="mt-2 text-[10px] font-bold text-mute hover:text-error uppercase tracking-widest transition-colors cursor-pointer text-left">
+              [Remove Attachment]
             </button>
           </div>
         </div>
@@ -152,10 +154,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <button
         type="submit"
         id="submit-btn"
-        class="mt-2 h-10 w-full inline-flex items-center justify-center rounded-sm bg-primary px-4 text-sm font-semibold text-on-primary hover:bg-ink/90 transition-colors focus:outline-none cursor-pointer"
+        class="btn-primary w-full !h-12 !text-base shadow-lg"
       >
-        <span id="btn-label" class="inline-flex items-center gap-2">
-          Send Message
+        <span id="btn-label" class="inline-flex items-center gap-3">
+          Send Feedback
         </span>
       </button>
     </form>
