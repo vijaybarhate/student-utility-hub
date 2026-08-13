@@ -68,27 +68,56 @@ preflight() {
 # --- Run one milestone with retries ----------------------------------------
 run_milestone() {
   local num="$1" session="$2" label="$3"
-  local attempt prompt log_file before_commits after_commits ok=0
+  local attempt prompt log_file before_commits after_commits ok=0 session_id=""
 
-  log "== Milestone M$num ($label) — session $session =="
+  log "== Milestone M$num ($label) =="
 
   before_commits="$(git rev-list --count HEAD)"
 
+  # Locate any previous session for this milestone (so we resume, not duplicate)
+  session_id="$(opencode session list --format json -n 20 2>/dev/null | python3 -c "
+import json,sys
+try:
+    ss = json.load(sys.stdin)
+except Exception:
+    ss = []
+for s in ss:
+    if (s.get('title') or '').startswith('M$num '):
+        print(s['id']); break
+")"
+
   attempt=1
   while [ "$attempt" -le $((MAX_RETRIES + 1)) ]; do
-    log "  attempt $attempt/$((MAX_RETRIES + 1))"
+    log "  attempt $attempt/$((MAX_RETRIES + 1))${session_id:+ (resuming $session_id)}"
     log_file="$LOG_DIR/m$num-attempt$attempt.log"
 
     if [ "$attempt" -eq 1 ]; then
       prompt="Execute milestone M$num in PLAN.md. Read PLAN.md section M$num, DESIGN.md, and AGENTS.md first. Implement it fully. Then run 'npm run build' and fix any errors. Then run 'git add -A && git commit -m \"<message per plan>\"'. Reply DONE only when the build passes and the commit exists."
+      opencode run --auto -m "$MODEL" --format json --title "M$num $label" "$prompt" > "$log_file" 2>&1
     else
       prompt="Your previous attempt at milestone M$num in PLAN.md failed (review your earlier work in this session). Diagnose the failure, fix it completely, re-run 'npm run build', and commit. Reply DONE only when the build passes and a new commit exists."
+      opencode run --auto -m "$MODEL" -s "$session_id" --format json "$prompt" > "$log_file" 2>&1
+    fi
+    local run_exit=$?
+
+    # Capture the real session id after the first run
+    if [ -z "$session_id" ]; then
+      session_id="$(opencode session list --format json -n 20 2>/dev/null | python3 -c "
+import json,sys
+try:
+    ss = json.load(sys.stdin)
+except Exception:
+    ss = []
+for s in ss:
+    if (s.get('title') or '').startswith('M$num '):
+        print(s['id']); break
+")"
     fi
 
-    if opencode run --auto -m "$MODEL" -s "$session" --format json --title "M$num $label" "$prompt" > "$log_file" 2>&1; then
+    if [ "$run_exit" -eq 0 ]; then
       log "  opencode run exited 0"
     else
-      log "  opencode run exited $? (see $log_file)"
+      log "  opencode run exited $run_exit (see $log_file)"
     fi
 
     # Hard verification: build must pass AND a new commit must exist
@@ -108,13 +137,13 @@ run_milestone() {
   done
 
   if [ "$ok" -eq 1 ]; then
-    log "  Milestone M$num COMPLETED"
-    echo "M$num|$label|COMPLETED|$session|attempts=$attempt" >> "$OVERNIGHT_DIR/.results"
+    log "  Milestone M$num COMPLETED (session $session_id)"
+    echo "M$num|$label|COMPLETED|$session_id|attempts=$attempt" >> "$OVERNIGHT_DIR/.results"
   else
     log "  Milestone M$num FAILED after $attempt attempts"
-    echo "M$num|$label|FAILED|$session|attempts=$attempt" >> "$OVERNIGHT_DIR/.results"
-    { echo "## M$num — $label — FAILED (session $session)";
-      echo "Resume: opencode run -s $session \"fix the failure for milestone M$num\"";
+    echo "M$num|$label|FAILED|$session_id|attempts=$attempt" >> "$OVERNIGHT_DIR/.results"
+    { echo "## M$num — $label — FAILED (session $session_id)";
+      echo "Resume: opencode run -s $session_id \"fix the failure for milestone M$num\"";
       echo; } >> "$FAILURES_FILE"
   fi
 }
@@ -143,9 +172,9 @@ final_report() {
     while IFS='|' read -r m label status session attempts; do
       [ -n "$m" ] || continue
       if [ "$status" = "COMPLETED" ]; then
-        echo "| M$m $label | ✅ COMPLETED | \`opencode run -s $session -c\` |"
+        echo "| M$m $label | ✅ COMPLETED | ${session:+`opencode run -s $session -c`}${session:-auto-created} |"
       else
-        echo "| M$m $label | ❌ FAILED | \`opencode run -s $session \"fix M$m\"\` |"
+        echo "| M$m $label | ❌ FAILED | ${session:+`opencode run -s $session \"fix M$m\"`}${session:-see FAILURES.md} |"
       fi
     done < "$OVERNIGHT_DIR/.results"
     echo
