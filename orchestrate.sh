@@ -28,15 +28,15 @@ PUSH="${PUSH:-0}"                                 # 1 = git push to origin after
 
 mkdir -p "$LOG_DIR"
 
-# Milestones: "N|SessionId|Git commit message keyword|Short label"
+# Milestones: "N|Short label" (session ids are auto-captured from opencode)
 MILESTONES=(
-  "1|suh-m1|shared storage and format utilities|Shared utils library"
-  "2|suh-m2|exam countdown|Exam Countdown page"
-  "3|suh-m3|pomodoro study timer|Study Timer (Pomodoro) page"
-  "4|suh-m4|semester syllabus tracker|Semester Syllabus Tracker page"
-  "5|suh-m5|marks ledger|Marks Ledger page"
-  "6|suh-m6|homepage categories and sitemap|Homepage + SEO refresh"
-  "7|suh-m7|QA gate|QA gate (check, build, smoke tests)"
+  "1|Shared utils library"
+  "2|Exam Countdown page"
+  "3|Study Timer (Pomodoro) page"
+  "4|Semester Syllabus Tracker page"
+  "5|Marks Ledger page"
+  "6|Homepage + SEO refresh"
+  "7|QA gate (check, build, smoke tests)"
 )
 
 log()  { echo "[$(date '+%H:%M:%S')] $*" | tee -a "$OVERNIGHT_DIR/orchestrator.log"; }
@@ -54,7 +54,7 @@ preflight() {
   fi
 
   log "Running npm run build (preflight)..."
-  if npm run build > "$BUILD_LOG" 2>&1; then
+  if timeout 120 npm run build > "$BUILD_LOG" 2>&1; then
     log "Preflight build OK"
   else
     tail -30 "$BUILD_LOG" | tee -a "$OVERNIGHT_DIR/orchestrator.log"
@@ -67,7 +67,7 @@ preflight() {
 
 # --- Run one milestone with retries ----------------------------------------
 run_milestone() {
-  local num="$1" session="$2" label="$3"
+  local num="$1" label="$2"
   local attempt prompt log_file before_commits after_commits ok=0 session_id=""
 
   log "== Milestone M$num ($label) =="
@@ -121,7 +121,7 @@ for s in ss:
     fi
 
     # Hard verification: build must pass AND a new commit must exist
-    if npm run build > "$BUILD_LOG" 2>&1; then
+    if timeout 120 npm run build > "$BUILD_LOG" 2>&1; then
       after_commits="$(git rev-list --count HEAD)"
       if [ "$after_commits" -gt "$before_commits" ]; then
         ok=1
@@ -154,7 +154,8 @@ final_report() {
   local build_ok=0 tests_ok=0
   local results=""
 
-  npm run build > "$BUILD_LOG" 2>&1 && build_ok=1
+  # Guarded with timeout so a stuck build can never block the morning report
+  timeout 120 npm run build > "$BUILD_LOG" 2>&1 && build_ok=1
 
   tests_ok=1
   for t in tests/test-storage.cjs tests/test-format.cjs tests/test-marks.cjs; do
@@ -172,9 +173,9 @@ final_report() {
     while IFS='|' read -r m label status session attempts; do
       [ -n "$m" ] || continue
       if [ "$status" = "COMPLETED" ]; then
-        echo "| M$m $label | ✅ COMPLETED | ${session:+`opencode run -s $session -c`}${session:-auto-created} |"
+        echo "| $m $label | ✅ COMPLETED | ${session:+`opencode run -s $session -c`}${session:-auto-created} |"
       else
-        echo "| M$m $label | ❌ FAILED | ${session:+`opencode run -s $session \"fix M$m\"`}${session:-see FAILURES.md} |"
+        echo "| $m $label | ❌ FAILED | ${session:+`opencode run -s $session \"fix $m\"`}${session:-see FAILURES.md} |"
       fi
     done < "$OVERNIGHT_DIR/.results"
     echo
@@ -202,11 +203,11 @@ main() {
   preflight
 
   for entry in "${MILESTONES[@]}"; do
-    IFS='|' read -r num session label <<< "$entry"
+    IFS='|' read -r num label <<< "$entry"
     if [ -n "$ONLY_MILESTONE" ] && [ "$ONLY_MILESTONE" != "M$num" ]; then
       continue
     fi
-    run_milestone "$num" "$session" "$label"
+    run_milestone "$num" "$label"
   done
 
   final_report
@@ -220,4 +221,8 @@ main() {
   log "Read $STATUS_FILE"
 }
 
-main "$@"
+# Allow sourcing this script (e.g. `source orchestrate.sh && final_report`)
+# without auto-starting the pipeline.
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  main "$@"
+fi
